@@ -1,0 +1,227 @@
+/*
+ * Copyright 2014, NICTA
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(NICTA_BSD)
+ */
+
+import <std_connector.camkes>;
+
+import "components/uart/uart.camkes";
+import "components/gpio/gpio.camkes";
+import "components/pilot/pilot.camkes";
+import "components/VM/VM.camkes";
+import "components/pwm/pwm.camkes";
+
+component uartbase {
+    hardware;
+    dataport Buf mem;
+    emits DataAvailable	irq;
+}
+
+component gpiobase {
+    hardware;
+    dataport Buf gpio1base;
+    dataport Buf gpio2base;
+    dataport Buf clk_tree;
+}
+
+component i2c0 {
+    hardware;
+    dataport Buf i2c0_reg;
+    emits DataAvailable i2c0_int;
+}
+
+
+assembly {
+    composition {
+        component VM vm;
+        component uartbase uartbase_gcs;
+        component uartbase uartbase_px4;
+        component gpiobase gpiobase_obj;
+        component i2c0     i2c0_obj;
+
+        component gpio     gpio_obj;
+        component uart     uart_gcs;
+        component uart     uart_px4;
+        component pilot    pilot_obj;
+        component pwm      pwm_obj;
+
+    	connection seL4HardwareMMIO gpio_mem1	(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
+    	connection seL4HardwareMMIO gpio_mem2	(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
+	connection seL4HardwareMMIO gpio_clk	(from gpio_obj.clk_tree, to gpiobase_obj.clk_tree);
+
+	/* GCS hardware connection */
+        connection seL4HardwareMMIO uartbase_mem(from uart_gcs.uart0base, to uartbase_gcs.mem);
+        connection seL4HardwareInterrupt uartbase_irq(from uartbase_gcs.irq, to uart_gcs.interrupt);
+
+	/* PX4 hardware connection */
+        connection seL4HardwareMMIO uartpx4_mem(from uart_px4.uart0base, to uartbase_px4.mem);
+        connection seL4HardwareInterrupt uartpx4_irq(from uartbase_px4.irq, to uart_px4.interrupt);
+
+	/* Pilot connection */
+        connection seL4RPCCall uart_inf(from pilot_obj.uart_gcs, to uart_gcs.uart);
+        connection seL4SharedData uart_data(from pilot_obj.gcs_buf, to uart_gcs.client_buf);
+
+        connection seL4RPCCall uartpx4_inf(from pilot_obj.uart_px4, to uart_px4.uart);
+        connection seL4SharedData uartpx4_data(from pilot_obj.px4_buf, to uart_px4.client_buf);
+
+	/* Recv connection */
+        connection seL4RPCCall gcs_recv_inf(from uart_gcs.pilot, to pilot_obj.mavlink);
+        connection seL4RPCCall px4_recv_inf(from uart_px4.pilot, to pilot_obj.mavlink);
+
+        /* PWM connection */
+        connection seL4HardwareMMIO      i2c0_mem(from pwm_obj.i2c0, to i2c0_obj.i2c0_reg);
+        connection seL4HardwareInterrupt i2c0_irq(from i2c0_obj.i2c0_int, to pwm_obj.i2c0_int);
+        connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
+        connection seL4Asynch         pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
+
+	/* VM to PWM */
+        connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
+    }
+
+    configuration {
+        uartbase_gcs.mem_attributes = "0x12C30000:0x1000";
+        uartbase_gcs.irq_attributes = 86;                        //UART1 interrupt
+
+        uartbase_px4.mem_attributes = "0x12C10000:0x1000";
+        uartbase_px4.irq_attributes = 84;                        //UART1 interrupt
+
+        gpiobase_obj.gpio2base_attributes = "0x14000000:0x1000"; //GPIO
+        gpiobase_obj.gpio1base_attributes = "0x13400000:0x1000"; //GPIO
+        gpiobase_obj.clk_tree_attributes  = "0x10020000:0x1000"; //GPIO
+
+        i2c0_obj.i2c0_reg_attributes = "0x12C60000:0x1000";
+        i2c0_obj.i2c0_int_attributes = 88;
+ 
+	uart_gcs.ID = 1;
+	uart_px4.ID = 3;
+
+        vm.mmio = "0x10486000:0x1000:12";
+        vm.mmio = "0x10440000:0x1000:12";
+        vm.mmio = "0x12c20000:0x1000:12";
+        vm.mmio = "0x12dd0000:0x1000:12";
+/* linux seems need to this gpio for some reason, hopefully it doesn't cause a problem */
+        vm.mmio = "0x13400000:0x1000:12";
+        vm.mmio = "0x10040000:0x1000:12";
+        vm.mmio = "0x10020000:0x1000:12";
+        vm.mmio = "0x10014000:0x1000:12";
+        vm.mmio = "0x10000000:0x1000:12";
+        vm.mmio = "0x10010000:0x1000:12";
+        vm.mmio = "0x10030000:0x1000:12";
+        vm.mmio = "0x10038000:0x1000:12";
+        vm.mmio = "0x1001c000:0x1000:12";
+        vm.mmio = "0x10018000:0x1000:12";
+        vm.mmio = "0x10050000:0x1000:12";
+        vm.mmio = "0x12c70000:0x1000:12";
+        vm.mmio = "0x12c80000:0x1000:12";
+        vm.mmio = "0x12ca0000:0x1000:12";
+        vm.mmio = "0x12ce0000:0x1000:12";
+        vm.mmio = "0x12120000:0x1000:12";
+        vm.mmio = "0x12110000:0x1000:12";
+        vm.mmio = "0x12130000:0x1000:12";
+        vm.mmio = "0x12200000:0x1000:12";
+        vm.mmio = "0x12220000:0x1000:12";
+/*        vm.mmio = "0x14000000:0x1000:12";*/
+        vm.mmio = "0x12c00000:0x1000:12";
+/*        vm.mmio = "0x12c10000:0x1000:12";*/
+/*        vm.mmio = "0x12c30000:0x1000:12";*/
+        vm.mmio = "0x14450000:0x1000:12";
+        vm.mmio = "0x14530000:0x1000:12";
+        vm.mmio = "0x14540000:0x1000:12";
+        vm.mmio = "0x14550000:0x1000:12";
+        vm.mmio = "0x14560000:0x1000:12";
+        vm.mmio = "0x14570000:0x1000:12";
+        vm.mmio = "0x14580000:0x1000:12";
+        vm.mmio = "0x14590000:0x1000:12";
+        vm.mmio = "0x121a0000:0x1000:12";
+        vm.mmio = "0x121b0000:0x1000:12";
+        vm.mmio = "0x10800000:0x1000:12";
+        vm.mmio = "0x11c10000:0x1000:12";
+        vm.mmio = "0x10041000:0x1000:12";
+        vm.mmio = "0x3810000:0x1000:12";
+        vm.mmio = "0x10044000:0x1000:12";
+        vm.mmio = "0x10042000:0x1000:12";
+        vm.mmio = "0x10043000:0x1000:12";
+        vm.mmio = "0x10060000:0x1000:12";
+        vm.mmio = "0x10064000:0x1000:12";
+        vm.mmio = "0x10068000:0x1000:12";
+        vm.mmio = "0x1006c000:0x1000:12";
+        vm.mmio = "0x3860000:0x1000:12";
+        vm.mmio = "0x1200c000:0x1000:12";
+        vm.mmio = "0x1240c000:0x1000:12";
+        vm.mmio = "0x12100000:0x1000:12";
+        vm.mmio = "0x12000000:0x1000:12";
+        vm.mmio = "0x12500000:0x1000:12";
+        vm.mmio = "0x12400000:0x1000:12";
+//        vm.mmio = "0x12c60000:0x1000:12";
+        vm.mmio = "0x40000000:0x20000000:21";
+
+        vm.irq = "32";
+        vm.irq = "33";
+        vm.irq = "34";
+        vm.irq = "35";
+        vm.irq = "36";
+        vm.irq = "37";
+        vm.irq = "38";
+        vm.irq = "39";
+        vm.irq = "40";
+        vm.irq = "41";
+        vm.irq = "42";
+        vm.irq = "43";
+        vm.irq = "44";
+        vm.irq = "45";
+        vm.irq = "46";
+        vm.irq = "47";
+        vm.irq = "48";
+        vm.irq = "49";
+        vm.irq = "50";
+        vm.irq = "51";
+        vm.irq = "52";
+        vm.irq = "53";
+        vm.irq = "54";
+        vm.irq = "55";
+        vm.irq = "56";
+        vm.irq = "57";
+        vm.irq = "58";
+        vm.irq = "59";
+        vm.irq = "60";
+        vm.irq = "61";
+        vm.irq = "62";
+        vm.irq = "63";
+        vm.irq = "27";
+        vm.irq = "152";
+        vm.irq = "78";
+        vm.irq = "77";
+        vm.irq = "64";
+        vm.irq = "82";
+        vm.irq = "79";
+        vm.irq = "89";
+        vm.irq = "90";
+        vm.irq = "96";
+        vm.irq = "66";
+        vm.irq = "67";
+        vm.irq = "65";
+        vm.irq = "126";
+        vm.irq = "92";
+        vm.irq = "97";
+        vm.irq = "215";
+        vm.irq = "216";
+        vm.irq = "217";
+        vm.irq = "107";
+        vm.irq = "104";
+        vm.irq = "232";
+        vm.irq = "103";
+        vm.irq = "85";
+//        vm.irq =" 88";
+        vm.asid_pool = true;
+        
+        vm.simple = true;
+        vm.cnode_size_bits = 18;
+        vm.untyped24_pool = 10;
+
+    }
+}

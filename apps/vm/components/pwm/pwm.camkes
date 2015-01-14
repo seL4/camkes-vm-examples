@@ -1,0 +1,15 @@
+/* 
+ * This PPM driver only outputs PPM values received to the screen 
+ */
+
+component pwm {
+    control;
+    provides pwm_inf pwm;
+    consumes pwm_signal signal;
+
+    dataport Buf i2c0;
+    consumes DataAvailable i2c0_int;
+
+    has semaphore bus_sem;
+    has mutex set_motors;
+}
