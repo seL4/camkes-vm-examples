@@ -21,16 +21,34 @@ pilot_HFILES := \
 uart_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/uart/src/*.c))
 
+gpio_HFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/include/*.h))
 gpio_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/gpio/src/*.c))
 
 pwm_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/pwm/src/*.c))
 
+can_HFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/can/include/*.h))
+can_CFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/can/src/*.c))
+
+spi_HFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/spi/include/*.h))
+spi_CFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/spi/src/*.c))
+
+clk_HFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/clk/include/*.h))
+clk_CFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/clk/src/*.c))
 
 uart_LIBS := platsupport
 gpio_LIBS := platsupport
 pwm_LIBS  := platsupport
+spi_LIBS  := platsupport
+clk_LIBS  := platsupport
 
 VM_CFILES   := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.c))
 VM_OFILES   := archive.o
