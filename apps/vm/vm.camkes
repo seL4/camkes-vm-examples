@@ -162,7 +162,7 @@ assembly {
 	uart_px4.ID = 3;
 
         vm.mmio = "0x10486000:0x1000:12";
-//        vm.mmio = "0x10440000:0x1000:12";
+        vm.mmio = "0x10440000:0x1000:12";
         vm.mmio = "0x12c20000:0x1000:12";
         vm.mmio = "0x12dd0000:0x1000:12";
 /* linux seems need to this gpio for some reason, hopefully it doesn't cause a problem */
