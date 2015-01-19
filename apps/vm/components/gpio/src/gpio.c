@@ -200,7 +200,7 @@ void pre_init(void) {
     gpio_set(&o_spi_ext_nss);
     /* SPI private IRQ */
     gpio_new(&gpio_sys, CAN_INTn,    GPIO_DIR_IRQ_FALL, &i_spi_can_int);
-    gpio_new(&gpio_sys, MPU_INT,     GPIO_DIR_IRQ_FALL, &i_spi_mpu_int);
+    //gpio_new(&gpio_sys, MPU_INT,     GPIO_DIR_IRQ_FALL, &i_spi_mpu_int);
     //gpio_new(&gpio_sys, ACC_INT,     GPIO_DIR_IRQ_FALL, &i_spi_acc_int);
     //gpio_new(&gpio_sys, MAG_INT,     GPIO_DIR_IRQ_FALL, &i_spi_mag_int);
     //gpio_new(&gpio_sys, GYRO_INT,    GPIO_DIR_IRQ_FALL, &i_spi_gyro_int);
