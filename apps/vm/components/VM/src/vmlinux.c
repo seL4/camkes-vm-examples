@@ -70,7 +70,7 @@ static const struct device *linux_pt_devices[] = {
 
 static const int linux_pt_irqs[] = {
     27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+    50, 51, 52, 53, 54, 55, 56, 57, 59, 61, 62, 65, 66, 67,
     77, 78, 79, 82, 85, 89, 90, 92, 96, 97, 103, 104, 107, 109, 126, 152,
     215, 216, 217, 232
 };
@@ -245,7 +245,7 @@ route_irqs(vm_t* vm, irq_server_t irq_server)
         }
         irq_data = irq_server_register_irq(irq_server, irq, handler, NULL);
         if (!irq_data) {
-            return -1;
+            continue;
         }
         virq = vm_virq_new(vm, irq, &do_irq_server_ack, irq_data);
         if (virq == NULL) {
