@@ -31,6 +31,7 @@
 #include <cpio/cpio.h>
 
 #include <sel4arm-vmm/vm.h>
+#include <sel4utils/irq_server.h>
 
 #include "vmlinux.h"
 
@@ -39,6 +40,10 @@
 #define VM_LINUX_NAME       "linux"
 #define VM_LINUX_DTB_NAME   "linux-dtb"
 #define VM_NAME             "Linux"
+
+#define IRQSERVER_PRIO      (VM_PRIO + 1)
+#define IRQ_MESSAGE_LABEL   0xCAFE
+
 
 #ifndef DEBUG_BUILD
 #define seL4_DebugHalt() do{ printf("Halting...\n"); while(1); } while(0)
@@ -51,7 +56,7 @@ sel4utils_alloc_data_t _alloc_data;
 allocman_t *allocman;
 static char allocator_mempool[8388608];
 seL4_CPtr _fault_endpoint;
-
+irq_server_t _irq_server;
 
 struct ps_io_ops _io_ops;
 
@@ -134,6 +139,13 @@ vmm_init(void)
     assert(!err);
     _fault_endpoint = fault_ep_obj.cptr;
 
+    /* Create an IRQ server */
+    err = irq_server_new(vspace, vka, simple_get_cnode(simple), IRQSERVER_PRIO,
+                         simple, fault_ep_obj.cptr,
+                         IRQ_MESSAGE_LABEL, 256, &_irq_server);
+    assert(!err);
+
+
     return 0;
 }
 
@@ -168,7 +180,7 @@ map_unity_ram(vm_t* vm)
 int
 main_continued(void)
 {
-    struct vm vm;
+    vm_t vm;
     int err;
 
     err = vmm_init();
@@ -212,13 +224,25 @@ main_continued(void)
         seL4_Word sender_badge;
 
         tag = seL4_Wait(_fault_endpoint, &sender_badge);
-        assert(sender_badge == VM_BADGE);
+        if (sender_badge == 0) {
+            seL4_Word label;
+            label = seL4_MessageInfo_get_label(tag);
+            if (label == IRQ_MESSAGE_LABEL) {
+                irq_server_handle_irq_ipc(_irq_server);
+            } else {
+                printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
+            }
 
-        err = vm_event(&vm, tag);
-        if (err) {
-            /* Shutdown */
-            vm_stop(&vm);
-            seL4_DebugHalt();
+        } else {
+            assert(sender_badge == VM_BADGE);
+
+            err = vm_event(&vm, tag);
+            if (err) {
+                /* Shutdown */
+                vm_stop(&vm);
+                seL4_DebugHalt();
+                while (1);
+            }
         }
     }
 

@@ -17,6 +17,7 @@
 #include <sel4arm-vmm/vm.h>
 #include <sel4arm-vmm/images.h>
 #include <sel4arm-vmm/exynos/devices.h>
+#include <sel4utils/irq_server.h>
 
 #include <cpio/cpio.h>
 
@@ -33,15 +34,12 @@ extern char _cpio_archive[];
 
 extern vka_t _vka;
 extern vspace_t _vspace;
+extern irq_server_t _irq_server;
 
 static const struct device *linux_pt_devices[] = {
     &dev_ps_pwm_timer,
     &dev_ps_chip_id,
-    &dev_i2c1,
-    &dev_i2c2,
     &dev_i2c4,
-    &dev_i2chdmi,
-    &dev_usb2_ohci,
     &dev_usb2_ehci,
     &dev_usb2_ctrl,
     &dev_ps_msh0,
@@ -50,6 +48,11 @@ static const struct device *linux_pt_devices[] = {
 /*    &dev_uart1,*/
     //&dev_uart2, /* Console */
 /*    &dev_uart3,*/
+#if 1
+    &dev_i2c1,
+    &dev_i2c2,
+    &dev_i2chdmi,
+    &dev_usb2_ohci,
     &dev_ps_tx_mixer,
     &dev_ps_hdmi0,
     &dev_ps_hdmi1,
@@ -62,6 +65,14 @@ static const struct device *linux_pt_devices[] = {
     &dev_ps_pdma1,
     &dev_ps_mdma0,
     &dev_ps_mdma1,
+#endif
+};
+
+static const int linux_pt_irqs[] = {
+    27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
+    50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+    77, 78, 79, 82, 85, 89, 90, 92, 96, 97, 103, 104, 107, 109, 126, 152,
+    215, 216, 217, 232
 };
 
 struct pwr_token {
@@ -93,17 +104,17 @@ vm_reboot_cb(vm_t* vm, void* token)
 #if 0
     entry = install_linux_kernel(vm, pwr_token->linux_bin);
     dtb_addr = install_linux_dtb(vm, pwr_token->device_tree);
-    if(entry == NULL || dtb_addr == 0){
+    if (entry == NULL || dtb_addr == 0) {
         printf("Failed to reload linux\n");
         return -1;
     }
     err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb_addr);
-    if(err){
+    if (err) {
         printf("Failed to set boot args\n");
         return -1;
     }
     err = vm_start(vm);
-    if(err){
+    if (err) {
         printf("Failed to restart linux\n");
         return -1;
     }
@@ -157,6 +168,18 @@ install_linux_devices(vm_t* vm)
     assert(gpio_dev);
     clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
     assert(clock_dev);
+
+#if 0
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 0));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 1));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 2));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 3));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 4));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 5));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 6));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 7));
+#endif
+
     vm_clock_restrict(clock_dev, CLK_UART0);
     vm_clock_restrict(clock_dev, CLK_UART1);
     vm_clock_restrict(clock_dev, CLK_UART3);
@@ -173,9 +196,63 @@ install_linux_devices(vm_t* vm)
     /* Install pass through devices */
     for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
-//        assert(!err);
     }
 
+    return 0;
+}
+
+static void
+do_irq_server_ack(void* token)
+{
+    struct irq_data* irq_data = (struct irq_data*)token;
+    irq_data_ack_irq(irq_data);
+}
+
+static void
+irq_handler(struct irq_data* irq_data)
+{
+    virq_handle_t virq;
+    int err;
+    virq = (virq_handle_t)irq_data->token;
+    err = vm_inject_IRQ(virq);
+    assert(!err);
+}
+
+static void
+vcombiner_irq_handler(struct irq_data* irq)
+{
+    vm_t* vm;
+    assert(irq);
+    vm = (vm_t*)irq->token;
+    vm_combiner_irq_handler(vm, irq->irq);
+    irq_data_ack_irq(irq);
+}
+
+static int
+route_irqs(vm_t* vm, irq_server_t irq_server)
+{
+    int i;
+    for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
+        irq_t irq = linux_pt_irqs[i];
+        struct irq_data* irq_data;
+        virq_handle_t virq;
+        void (*handler)(struct irq_data*);
+        if (irq >= 32 && irq <= 63) {
+            /* IRQ combiner IRQs must be handled by the combiner directly */
+            handler = &vcombiner_irq_handler;
+        } else {
+            handler = &irq_handler;
+        }
+        irq_data = irq_server_register_irq(irq_server, irq, handler, NULL);
+        if (!irq_data) {
+            return -1;
+        }
+        virq = vm_virq_new(vm, irq, &do_irq_server_ack, irq_data);
+        if (virq == NULL) {
+            return -1;
+        }
+        irq_data->token = (void*)virq;
+    }
     return 0;
 }
 
@@ -257,6 +334,11 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
     err = install_linux_devices(vm);
     if (err) {
         printf("Error: Failed to install Linux devices\n");
+        return -1;
+    }
+    /* Route IRQs */
+    err = route_irqs(vm, _irq_server);
+    if (err) {
         return -1;
     }
     /* Load kernel */
