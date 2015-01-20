@@ -212,6 +212,8 @@ static void irq_handler(void *arg UNUSED)
 
 	if (flags & RXIF_MASK) {
 		receive_message(flags & RXIF_MASK);
+		/* XXX: Test */
+		m_test_unlock();
 	}
 
 	Int_reg_callback(irq_handler, NULL);

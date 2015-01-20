@@ -57,6 +57,15 @@ void can_recv(struct can_frame *frame)
 	while (rx_queue_pop(frame) == NULL);
 }
 
+int can_try_recv(struct can_frame *frame)
+{
+	if (rx_queue_pop(frame) == NULL) {
+		return -1;
+	};
+
+	return 0;
+}
+
 int can_set_filter(struct can_id id, unsigned int mask)
 {
 	int ret;

@@ -12,7 +12,9 @@ import "../../interfaces/spi.idl4";
 import "../../interfaces/can.idl4"; 
 
 component can {
-//	control;
+	control;
+	has mutex m_test;
+
        	provides can_inf can;
 //	maybe dataport Buf	can_buf;
 

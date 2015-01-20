@@ -47,6 +47,7 @@ int run(void)
 	tx.data[7] = 0x01;
 
 	while (1) {
+		m_test_lock();
 		/* Send message */
 		can_send(tx);
 		printf("Send: error(%d), id(%x), data(%x, %x, %x, %x, %x, %x, %x, %x)\n",
@@ -57,11 +58,13 @@ int run(void)
 		tx.ident.id++;
 
 		/* Receive message */
-		can_recv(&rx);
-		printf("Recv: error(%d), id(%x), data(%x, %x, %x, %x, %x, %x, %x, %x)\n",
-			error, rx.ident.id,
-			rx.data[0], rx.data[1], rx.data[2], rx.data[3],
-			rx.data[4], rx.data[5], rx.data[6], rx.data[7]);
+		error = can_try_recv(&rx);
+		if (!error) {
+			printf("Recv: error(%d), id(%x), data(%x, %x, %x, %x, %x, %x, %x, %x)\n",
+				error, rx.ident.id,
+				rx.data[0], rx.data[1], rx.data[2], rx.data[3],
+				rx.data[4], rx.data[5], rx.data[6], rx.data[7]);
+		}
 	}
 
 	return 0;
