@@ -183,6 +183,7 @@ static void receive_message(uint8_t rx)
  *       the interrupts won't help, CANINTF is independent to CANINTE,
  *       it will change anyway.
  */
+int count = 100;
 static void irq_handler(void *arg UNUSED)
 {
 	uint8_t flags;
@@ -192,6 +193,7 @@ static void irq_handler(void *arg UNUSED)
 
 	if (flags & CANINTF_MERRF) {
 		report_message_error();
+		count--;
 	}
 
 	if (flags & CANINTF_WAKIF) {
@@ -214,6 +216,11 @@ static void irq_handler(void *arg UNUSED)
 		receive_message(flags & RXIF_MASK);
 		/* XXX: Test */
 		m_test_unlock();
+	}
+
+	if (count <= 0) {
+		printf("Disable CAN driver. Check your CAN connection!\n");
+		disable_intrrupt();
 	}
 
 	Int_reg_callback(irq_handler, NULL);
@@ -241,6 +248,14 @@ void enable_intrrupt(void)
 	mcp2515_write_reg(CANINTE, val);
 
 	Int_reg_callback(irq_handler, NULL);
+}
+
+/**
+ * Disable all interrupts.
+ */
+void disable_intrrupt(void)
+{
+	mcp2515_write_reg(CANINTE, 0);
 }
 
 /**

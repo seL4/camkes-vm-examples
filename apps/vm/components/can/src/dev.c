@@ -13,6 +13,7 @@
 #include <mcp2515.h>
 #include <queue.h>
 
+#include <utils.h>
 #include <can.h>
 
 #define MSG_QUEUE_SIZE  128
@@ -28,9 +29,18 @@ int can_setup(int baudrate)
 	mcp2515_reset();
 
 	/* Wait until reset finishes. */
+	int count = 100;
 	while (1) {
 		if (get_mode() == REQOP_CONFIG) {
 			break;
+		}
+		else {
+			udelay(1);
+			count--;
+		}
+		if (count <= 0) {
+			printf("CAN controller not responding. Check daughter board connection!\n");
+			return -1;
 		}
 	}
 

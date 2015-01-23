@@ -173,6 +173,7 @@ void clear_filter_mask(uint8_t rxb_idx);
 
 /* Interrupt functions */
 void enable_intrrupt(void);
+void disable_intrrupt(void);
 void start_xmit(void);
 
 #endif
