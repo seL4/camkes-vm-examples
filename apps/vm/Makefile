@@ -45,11 +45,15 @@ clk_HFILES := \
 clk_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/clk/src/*.c))
 
+timer_CFILES := \
+    $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/timer/src/*.c))
+
 uart_LIBS := platsupport
 gpio_LIBS := platsupport
 pwm_LIBS  := platsupport
 spi_LIBS  := platsupport
 clk_LIBS  := platsupport
+timer_LIBS  := platsupport
 
 VM_CFILES   := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.c))
 VM_OFILES   := archive.o

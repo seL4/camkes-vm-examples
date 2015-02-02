@@ -18,6 +18,7 @@ import "components/pwm/pwm.camkes";
 import "components/spi/spi.camkes";
 import "components/can/can.camkes";
 import "components/clk/clk.camkes";
+import "components/timer/timer.camkes";
 
 component uartbase {
     hardware;
@@ -66,6 +67,7 @@ assembly {
         component i2c0     i2c0_obj;
 	component spibase  spibase_obj;
         component clkbase   clkbase_obj;
+        component timerbase timerbase_obj;
 
         component gpio     gpio_obj;
         component uart     uart_gcs;
@@ -74,7 +76,8 @@ assembly {
         component pwm      pwm_obj;
 	component spi      spi_obj;
 	component can      can_obj;
-        component clk       clk_obj;
+        component clk      clk_obj;
+        component timer	   timer_obj;
 
         connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
         connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
@@ -128,6 +131,10 @@ assembly {
         connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
         connection seL4Asynch         pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
 
+	/* PWM timer connections */
+        connection seL4HardwareMMIO timer_mem(from timer_obj.timerbase, to timerbase_obj.timer_reg);
+        connection seL4HardwareInterrupt timer_irq(from timerbase_obj.irq, to timer_obj.irq);
+
 	/* VM to PWM */
         connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
     }
@@ -158,6 +165,9 @@ assembly {
         i2c0_obj.i2c0_reg_attributes = "0x12C60000:0x1000";
         i2c0_obj.i2c0_int_attributes = 88;
  
+        timerbase_obj.timer_reg_attributes     = "0x12DD0000:0x1000";	//PWM timers
+        timerbase_obj.irq_attributes	       = 72;			//Timer interrupt
+
 	uart_gcs.ID = 1;
 	uart_px4.ID = 3;
 
