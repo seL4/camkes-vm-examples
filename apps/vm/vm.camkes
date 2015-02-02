@@ -285,5 +285,6 @@ assembly {
         vm.cnode_size_bits = 18;
         vm.untyped24_pool = 10;
 
+	vm._control_priority = 100;
     }
 }

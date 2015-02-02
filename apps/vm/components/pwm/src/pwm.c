@@ -289,9 +289,11 @@ void pwm_signal(void *arg)
 		level = 4095;
 	}
 
-	for (int led = 1; led < NLEDS - 1; led++) {
+	sig_lock();
+	for (int led = 2; led < NLEDS - 1; led += 3) {
 		pwm_set_led(led, level);
 	}
+	sig_unlock();
 
 	if (++counter == 16) {
 		counter = 0;
@@ -300,19 +302,25 @@ void pwm_signal(void *arg)
 	signal_reg_callback(pwm_signal, NULL);
 }
 
-void pwm_vsig(int val)
+void pwm_vmsig(int val)
 {
-	int level;
+	int led = 0;
 
-	while(true) {
-		pwm_set_led(1, 10);
-		pwm_set_led(NLEDS - 1, 10);
-		ps_mdelay(100);
-
-		pwm_set_led(1, 4000);
-		pwm_set_led(NLEDS - 1, 4000);
-		ps_mdelay(100);
+	if (val < 0) {
+		led = 1;
+		val = 0;
 	}
+
+	if (val > 4096) {
+		led = 1;
+		val = 4095;
+	}
+
+	sig_lock();
+	for (; led < NLEDS; led += 3) {
+		pwm_set_led(led, val);
+	}
+	sig_unlock();
 }
 
 /* This should become a self test, for now does init as well */
@@ -320,6 +328,11 @@ int run ()
 {
     // A hack since the interrupts in camkes init functions don't seem to trigger
     init_pwm_driver();
+
+    for (int led = 0; led < NLEDS; led++) {
+	    pwm_set_led(led, 4095);
+    }
+
     signal_reg_callback(pwm_signal, NULL);
 
     return 0;
@@ -345,8 +358,4 @@ int run ()
     }
 #endif
     return 0;
-}
-
-void pwm_vmsig(int data){
-    printf("VM SIGNAL 0x%x\n", data);
 }

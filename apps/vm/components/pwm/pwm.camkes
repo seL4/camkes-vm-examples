@@ -12,4 +12,6 @@ component pwm {
 
     has semaphore bus_sem;
     has mutex set_motors;
+
+    has mutex sig;
 }

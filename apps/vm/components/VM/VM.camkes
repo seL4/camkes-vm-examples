@@ -11,4 +11,5 @@
 component VM {
     control;
     uses pwm_inf pwm;
+    has semaphore vm_sem;
 }
