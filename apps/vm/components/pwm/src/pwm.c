@@ -302,25 +302,33 @@ void pwm_signal(void *arg)
 	signal_reg_callback(pwm_signal, NULL);
 }
 
-void pwm_vmsig(int val)
+unsigned int cnt = 0;
+void timer_update_callback(void *arg)
 {
-	int led = 0;
+	int level;
 
-	if (val < 0) {
-		led = 1;
-		val = 0;
-	}
-
-	if (val > 4096) {
-		led = 1;
-		val = 4095;
+	if (cnt % 2) {
+		level = 0;
+	} else {
+		level = 4095;
 	}
 
 	sig_lock();
-	for (; led < NLEDS; led += 3) {
-		pwm_set_led(led, val);
+	for (int led = 0; led < NLEDS - 1; led += 3) {
+		pwm_set_led(led, level);
 	}
 	sig_unlock();
+
+	if (++cnt == 16) {
+		cnt = 0;
+	}
+
+	timer_update_reg_callback(timer_update_callback, NULL);
+}
+
+void pwm_vmsig(int val)
+{
+	timer_update_reg_callback(timer_update_callback, NULL);
 }
 
 /* This should become a self test, for now does init as well */

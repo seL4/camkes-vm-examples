@@ -129,7 +129,8 @@ assembly {
         connection seL4HardwareMMIO      i2c0_mem(from pwm_obj.i2c0, to i2c0_obj.i2c0_reg);
         connection seL4HardwareInterrupt i2c0_irq(from i2c0_obj.i2c0_int, to pwm_obj.i2c0_int);
         connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
-        connection seL4Asynch         pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
+        connection seL4Asynch pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
+        connection seL4Asynch pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
 
 	/* PWM timer connections */
         connection seL4HardwareMMIO timer_mem(from timer_obj.timerbase, to timerbase_obj.timer_reg);

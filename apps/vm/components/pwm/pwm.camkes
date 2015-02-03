@@ -6,6 +6,7 @@ component pwm {
     control;
     provides pwm_inf pwm;
     consumes pwm_signal signal;
+    consumes timer_evt timer_update;
 
     dataport Buf i2c0;
     consumes DataAvailable i2c0_int;
