@@ -297,5 +297,6 @@ assembly {
         vm.untyped24_pool = 10;
 
 	vm._control_priority = 101;
+	vm.sem_value = 0;
     }
 }

@@ -99,9 +99,7 @@ vm_reboot_cb(vm_t* vm, void* token)
     int err;
     printf("Received reboot from linux\n");
 
-    pwm_vmsig(5000);
     pwm_vmsig(0);
-    vm_sem_wait();
     vm_sem_wait();
 
     return 0;

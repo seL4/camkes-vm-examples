@@ -281,7 +281,7 @@ void pwm_signal(void *arg)
 {
 	int level;
 
-	printf("Signal from Pilot!\n");
+//	printf("Signal from Pilot!\n");
 
 	if (counter % 2) {
 		level = 0;
@@ -328,7 +328,16 @@ void timer_update_callback(void *arg)
 
 void pwm_vmsig(int val)
 {
-	timer_update_reg_callback(timer_update_callback, NULL);
+	if (!val) {
+		timer_update_reg_callback(timer_update_callback, NULL);
+	} else {
+		val = val < 0 ? 0 : 4095;
+		sig_lock();
+		for (int led = 1; led < NLEDS - 1; led += 3) {
+			pwm_set_led(led, val);
+		}
+		sig_unlock();
+	}
 }
 
 /* This should become a self test, for now does init as well */
