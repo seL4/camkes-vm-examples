@@ -17,6 +17,8 @@
 #include <sel4arm-vmm/vm.h>
 #include <sel4arm-vmm/images.h>
 #include <sel4arm-vmm/exynos/devices.h>
+#include <sel4arm-vmm/devices/vgic.h>
+#include <sel4arm-vmm/devices/vram.h>
 #include <sel4utils/irq_server.h>
 
 #include <cpio/cpio.h>
@@ -42,8 +44,8 @@ static const struct device *linux_pt_devices[] = {
     &dev_i2c4,
     &dev_usb2_ehci,
     &dev_usb2_ctrl,
-    &dev_ps_msh0,
-    &dev_ps_msh2,
+    &dev_msh0,
+    &dev_msh2,
     &dev_uart0,
 /*    &dev_uart1,*/
     //&dev_uart2, /* Console */
@@ -130,11 +132,11 @@ vm_reboot_cb(vm_t* vm, void* token)
 
 static int
 pwmsig_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
-    uint32_t data = fault->data;
+    uint32_t data = fault_get_data(fault);
     ignore_fault(fault);
 //    printf("IN VM, GOT PWM SIGNAL 0x%x\n", data);
 //    fflush(stdout);
-    pwm_vmsig(fault->data);
+    pwm_vmsig(data);
     return 0;
 }
 
