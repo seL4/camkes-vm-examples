@@ -39,6 +39,7 @@ menu "Libraries"
     source "libs/libsel4simple-default/Kconfig"
     source "libs/libsel4arm-vmm/Kconfig"
     source "libs/libsel4allocman/Kconfig"
+    source "libs/libusbdrivers/Kconfig"
 endmenu
 
 menu "Applications"

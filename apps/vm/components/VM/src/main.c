@@ -32,6 +32,7 @@
 
 #include <sel4arm-vmm/vm.h>
 #include <sel4utils/irq_server.h>
+#include <dma/dma.h>
 
 #include "vmlinux.h"
 
@@ -44,6 +45,7 @@
 #define IRQSERVER_PRIO      (VM_PRIO + 1)
 #define IRQ_MESSAGE_LABEL   0xCAFE
 
+#define DMA_VSTART  0x40000000
 
 #ifndef DEBUG_BUILD
 #define seL4_DebugHalt() do{ printf("Halting...\n"); while(1); } while(0)
@@ -89,6 +91,65 @@ print_cpio_info(void)
 
 void camkes_make_simple(simple_t *simple);
 
+static int
+_dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor* dma_desc)
+{
+    static uint32_t _vaddr = DMA_VSTART;
+    struct seL4_ARM_Page_GetAddress getaddr_ret;
+    seL4_CPtr frame;
+    seL4_CPtr pd;
+    vka_t* vka;
+    int err;
+
+    pd = simple_get_pd(&_simple);
+    vka = &_vka;
+
+    /* Create a frame */
+    frame = vka_alloc_frame_leaky(vka, 12);
+    assert(frame);
+    if (!frame) {
+        return -1;
+    }
+
+    /* Try to map the page */
+    err = seL4_ARM_Page_Map(frame, pd, _vaddr, seL4_AllRights, 0);
+    if (err) {
+        seL4_CPtr pt;
+        /* Allocate a page table */
+        pt = vka_alloc_page_table_leaky(vka);
+        if (!pt) {
+            printf("Failed to create page table\n");
+            return -1;
+        }
+        /* Map the page table */
+        err = seL4_ARM_PageTable_Map(pt, pd, _vaddr, 0);
+        if (err) {
+            printf("Failed to map page table\n");
+            return -1;
+        }
+        /* Try to map the page again */
+        err = seL4_ARM_Page_Map(frame, pd, _vaddr, seL4_AllRights, 0);
+        if (err) {
+            printf("Failed to map page\n");
+            return -1;
+        }
+
+    }
+
+    /* Find the physical address of the page */
+    getaddr_ret = seL4_ARM_Page_GetAddress(frame);
+    assert(!getaddr_ret.error);
+    /* Setup dma memory description */
+    dma_desc->vaddr = _vaddr;
+    dma_desc->paddr = getaddr_ret.paddr;
+    dma_desc->cached = 0;
+    dma_desc->size_bits = 12;
+    dma_desc->alloc_cookie = (void*)frame;
+    dma_desc->cookie = NULL;
+    /* Advance the virtual address marker */
+    _vaddr += BIT(12);
+    return 0;
+}
 
 static int
 vmm_init(void)
@@ -134,7 +195,15 @@ vmm_init(void)
                                         &_io_ops.io_mapper);
     assert(!err);
 
-    /* Allocate a endpoint for listening to events */
+    /* Initialise MUX subsystem */
+    err = mux_sys_init(&_io_ops, &_io_ops.mux_sys);
+    assert(!err);
+
+    /* Initialise DMA */
+    err = dma_dmaman_init(&_dma_morecore, NULL, &_io_ops.dma_manager);
+    assert(!err);
+
+    /* Allocate an endpoint for listening to events */
     err = vka_alloc_endpoint(vka, &fault_ep_obj);
     assert(!err);
     _fault_endpoint = fault_ep_obj.cptr;
@@ -232,7 +301,8 @@ main_continued(void)
             } else {
                 printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
             }
-
+        } else if (sender_badge == VUSB_NBADGE) {
+            vusb_notify();
         } else {
             assert(sender_badge == VM_BADGE);
 

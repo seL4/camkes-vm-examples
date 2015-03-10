@@ -19,6 +19,7 @@
 #include <sel4arm-vmm/exynos/devices.h>
 #include <sel4arm-vmm/devices/vgic.h>
 #include <sel4arm-vmm/devices/vram.h>
+#include <sel4arm-vmm/devices/vusb.h>
 #include <sel4utils/irq_server.h>
 
 #include <cpio/cpio.h>
@@ -37,24 +38,29 @@ extern char _cpio_archive[];
 extern vka_t _vka;
 extern vspace_t _vspace;
 extern irq_server_t _irq_server;
+extern seL4_CPtr _fault_endpoint;
 
 static const struct device *linux_pt_devices[] = {
-    &dev_ps_pwm_timer,
     &dev_ps_chip_id,
+    &dev_msh0,
+    &dev_msh2,
+#ifndef CONFIG_APP_LINUX_SECURE
+    &dev_alive,
+    &dev_sysreg,
+    &dev_gpio_left,
+    &dev_gpio_right,
+    &dev_ps_pwm_timer,
     &dev_i2c4,
     &dev_usb2_ehci,
     &dev_usb2_ctrl,
-    &dev_msh0,
-    &dev_msh2,
-    &dev_uart0,
-/*    &dev_uart1,*/
-    //&dev_uart2, /* Console */
-/*    &dev_uart3,*/
-#if 1
     &dev_i2c1,
     &dev_i2c2,
     &dev_i2chdmi,
     &dev_usb2_ohci,
+    &dev_uart0,
+    &dev_uart1,
+    //&dev_uart2, /* Console */
+    &dev_uart3,
     &dev_ps_tx_mixer,
     &dev_ps_hdmi0,
     &dev_ps_hdmi1,
@@ -72,9 +78,12 @@ static const struct device *linux_pt_devices[] = {
 
 static const int linux_pt_irqs[] = {
     27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 59, 61, 62, 65, 66, 67,
-    77, 78, 79, 82, 85, 89, 90, 92, 96, 97, 103, 104, 107, 109, 126, 152,
-    215, 216, 217, 232
+    50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
+    77, 78, 79, 82, 85, 88, 89, 90, 92, 96, 97, 104, 107, 109, 126, 152,
+    215, 216, 217, 232,
+#if !defined(CONFIG_APP_SEL4ARMVMM_HAVE_VUSB)
+    103
+#endif
 };
 
 struct pwr_token {
@@ -150,11 +159,132 @@ struct device pwmsig_dev = {
     };
 
 
+#if defined CONFIG_APP_SEL4ARMVMM_HAVE_VUSB
+
+static vusb_device_t* _vusb;
+static usb_host_t _hcd;
+
+static void
+usb_irq_handler(struct irq_data* irq_data)
+{
+    usb_host_t* hcd = (usb_host_t*)irq_data->token;
+    usb_hcd_handle_irq(hcd);
+    irq_data_ack_irq(irq_data);
+}
+
+static int
+install_vusb(vm_t* vm)
+{
+    irq_server_t irq_server;
+    ps_io_ops_t* io_ops;
+    vusb_device_t* vusb;
+    usb_host_t* hcd;
+    struct irq_data* irq_data;
+    seL4_CPtr vmm_ep;
+    int err;
+    irq_server = _irq_server;
+    io_ops = vm->io_ops;
+    hcd = &_hcd;
+    vmm_ep = _fault_endpoint;
+
+    /* Initialise the physical host controller */
+    err = usb_host_init(USB_HOST_DEFAULT, io_ops, hcd);
+    assert(!err);
+    if (err) {
+        return -1;
+    }
+
+    /* Route physical IRQs */
+    irq_data = irq_server_register_irq(irq_server, 103, usb_irq_handler, hcd);
+    if (!irq_data) {
+        return -1;
+    }
+    /* Install the virtual device */
+    vusb = vm_install_vusb(vm, hcd, VUSB_ADDRESS, VUSB_IRQ, vmm_ep, VUSB_NINDEX,
+                           VUSB_NBADGE);
+    assert(vusb != NULL);
+    if (vusb == NULL) {
+        return -1;
+    }
+    _vusb = vusb;
+
+    return 0;
+}
+
+void
+vusb_notify(void)
+{
+    vm_vusb_notify(_vusb);
+}
+
+#else /* CONFIG_APP_SEL4ARMVMM_HAVE_VUSB */
+
+static int
+install_vusb(vm_t* vm)
+{
+    /* Linux phy initialisation seems to be buggy when booting over TFTPBOOT
+     * Initialise the phy for Linux here */
+    usb_host_t hcd;
+    usb_host_init(USB_HOST_DEFAULT, vm->io_ops, &hcd);
+    return 0;
+}
+
+void
+vusb_notify(void)
+{
+}
+
+#endif /* CONFIG_APP_SEL4ARMVMM_HAVE_VUSB */
+
+void
+configure_gpio(vm_t *vm)
+{
+#ifdef CONFIG_APP_LINUX_SECURE
+    /* Don't provide any access to GPIO/MUX */
+#else /* CONFIG_APP_LINUX_SECURE */
+    /* Provide GPIOS */
+    struct gpio_device* gpio_dev;
+    gpio_dev = vm_install_ac_gpio(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
+    assert(gpio_dev);
+#if 0
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 0));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 1));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 2));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 3));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 4));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 5));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 6));
+    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 7));
+#endif
+#endif /* CONFIG_APP_LINUX_SECURE */
+}
+void
+configure_clocks(vm_t *vm)
+{
+    struct clock_device* clock_dev;
+#ifdef CONFIG_APP_LINUX_SECURE
+    clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_DENY, VACDEV_REPORT_AND_MASK);
+    assert(clock_dev);
+    vm_clock_provide(clock_dev, CLK_MMC0);
+    vm_clock_provide(clock_dev, CLK_MMC2);
+    vm_clock_provide(clock_dev, CLK_SCLKVPLL);
+    vm_clock_provide(clock_dev, CLK_SCLKGPLL);
+    vm_clock_provide(clock_dev, CLK_SCLKCPLL);
+#else /* CONFIG_APP_LINUX_SECURE */
+    clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
+    assert(clock_dev);
+    vm_clock_restrict(clock_dev, CLK_UART0);
+    vm_clock_restrict(clock_dev, CLK_UART1);
+    vm_clock_restrict(clock_dev, CLK_UART2);
+    vm_clock_restrict(clock_dev, CLK_UART3);
+    vm_clock_restrict(clock_dev, CLK_I2C0);
+    vm_clock_restrict(clock_dev, CLK_SPI1);
+#endif /* CONFIG_APP_LINUX_SECURE */
+}
+
 static int
 install_linux_devices(vm_t* vm)
 {
-    struct gpio_device* gpio_dev;
-    struct clock_device* clock_dev;
     int err;
     int i;
     /* Install virtual devices */
@@ -166,34 +296,24 @@ install_linux_devices(vm_t* vm)
     assert(!err);
     err = vm_install_vmct(vm);
     assert(!err);
+
+#if CONFIG_APP_LINUX_SECURE
+    /* Add hooks for specific power management hooks */
     err = vm_install_vpower(vm, &vm_shutdown_cb, &pwr_token, &vm_reboot_cb, &pwr_token);
     assert(!err);
-    err = vm_install_vsysreg(vm);
+    /* Install virtual USB */
+    err = install_vusb(vm);
     assert(!err);
-
-    gpio_dev = vm_install_ac_gpio(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
-    assert(gpio_dev);
-    clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
-    assert(clock_dev);
-
 #if 0
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 0));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 1));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 2));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 3));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 4));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 5));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 6));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 7));
+    /* Install SDHC controller with DMA restricted */
+    err = vm_install_nodma_sdhc2(vm);
+    assert(!err);
 #endif
+#endif /* CONFIG_APP_LINUX_SECURE */
+    configure_gpio(vm);
+    configure_clocks(vm);
 
-    vm_clock_restrict(clock_dev, CLK_UART0);
-    vm_clock_restrict(clock_dev, CLK_UART1);
-    vm_clock_restrict(clock_dev, CLK_UART3);
-    vm_clock_restrict(clock_dev, CLK_I2C0);
-    vm_clock_restrict(clock_dev, CLK_SPI1);
-
-    err = vm_install_passthrough_device(vm, &dev_vconsole);
+    err = vm_install_ac_uart(vm, &dev_vconsole);
     assert(!err);
 
     /* Device for signalling to the VM */
@@ -256,7 +376,7 @@ route_irqs(vm_t* vm, irq_server_t irq_server)
         }
         virq = vm_virq_new(vm, irq, &do_irq_server_ack, irq_data);
         if (virq == NULL) {
-            return -1;
+            continue;
         }
         irq_data->token = (void*)virq;
     }

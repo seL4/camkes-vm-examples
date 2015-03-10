@@ -61,7 +61,7 @@ VM_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/VM
 VM_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
             platsupport sel4platsupport sel4vspace elf \
             sel4utils sel4simple utils  sel4simple-default cpio \
-            sel4arm-vmm sel4sync sel4debug
+            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers
 
 include ${PWD}/tools/camkes/camkes.mk
 
