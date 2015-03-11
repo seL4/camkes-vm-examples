@@ -80,7 +80,7 @@ DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-dtb
 endif
 
 $(STAGE_DIR)/linux/linux-dtb:
-	mkdir -p $(dir $@)
+	$(Q)mkdir -p $(dir $@)
 	sed "s/root=\/dev\/mmcblk1p2/root=\/dev\/${ROOTFS}/g" $(DEVICE_TREE_SRC) > $@
 
 COMPONENTS := ${SOURCE_DIR}/linux/linux $(STAGE_DIR)/linux/linux-dtb
@@ -88,4 +88,6 @@ COMPONENTS := ${SOURCE_DIR}/linux/linux $(STAGE_DIR)/linux/linux-dtb
 ${BUILD_DIR}/src/vm/static/archive.o: ${COMPONENTS}
 	$(Q)mkdir -p $(dir $@)
 	${COMMON_PATH}/files_to_obj.sh $@ _cpio_archive $^
+
+$(vm_CFILES:%.c=%.o) $(COMPONENTS): $(srctree)/.config
 
