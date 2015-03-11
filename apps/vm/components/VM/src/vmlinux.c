@@ -62,10 +62,7 @@ static const struct device *linux_pt_devices[] = {
 };
 
 static const int linux_pt_irqs[] = {
-    27, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,
-    50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
-    77, 78, 79, 82, 85, 88, 89, 90, 92, 96, 97, 104, 107, 109, 126, 152,
-    215, 216, 217, 232,
+    27, 85, 107, 109,
 #ifndef FEATURE_VUSB
     103
 #endif
@@ -280,8 +277,6 @@ install_linux_devices(vm_t* vm)
     err = vm_install_vgic(vm);
     assert(!err);
     err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
-    assert(!err);
-    err = vm_install_vcombiner(vm);
     assert(!err);
     err = vm_install_vmct(vm);
     assert(!err);
