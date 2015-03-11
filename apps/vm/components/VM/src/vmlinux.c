@@ -21,8 +21,9 @@
 #include <sel4arm-vmm/devices/vram.h>
 #include <sel4arm-vmm/devices/vusb.h>
 #include <sel4utils/irq_server.h>
-
 #include <cpio/cpio.h>
+
+#include <autoconf.h>
 
 #define LINUX_RAM_BASE    0x40000000
 #define LINUX_RAM_SIZE    0x40000000
@@ -32,6 +33,14 @@
 #define MACH_TYPE_EXYNOS5410 4151
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
+
+#ifdef CONFIG_VM_EMMC2_NODMA
+#define FEATURE_MMC_NODMA
+#endif
+
+#ifdef CONFIG_VM_VUSB
+#define FEATURE_VUSB
+#endif
 
 extern char _cpio_archive[];
 
@@ -43,36 +52,12 @@ extern seL4_CPtr _fault_endpoint;
 static const struct device *linux_pt_devices[] = {
     &dev_ps_chip_id,
     &dev_msh0,
+#ifndef FEATURE_MMC_NODMA
     &dev_msh2,
-#ifndef CONFIG_APP_LINUX_SECURE
-    &dev_alive,
-    &dev_sysreg,
-    &dev_gpio_left,
-    &dev_gpio_right,
-    &dev_ps_pwm_timer,
-    &dev_i2c4,
+#endif
+#ifndef FEATURE_VUSB
     &dev_usb2_ehci,
-    &dev_usb2_ctrl,
-    &dev_i2c1,
-    &dev_i2c2,
-    &dev_i2chdmi,
-    &dev_usb2_ohci,
-    &dev_uart0,
-    &dev_uart1,
-    //&dev_uart2, /* Console */
-    &dev_uart3,
-    &dev_ps_tx_mixer,
-    &dev_ps_hdmi0,
-    &dev_ps_hdmi1,
-    &dev_ps_hdmi2,
-    &dev_ps_hdmi3,
-    &dev_ps_hdmi4,
-    &dev_ps_hdmi5,
-    &dev_ps_hdmi6,
-    &dev_ps_pdma0,
-    &dev_ps_pdma1,
-    &dev_ps_mdma0,
-    &dev_ps_mdma1,
+    &dev_usb2_ctrl
 #endif
 };
 
@@ -81,7 +66,7 @@ static const int linux_pt_irqs[] = {
     50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
     77, 78, 79, 82, 85, 88, 89, 90, 92, 96, 97, 104, 107, 109, 126, 152,
     215, 216, 217, 232,
-#if !defined(CONFIG_APP_SEL4ARMVMM_HAVE_VUSB)
+#ifndef FEATURE_VUSB
     103
 #endif
 };
@@ -159,7 +144,7 @@ struct device pwmsig_dev = {
     };
 
 
-#if defined CONFIG_APP_SEL4ARMVMM_HAVE_VUSB
+#if defined FEATURE_VUSB
 
 static vusb_device_t* _vusb;
 static usb_host_t _hcd;
@@ -217,15 +202,52 @@ vusb_notify(void)
     vm_vusb_notify(_vusb);
 }
 
-#else /* CONFIG_APP_SEL4ARMVMM_HAVE_VUSB */
+#else /* FEATURE_VUSB */
+
+#include <platsupport/gpio.h>
+#include <platsupport/mach/pmic.h>
+#include <usb/drivers/usb3503_hub.h>
+
+#define NRESET_GPIO              XEINT12
+#define HUBCONNECT_GPIO          XEINT6
+#define NINT_GPIO                XEINT7
 
 static int
 install_vusb(vm_t* vm)
 {
-    /* Linux phy initialisation seems to be buggy when booting over TFTPBOOT
-     * Initialise the phy for Linux here */
+    /* Passthrough USB for linux, however, we must first initialise
+     * dependent systems which linux is not granted access to.
+     * Primarily, we must turn on the ethernet and on board hub */
+    ps_io_ops_t* io_ops = vm->io_ops;
+    gpio_sys_t gpio_sys;
+    struct i2c_bb i2c_bb;
+    i2c_bus_t i2c_bus;
+    pmic_t pmic;
     usb_host_t hcd;
-    usb_host_init(USB_HOST_DEFAULT, vm->io_ops, &hcd);
+    usb3503_t usb3503_hub;
+    int err;
+
+    /* Initialise the USB host controller. We hand it over to linux later */
+    err = usb_host_init(USB_HOST_DEFAULT, vm->io_ops, &hcd);
+    assert(!err);
+
+    /* Initialise I2C and GPIO and PMIC for USB power control */
+    err = gpio_sys_init(io_ops, &gpio_sys);
+    assert(!err);
+    err = i2c_bb_init(&gpio_sys, GPIOID(GPA2, 1), GPIOID(GPA2, 0), &i2c_bb, &i2c_bus);
+    assert(!err);
+    err = pmic_init(&i2c_bus, PMIC_BUSADDR, &pmic);
+    assert(!err);
+
+    /* Power on the USB hub */
+    err = usb3503_init(&i2c_bus, &gpio_sys, NRESET_GPIO, HUBCONNECT_GPIO,
+                       NINT_GPIO, &usb3503_hub);
+    assert(!err);
+    usb3503_connect(&usb3503_hub);
+
+    /* Power on the ethernet chip */
+    pmic_ldo_cfg(&pmic, LDO_ETH, LDO_ON, 3300);
+
     return 0;
 }
 
@@ -234,35 +256,12 @@ vusb_notify(void)
 {
 }
 
-#endif /* CONFIG_APP_SEL4ARMVMM_HAVE_VUSB */
+#endif /* FEATURE_VUSB */
 
-void
-configure_gpio(vm_t *vm)
-{
-#ifdef CONFIG_APP_LINUX_SECURE
-    /* Don't provide any access to GPIO/MUX */
-#else /* CONFIG_APP_LINUX_SECURE */
-    /* Provide GPIOS */
-    struct gpio_device* gpio_dev;
-    gpio_dev = vm_install_ac_gpio(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
-    assert(gpio_dev);
-#if 0
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 0));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 1));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 2));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 3));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 4));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 5));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 6));
-    vm_gpio_restrict(gpio_dev, GPIOID(GPA1, 7));
-#endif
-#endif /* CONFIG_APP_LINUX_SECURE */
-}
 void
 configure_clocks(vm_t *vm)
 {
     struct clock_device* clock_dev;
-#ifdef CONFIG_APP_LINUX_SECURE
     clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_DENY, VACDEV_REPORT_AND_MASK);
     assert(clock_dev);
     vm_clock_provide(clock_dev, CLK_MMC0);
@@ -270,16 +269,6 @@ configure_clocks(vm_t *vm)
     vm_clock_provide(clock_dev, CLK_SCLKVPLL);
     vm_clock_provide(clock_dev, CLK_SCLKGPLL);
     vm_clock_provide(clock_dev, CLK_SCLKCPLL);
-#else /* CONFIG_APP_LINUX_SECURE */
-    clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_ALLOW, VACDEV_REPORT_AND_MASK);
-    assert(clock_dev);
-    vm_clock_restrict(clock_dev, CLK_UART0);
-    vm_clock_restrict(clock_dev, CLK_UART1);
-    vm_clock_restrict(clock_dev, CLK_UART2);
-    vm_clock_restrict(clock_dev, CLK_UART3);
-    vm_clock_restrict(clock_dev, CLK_I2C0);
-    vm_clock_restrict(clock_dev, CLK_SPI1);
-#endif /* CONFIG_APP_LINUX_SECURE */
 }
 
 static int
@@ -297,20 +286,17 @@ install_linux_devices(vm_t* vm)
     err = vm_install_vmct(vm);
     assert(!err);
 
-#if CONFIG_APP_LINUX_SECURE
     /* Add hooks for specific power management hooks */
     err = vm_install_vpower(vm, &vm_shutdown_cb, &pwr_token, &vm_reboot_cb, &pwr_token);
     assert(!err);
     /* Install virtual USB */
     err = install_vusb(vm);
     assert(!err);
-#if 0
+#if defined FEATURE_MMC_NODMA
     /* Install SDHC controller with DMA restricted */
     err = vm_install_nodma_sdhc2(vm);
     assert(!err);
 #endif
-#endif /* CONFIG_APP_LINUX_SECURE */
-    configure_gpio(vm);
     configure_clocks(vm);
 
     err = vm_install_ac_uart(vm, &dev_vconsole);

@@ -65,8 +65,19 @@ VM_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
 
 include ${PWD}/tools/camkes/camkes.mk
 
-COMPONENTS := ${SOURCE_DIR}/linux/linux ${SOURCE_DIR}/linux/linux-dtb
+ifeq (${CONFIG_VM_VUSB},y)
+DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-vusb-dtb
+else
+DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-dtb
+endif
+
+$(STAGE_DIR)/linux/linux-dtb:
+	mkdir -p $(dir $@)
+	cp "$(DEVICE_TREE_SRC)" "$@"
+
+COMPONENTS := ${SOURCE_DIR}/linux/linux $(STAGE_DIR)/linux/linux-dtb
 
 ${BUILD_DIR}/src/vm/static/archive.o: ${COMPONENTS}
 	$(Q)mkdir -p $(dir $@)
 	${COMMON_PATH}/files_to_obj.sh $@ _cpio_archive $^
+
