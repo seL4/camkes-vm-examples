@@ -65,6 +65,14 @@ VM_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
 
 include ${PWD}/tools/camkes/camkes.mk
 
+ifeq (${CONFIG_VM_ROOTFS_MMCBLK0P2},y)
+ROOTFS := mmcblk0p2
+else ifeq (${CONFIG_VM_ROOTFS_MMCBLK1P2},y)
+ROOTFS := mmcblk1p2
+else
+$(error Unknown root filesystem)
+endif
+
 ifeq (${CONFIG_VM_VUSB},y)
 DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-vusb-dtb
 else
@@ -73,7 +81,7 @@ endif
 
 $(STAGE_DIR)/linux/linux-dtb:
 	mkdir -p $(dir $@)
-	cp "$(DEVICE_TREE_SRC)" "$@"
+	sed "s/root=\/dev\/mmcblk1p2/root=\/dev\/${ROOTFS}/g" $(DEVICE_TREE_SRC) > $@
 
 COMPONENTS := ${SOURCE_DIR}/linux/linux $(STAGE_DIR)/linux/linux-dtb
 

@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # CAmkES project configuration
-# Wed Mar 11 10:17:15 2015
+# Wed Mar 11 22:09:55 2015
 #
 
 #
@@ -129,6 +129,8 @@ CONFIG_CAPDL_LOADER_MAX_IRQS=256
 CONFIG_APP_CAMKES_VM=y
 # CONFIG_VM_EMMC2_NODMA is not set
 # CONFIG_VM_VUSB is not set
+# CONFIG_VM_ROOTFS_MMCBLK0P2 is not set
+CONFIG_VM_ROOTFS_MMCBLK1P2=y
 CONFIG_LIB_ELFLOADER=y
 CONFIG_ARM_ERRATA_764369=y
 
