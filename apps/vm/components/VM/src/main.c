@@ -240,7 +240,6 @@ map_unity_ram(vm_t* vm)
             vka_cspace_free(vm->vka, frame.capPtr);
             break;
         }
-        printf("Adding passthrough frame at 0x%x\n", start);
         err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void*)start, 1, bits, res);
         assert(!err);
     }
@@ -320,7 +319,6 @@ main_continued(void)
 }
 
 void run(void) {
-    printf("Calling main, expect failure\n");
     main_continued();
 }
 
