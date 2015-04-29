@@ -85,6 +85,7 @@ void uart__init(void)
         printf("Failed to initialise UART\n");
         while(1);
     }
+    ps_cdev_set_flags(&serial_device, serial_device.flags & ~SERIAL_AUTO_CR);
     serial_configure(&serial_device, BAUD_RATE, 8, PARITY_NONE, 1);
     /* Prime semaphores */
     read_sem_wait();
