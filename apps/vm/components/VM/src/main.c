@@ -35,6 +35,7 @@
 #include <dma/dma.h>
 
 #include "vmlinux.h"
+#include "cmks_vchan_vm.h"
 
 #define VM_PRIO             100
 #define VM_BADGE            (1U << 0)
@@ -276,6 +277,8 @@ main_continued(void)
         seL4_DebugHalt();
         return -1;
     }
+
+    vm_vchan_setup(&vm);
 
     /* Power on */
     printf("Starting VM\n\n");

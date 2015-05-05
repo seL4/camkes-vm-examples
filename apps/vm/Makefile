@@ -55,13 +55,31 @@ spi_LIBS  := platsupport
 clk_LIBS  := platsupport
 timer_LIBS  := platsupport
 
+vchan_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/vchan/src/*.c))
+vchan_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/vchan/include/*.h))
+vchan_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/vchan/src/*.h))
+vchan_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
+            platsupport sel4platsupport sel4vspace elf \
+            sel4utils sel4simple utils  sel4simple-default cpio \
+            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers vchan
+
+helloworld_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.c))
+helloworld_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/include/*.h))
+helloworld_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.h))
+helloworld_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
+            platsupport sel4platsupport sel4vspace elf \
+            sel4utils sel4simple utils  sel4simple-default cpio \
+            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers vchan
+
+
 VM_CFILES   := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.c))
 VM_OFILES   := archive.o
 VM_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.h))
+VM_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/VM/include/*.h))
 VM_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
             platsupport sel4platsupport sel4vspace elf \
             sel4utils sel4simple utils  sel4simple-default cpio \
-            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers
+            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers vchan
 
 include ${PWD}/tools/camkes/camkes.mk
 
