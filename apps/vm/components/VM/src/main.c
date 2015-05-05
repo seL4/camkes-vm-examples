@@ -307,7 +307,6 @@ main_continued(void)
             vusb_notify();
         } else {
             assert(sender_badge == VM_BADGE);
-
             err = vm_event(&vm, tag);
             if (err) {
                 /* Shutdown */

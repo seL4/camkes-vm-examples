@@ -15,20 +15,15 @@
 #include <sel4/sel4.h>
 #include <sel4utils/util.h>
 
-#include <vchan/vmm_manager.h>
-#include <vchan/vchan_copy.h>
-#include <vchan/vchan_sharemem.h>
-#include <vchan/libvchan.h>
-#include <vchan/vchan_component.h>
+#include <sel4vchan/vmm_manager.h>
+#include <sel4vchan/vchan_copy.h>
+#include <sel4vchan/vchan_sharemem.h>
+#include <sel4vchan/libvchan.h>
+#include <sel4vchan/vchan_component.h>
 
 #include <helloworld.h>
 
 #include <camkes/dataport.h>
-
-// #define SERVER_CORE_SIZE 4096
-// static char core_buf[SERVER_CORE_SIZE];
-// extern char *morecore_area;
-// extern size_t morecore_size;
 
 static char char_buf[256];
 
@@ -64,7 +59,6 @@ static void rec_packet(libvchan_t * con) {
             printf("hello.packet %d\n", x);
 
     }
-
 }
 
 static void puffout_strings(libvchan_t * con) {
@@ -101,9 +95,6 @@ static void puffout_strings(libvchan_t * con) {
 }
 
 void pre_init(void) {
-    // con.data_buf = (void *) share_mem;
-    // morecore_area = core_buf;
-    // morecore_size = SERVER_CORE_SIZE;
 }
 
 int run(void) {

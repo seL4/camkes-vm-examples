@@ -1,1 +1,1 @@
-/home/alliecom/nicta/software/camkes-arm/libs/libvchan/include/vchan/vchan_sharemem.h
+../../../../../../../libs/libsel4vchan/include/sel4vchan/vchan_sharemem.h

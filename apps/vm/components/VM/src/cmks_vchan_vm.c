@@ -10,11 +10,11 @@
 
 #include "cmks_vchan_vm.h"
 
-#include <vchan/vmm_manager.h>
-#include <vchan/vchan_copy.h>
-#include <vchan/vchan_sharemem.h>
-#include <vchan/libvchan.h>
-#include <vchan/vchan_component.h>
+#include <sel4vchan/vmm_manager.h>
+#include <sel4vchan/vchan_copy.h>
+#include <sel4vchan/vchan_sharemem.h>
+#include <sel4vchan/libvchan.h>
+#include <sel4vchan/vchan_component.h>
 
 #include <sel4arm-vmm/vchan_vm_component.h>
 
@@ -71,7 +71,7 @@ static void vchan_callback(void *addr) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, in_alert.dest);
     if(con == NULL) {
-        // DPRINTF(2, "Domain %d, has no vchan component instance\n", in_alert.dest);
+        printf("Domain %d, has no vchan component instance\n", in_alert.dest);
         return;
     }
 
@@ -82,12 +82,16 @@ static void vchan_callback(void *addr) {
 
     in_alert.alert = con->alert_status(ct);
 
-    vm_inject_IRQ(vchan_irq_handle);
     vm_copyout(run_vmm, &in_alert, addr, sizeof(vchan_alert_t));
     con->reg_callback(&vchan_callback, addr);
+
+    vm_inject_IRQ(vchan_irq_handle);
 }
 
 void vm_vchan_setup(vm_t *vm) {
+    vm->lock = &vm_lock_lock;
+    vm->unlock = &vm_lock_unlock;
+
     vchan_irq_handle = vm_virq_new(vm, VCHAN_EVENT_IRQ, &vchan_ack, NULL);
     reg_new_vchan_con(vm, &vchan_camkes_component);
     vchan_camkes_component.data_buf = (void *)share_mem;
@@ -180,7 +184,6 @@ static int vchan_close(void *data, uint64_t cmd) {
 */
 static int vchan_readwrite(void *data, uint64_t cmd) {
     vchan_args_t *args = (vchan_args_t *)data;
-    // vspace_t *vs = &run_vmm->vmm->guest_mem.vspace;
     int *update;
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
@@ -198,7 +201,7 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
         .port = args->v.port,
     };
 
-    // /* Perfom copy of data to appropriate destination */
+    /* Perfom copy of data to appropriate destination */
     vchan_buf_t *b = get_vchan_buf(&bargs, con, cmd);
     assert(b != NULL);
     size_t filled = abs(b->read_pos - b->write_pos);
@@ -291,8 +294,8 @@ static int driver_connect(void *data, uint64_t cmd) {
     /* Only allow one vchan driver instance to be connected */
     if(driver_connected)
         return -1;
-    struct vmm_args *vargs = (struct vmm_args *)data;
 
+    struct vmm_args *vargs = (struct vmm_args *)data;
     driver_connected = 1;
     vargs->datatype = DATATYPE_INT;
     int *res = (int *)vargs->ret_data;
@@ -314,10 +317,9 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
 	vmcall_args_t *args = (vmcall_args_t *)args_buffer;
     cmd = args->cmd;
 
-    // printf("vchan_call: %d\n", args->cmd);
-     /* Catch if the request is for an invalid command */
+    /* Catch if the request is for an invalid command */
     if(cmd >= NUM_VMM_OPS || vmm_manager_ops_table.op_func[cmd] == NULL) {
-        // DPRINTF(2, "vchan: unsupported command or null tbl arg %d\n", cmd);
+        printf("vchan: unsupported command or null tbl arg %d\n", cmd);
         args->err = -1;
     } else {
         /* Perform given token:command action */
@@ -327,6 +329,5 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
 			vm_copyout(vm, &driver_arg, args->phys_data, args->size);
         }
     }
-    // printf("vchan_call_conclude: %d - %d\n", cmd, args->err);
 	vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
 }

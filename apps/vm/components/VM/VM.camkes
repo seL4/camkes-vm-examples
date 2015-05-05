@@ -17,7 +17,8 @@ component VM {
     uses pwm_inf pwm;
     has semaphore vm_sem;
 
- 	uses VchanInterface vchan_con;
+    has mutex vm_lock;
+    uses VchanInterface vchan_con;
     consumes VchanEvent vevent;
     dataport vchan_headers_t share_mem;
 }

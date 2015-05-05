@@ -24,6 +24,5 @@
 
 void vchan_entry_point(vm_t *vm, uint32_t data);
 void vm_vchan_setup(vm_t *vm);
-int vm_vchan_debug();
 
 #endif
