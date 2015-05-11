@@ -8,8 +8,17 @@
  * @TAG(NICTA_GPL)
  */
 
+import "../../interfaces/VchanInterface.idl4";
+
 component VM {
     control;
+    include "vchan_sharemem.h";
+
     uses pwm_inf pwm;
     has semaphore vm_sem;
+
+    has mutex vm_lock;
+    uses VchanInterface vchan_con;
+    consumes VchanEvent vevent;
+    dataport vchan_headers_t share_mem;
 }
