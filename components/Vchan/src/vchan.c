@@ -23,7 +23,7 @@
 #include <sel4vchan/libvchan.h>
 #include <sel4vchan/vchan_component.h>
 
-#include <vchan.h>
+#include <Vchan.h>
 
 /*
     State needed to represent a vchan instance in the vmm

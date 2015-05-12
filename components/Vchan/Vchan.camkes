@@ -8,10 +8,10 @@
  * @TAG(NICTA_GPL)
  */
 
-import "../../interfaces/VchanInterface.idl4";
+import <VchanInterface.idl4>;
 
-component vchan {
-    include "vchan_sharemem.h";
+component Vchan {
+    include "sel4vchan/vchan_sharemem.h";
     dataport vchan_headers_t share_mem;
 
     provides VchanInterface vchan_com;

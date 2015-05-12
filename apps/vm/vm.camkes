@@ -19,7 +19,7 @@ import "components/spi/spi.camkes";
 import "components/can/can.camkes";
 import "components/clk/clk.camkes";
 import "components/timer/timer.camkes";
-import "components/vchan/vchan.camkes";
+import <Vchan/Vchan.camkes>;
 import "components/helloworld/helloworld.camkes";
 
 component uartbase {
@@ -81,7 +81,7 @@ assembly {
         component clk      clk_obj;
         component timer	   timer_obj;
 
-        component vchan vchan_0;
+        component Vchan vchan_0;
         component helloworld hello;
 
         connection seL4RPCCall vchan(from vm.vchan_con, to vchan_0.vchan_com);

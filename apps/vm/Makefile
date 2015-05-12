@@ -11,6 +11,8 @@
 TARGETS := $(notdir ${SOURCE_DIR}).cdl
 ADL := vm.camkes
 
+include Vchan/Vchan.mk
+
 pilot_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/pilot/src/*.c)) \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/pilot/src/aeslib/*.c))
@@ -54,13 +56,6 @@ pwm_LIBS  := platsupport
 spi_LIBS  := platsupport
 clk_LIBS  := platsupport
 timer_LIBS  := platsupport
-
-vchan_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/vchan/src/*.c))
-vchan_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/vchan/src/*.h))
-vchan_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
-            platsupport sel4platsupport sel4vspace \
-            sel4utils sel4simple utils  sel4simple-default \
-            sel4debug sel4dma sel4vchan
 
 helloworld_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.c))
 helloworld_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.h))
