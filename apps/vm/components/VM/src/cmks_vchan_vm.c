@@ -62,9 +62,24 @@ static camkes_vchan_con_t vchan_camkes_component = {
     .source_dom_number = 0,
 };
 
-static void vchan_ack(void* token) {
+/* Set up relevent runtime systems for vchan */
+void vm_vchan_setup(vm_t *vm) {
+    vm->lock = &vm_lock_lock;
+    vm->unlock = &vm_lock_unlock;
+
+    vchan_irq_handle = vm_virq_new(vm, VCHAN_EVENT_IRQ, &vchan_ack, NULL);
+    reg_new_vchan_con(vm, &vchan_camkes_component);
+    vchan_camkes_component.data_buf = (void *)share_mem;
 }
 
+/* No ack callback needed when the vchan acknoledges a vchan irq */
+static void vchan_ack(void* token) {}
+
+/*
+    Callback function that is fired when a vchan event is emitted
+        The nature of the event (a full or empty data buffer), is passed to the running vm
+            via coping the event value and triggering a hardware IRQ
+*/
 static void vchan_callback(void *addr) {
     vchan_alert_t in_alert;
     vm_copyin(run_vmm, &in_alert, addr, sizeof(vchan_alert_t));
@@ -86,15 +101,6 @@ static void vchan_callback(void *addr) {
     con->reg_callback(&vchan_callback, addr);
 
     vm_inject_IRQ(vchan_irq_handle);
-}
-
-void vm_vchan_setup(vm_t *vm) {
-    vm->lock = &vm_lock_lock;
-    vm->unlock = &vm_lock_unlock;
-
-    vchan_irq_handle = vm_virq_new(vm, VCHAN_EVENT_IRQ, &vchan_ack, NULL);
-    reg_new_vchan_con(vm, &vchan_camkes_component);
-    vchan_camkes_component.data_buf = (void *)share_mem;
 }
 
 /*
