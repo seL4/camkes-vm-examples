@@ -26,7 +26,7 @@
 #include <time.h>
 #include <fcntl.h>
 
-int libvchan_checkbuf(libsel4vchan_t *com, int nowait);
+static int libvchan_checkbuf(libsel4vchan_t *com, int checktype, int nowait);
 libvchan_t *libvchan_new_instance(int domain, int port, size_t read_min, size_t write_min, int server);
 int vchan_readwrite(libvchan_t *ctrl, const void *data, size_t size, int cmd, int stream);
 static uint64_t u;
@@ -87,17 +87,17 @@ libvchan_t *libvchan_client_init(int domain, int port) {
 * Waits for reads or writes to unblock, or for a close
 */
 int libvchan_wait(libvchan_t *ctrl) {
-    return libvchan_checkbuf(ctrl->sel4vchan, 0);
+    return libvchan_checkbuf(ctrl->sel4vchan, 0, 0);
 }
 
  /** Amount of data ready to read, in bytes */
 int libvchan_data_ready(libvchan_t *ctrl) {
-    return libvchan_checkbuf(ctrl->sel4vchan, NOWAIT_DATA_READY);
+    return libvchan_checkbuf(ctrl->sel4vchan, 1, NOWAIT_DATA_READY);
 }
 
 /** Amount of data it is possible to send without blocking */
 int libvchan_buffer_space(libvchan_t *ctrl) {
-    return libvchan_checkbuf(ctrl->sel4vchan, NOWAIT_BUF_SPACE);
+    return libvchan_checkbuf(ctrl->sel4vchan, 1, NOWAIT_BUF_SPACE);
 }
 
 /**
@@ -243,14 +243,14 @@ int vchan_readwrite(libvchan_t *ctrl, const void *data, size_t size, int cmd, in
              - if NOWAIT_BUF_SPACE, return how much data can be read into buffer
     return -1 on error, 1 if nowait and data is avaliable, or above
 */
-int libvchan_checkbuf(libsel4vchan_t *com, int nowait) {
-
+static int libvchan_checkbuf(libsel4vchan_t *com, int nowait, int checktype) {
     int err;
 
     vchan_check_args_t args = {
         .v.dest = com->domain_num,
         .v.port = com->port_num,
         .nowait = nowait,
+        .checktype = checktype,
         .state = -80,
     };
 

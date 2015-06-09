@@ -18,7 +18,7 @@ FILES = sel4_vchan_testsuite
 DEPS=includes/%.h
 
 all: $(FILES)
-	mv sel4_vchan_testsuite ../out/bin/
+	mv sel4_vchan_testsuite ../
 
 sel4_vchan_testsuite: sel4_vchan_testsuite.o
 	$(CC) $(CFLAGS) -o $@ sel4_vchan_testsuite.c sel4libvchan.c

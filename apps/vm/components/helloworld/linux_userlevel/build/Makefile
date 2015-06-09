@@ -9,7 +9,7 @@
 #
 
 all:
-	./buildout
+	# ./buildout
 	cd vchan_code && $(MAKE)
 
 

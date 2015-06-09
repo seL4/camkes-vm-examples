@@ -25,6 +25,12 @@
 
 #include <Vchan.h>
 
+#ifdef DEBUG_VCHAN
+#define DVCHAN(...) do{ printf("VCHAN: "); printf(__VA_ARGS__); }while(0)
+#else
+#define DVCHAN(...) do{}while(0)
+#endif
+
 /*
     State needed to represent a vchan instance in the vmm
 */
@@ -88,7 +94,7 @@ int vchan_com_new_connection(vchan_connect_t con) {
 }
 
 int vchan_com_rem_connection(vchan_connect_t con) {
-    // DPRINTF(2, "vchan: rem connection called but not implemented\n");
+    DVCHAN("vchan: rem connection called but not implemented\n");
     return -1;
 }
 
@@ -98,7 +104,7 @@ intptr_t vchan_com_get_buf(vchan_ctrl_t args, int cmd) {
 
     vchan_instance_t *i = get_vchan_instance(args.domain, args.dest, args.port);
     if(i == NULL) {
-        // DPRINTF(2, "vchan: failed to find instance\n");
+        DVCHAN("vchan: failed to find instance\n");
         return 0;
     }
 
@@ -109,7 +115,7 @@ intptr_t vchan_com_get_buf(vchan_ctrl_t args, int cmd) {
     }
 
     if(b == NULL) {
-        // DPRINTF(2, "vchan: failed to find buffer for instance\n");
+        DVCHAN("vchan: failed to find buffer for instance\n");
         return 0;
     }
 
@@ -151,7 +157,7 @@ int vchan_com_alert_status(vchan_ctrl_t args) {
     vchan_buf_t *b = get_dom_buf(args.domain, i->buffers);
     assert(b != NULL);
 
-    b->filled = abs(b->read_pos - b->write_pos);
+    b->filled = abs(b->write_pos - b->read_pos);
 
     if(closed == 0) {
         if(b->filled) {
@@ -195,10 +201,6 @@ static int new_vchan_instance(vchan_connect_t *con) {
     /* See if this connection already exists */
     vchan_instance_t *new = get_vchan_instance(domx, domy, port);
     if(new == NULL) {
-        if(! con->server) {
-            return -1;
-        }
-
         new = malloc(sizeof(vchan_instance_t));
         if(new == NULL) {
             return -1;
@@ -206,7 +208,7 @@ static int new_vchan_instance(vchan_connect_t *con) {
 
         buffers = alloc_buffer();
         if(buffers == NULL) {
-            // DPRINTF(2, "vchan: bad buffer allocation!\n");
+            DVCHAN("vchan: bad buffer allocation!\n");
             return -1;
         }
 
@@ -228,16 +230,18 @@ static int new_vchan_instance(vchan_connect_t *con) {
     }
 
     if(con->server) {
-        // DPRINTF(2, "vchan: server connection %d|%d|%d established\n", domx, domy, port);
+        DVCHAN("vchan: server connection %d|%d|%d established\n", domx, domy, port);
         new->server_connected = 1;
-        new->buffers->bufs[0].owner = domx;
-        new->buffers->bufs[1].owner = domy;
+        new->buffers->bufs[0].owner = MIN(domx, domy);
+        new->buffers->bufs[1].owner = MAX(domx, domy);
     } else {
         if(new->server_connected == -1) {
-            // DPRINTF(2, "vchan: trying to connect to closed server\n");
+            DVCHAN("vchan: trying to connect to closed server\n");
             return -1;
         }
-        // DPRINTF(2, "vchan: client connection %d|%d|%d established\n", domx, domy, port);
+        new->buffers->bufs[0].owner = MIN(domx, domy);
+        new->buffers->bufs[1].owner = MAX(domx, domy);
+        DVCHAN("vchan: client connection %d|%d|%d established\n", domx, domy, port);
         new->client_connected = 1;
     }
 
@@ -307,7 +311,7 @@ static vchan_shared_mem_t *alloc_buffer(void) {
 */
 static vchan_shared_mem_t *get_buffer(uint32_t id) {
     if(id >= NUM_BUFFERS) {
-        // DPRINTF(2, "get_buffer: bad id\n");
+        DVCHAN("get_buffer: bad id\n");
         return NULL;
     }
     return &(headers->shared_buffers[id]);
@@ -392,7 +396,7 @@ int ctrl_vchan_buf_state(uint32_t source, uint32_t dest, uint32_t port, uint32_t
     int val = 0;
     vchan_instance_t *inst = get_vchan_instance(source, dest, port);
     if(inst == NULL) {
-        // DPRINTF(2, "vchan_bufstate: bad instance\n");
+        DVCHAN("vchan_bufstate: bad instance\n");
         return -1;
     }
 
