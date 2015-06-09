@@ -25,11 +25,6 @@
 
 #include <camkes/dataport.h>
 
-static char char_buf[256];
-
-static void rec_packet(libvchan_t * con);
-static void puffout_strings(libvchan_t * con);
-
 static camkes_vchan_con_t con = {
     .connect = &vchan_con_new_connection,
     .disconnect = &vchan_con_rem_connection,
@@ -44,58 +39,62 @@ static camkes_vchan_con_t con = {
     .source_dom_number = 50,
 };
 
+#define DEBUG_HELLO
+
+#ifdef DEBUG_HELLO
+#define DHELL(...) do{ printf("HELLOW: "); printf(__VA_ARGS__); }while(0)
+#else
+#define DHELL(...) do{}while(0)
+#endif
+
+
+/*
+    Check if data in a test packet is correct
+*/
+static int verify_packet(vchan_packet_t *pak) {
+    for(int i = 0; i < 4; i++) {
+        if(pak->datah[i] != i + pak->pnum) {
+            /* Malformed data */
+            return 0;
+        }
+    }
+    return 1;
+}
+
 static void rec_packet(libvchan_t * con) {
     size_t sz;
-    int x;
+    char done = 1;
+    int x, pnum;
     char comp[6];
     vchan_packet_t pak;
-    for(x = 0; x < NUM_PACKETS * 2; x++) {
-        sprintf(comp, "I%d", x);
+
+    libvchan_wait(con);
+    sz = libvchan_read(con, &pnum, sizeof(int));
+    assert(sz == sizeof(int));
+
+    DHELL("hello: number of packets to recieve = %d\n", pnum);
+
+    for(x = 0; x < pnum; x++) {
         libvchan_wait(con);
+        /* Buffer sanity checking */
+        assert(libvchan_data_ready(con) != 0);
+        assert(libvchan_buffer_space(con) == FILE_DATAPORT_MAX_SIZE);
+        /* Perform read operation */
         sz = libvchan_read(con, &pak, sizeof(pak));
+        /* See if the given packet is correct */
         assert(sz == sizeof(pak));
-        assert(strcmp(comp, pak.pnum) == 0);
-        if(x % 100 == 0)
-            printf("hello.packet %d\n", x);
-
+        assert(pak.pnum == x);
+        assert(verify_packet(&pak) == 1);
+        assert(pak.guard == TEST_VCHAN_PAK_GUARD);
+        DHELL("hello.packet %d|%d\n", x, sizeof(pak));
     }
+
+    DHELL("hello: sending ack\n");
+
+    sz = libvchan_write(con, &done, sizeof(char));
+    assert(sz == sizeof(char));
 }
 
-static void puffout_strings(libvchan_t * con) {
-    size_t sz, len;
-    vchan_header_t head;
-
-    printf("hello: waiting for data\n");
-
-    /* Wait for hello */
-    libvchan_wait(con);
-
-    sz = libvchan_read(con, &head, sizeof(head));
-    assert(sz == sizeof(head));
-    assert(head.msg_type == MSG_HELLO);
-    head.msg_type = MSG_ACK;
-    len = head.len;
-
-    printf("hello: acking\n");
-
-    /* Send off ack */
-    sz = libvchan_write(con, &head, sizeof(head));
-    assert(sz == sizeof(head));
-
-    printf("hello: waiting for string\n");
-
-    /* Read data */
-    libvchan_wait(con);
-    sz = libvchan_read(con, &char_buf, len);
-    assert(sz == len);
-
-    // head.msg_type = MSG_CONC;
-    // sz = libvchan_write(con, &head, sizeof(head));
-    // assert(sz == sizeof(head));
-}
-
-void pre_init(void) {
-}
 
 int run(void) {
     libvchan_t *connection;
@@ -110,11 +109,8 @@ int run(void) {
 
     printf("Connection Active\n");
 
-    printf("hello.handshake\n");
-    puffout_strings(connection);
-    printf("hello.packet\n");
-    rec_packet(connection);
-
-    printf("hello: indef wait\n");
-    while(1);
+    while(1) {
+        printf("hello.packet\n");
+        rec_packet(connection);
+    }
 }

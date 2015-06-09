@@ -8,7 +8,6 @@
  * @TAG(NICTA_GPL)
  */
 
-#include "cmks_vchan_vm.h"
 
 #include <sel4vchan/vmm_manager.h>
 #include <sel4vchan/vchan_copy.h>
@@ -19,6 +18,17 @@
 #include <sel4arm-vmm/vchan_vm_component.h>
 
 #include <VM.h>
+
+#include "cmks_vchan_vm.h"
+// #include "vchan_conf.h"
+// #define DEBUG_VM_VCHAN
+
+#ifdef DEBUG_VM_VCHAN
+#define DVMVCHAN(...) do{ printf("VCHAN: "); printf(__VA_ARGS__); }while(0)
+#else
+#define DVMVCHAN(...) do{}while(0)
+#endif
+
 
 static int driver_connect(void *data, uint64_t cmd);
 
@@ -58,6 +68,7 @@ static camkes_vchan_con_t vchan_camkes_component = {
     .alert_status = &vchan_con_alert_status,
     .reg_callback = &vevent_reg_callback,
     .alert = &vchan_con_ping,
+
     .dest_dom_number = 50,
     .source_dom_number = 0,
 };
@@ -82,11 +93,11 @@ static void vchan_ack(void* token) {}
 */
 static void vchan_callback(void *addr) {
     vchan_alert_t in_alert;
-    vm_copyin(run_vmm, &in_alert, addr, sizeof(vchan_alert_t));
+    vm_copyin(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, in_alert.dest);
     if(con == NULL) {
-        printf("Domain %d, has no vchan component instance\n", in_alert.dest);
+        DVMVCHAN("Domain %d, has no vchan component instance\n", in_alert.dest);
         return;
     }
 
@@ -97,7 +108,7 @@ static void vchan_callback(void *addr) {
 
     in_alert.alert = con->alert_status(ct);
 
-    vm_copyout(run_vmm, &in_alert, addr, sizeof(vchan_alert_t));
+    vm_copyout(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
     con->reg_callback(&vchan_callback, addr);
 
     vm_inject_IRQ(vchan_irq_handle);
@@ -111,7 +122,6 @@ int get_vm_num() {
     // char *name = (char *) get_instance_name();
     int ret = sscanf("vm_vm0", "vm_vm%d", &res);
     if(ret == 0) {
-        // DPRINTF(2, "vchan_driver: failed to get run num\n");
         return -1;
     }
 
@@ -126,7 +136,7 @@ static int vchan_state(void *data, uint64_t cmd) {
     vchan_check_args_t *args = (vchan_check_args_t *)data;
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
-        // DPRINTF(2, "Domain %d, has no vchan component instance\n", args->v.domain);
+        DVMVCHAN("Domain %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
 
@@ -144,7 +154,7 @@ static int vchan_connect(void *data, uint64_t cmd) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
     if(con == NULL) {
-        // DPRINTF(2, "Domain %d, has no vchan component instance\n", pass->v.domain);
+        DVMVCHAN("Domain %d, has no vchan component instance\n", pass->v.domain);
         return -1;
     }
 
@@ -157,12 +167,12 @@ static int vchan_connect(void *data, uint64_t cmd) {
 
     res = con->connect(t);
     if(res < 0) {
-        // DPRINTF(2, "Domain %d, failed to connect to \n", pass->v.domain, pass->v.dest);
+        DVMVCHAN("Domain %d, failed to connect to %d\n", pass->v.domain, pass->v.dest);
         return -1;
     }
     res = con->reg_callback(&vchan_callback, (void *) pass->event_mon);
     if(res < 0) {
-        // DPRINTF(2, "Domain %d, failed reg callback\n", pass->v.domain);
+        DVMVCHAN("Domain %d, failed reg callback\n", pass->v.domain);
         return -1;
     }
 
@@ -192,9 +202,11 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
     vchan_args_t *args = (vchan_args_t *)data;
     int *update;
 
+    DVMVCHAN("vmcall_readwrite: starting action %d\n", (int) cmd);
+
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
-        // DPRINTF(2, "Domain %d, has no vchan component instance\n", args->v.domain);
+        DVMVCHAN("Domain %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
 
@@ -207,10 +219,11 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
         .port = args->v.port,
     };
 
+
     /* Perfom copy of data to appropriate destination */
     vchan_buf_t *b = get_vchan_buf(&bargs, con, cmd);
     assert(b != NULL);
-    size_t filled = abs(b->read_pos - b->write_pos);
+    size_t filled = abs(b->write_pos - b->read_pos);
 
     /*
         If streaming, send as much data as possible
@@ -218,13 +231,13 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
     */
     if(cmd == VCHAN_RECV) {
         if(args->stream) {
-            args->size = MIN(filled, args->size);
+            size = MIN(filled, args->size);
         } else if(args->size > filled) {
             return -1;
         }
     } else {
         if(args->stream) {
-            args->size = MIN(VCHAN_BUF_SIZE - filled, args->size);
+            size = MIN(VCHAN_BUF_SIZE - filled, args->size);
         } else if (args->size > (VCHAN_BUF_SIZE - filled)) {
             return -1;
         }
@@ -245,17 +258,18 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
 
     if(cmd == VCHAN_SEND) {
         vm_copyin(run_vmm, (b->sync_data + start), phys, size);
-        vm_copyin(run_vmm, (b->sync_data), phys, remain);
+        vm_copyin(run_vmm, (b->sync_data), (phys + size), remain);
     } else {
         vm_copyout(run_vmm, (b->sync_data + start), phys, size);
-        vm_copyout(run_vmm, (b->sync_data + start), phys, size);
+        vm_copyout(run_vmm, (b->sync_data), (phys + size), remain);
     }
 
     *update += (size + remain);
     con->alert();
-    // DPRINTF(4, "vmcall_readwrite: finished action %d | %d | %d\n", (int) cmd, size, (int) remain);
 
+    DVMVCHAN("vmcall_readwrite: finished action %d | %d | %d\n", (int) cmd, size, (int) remain);
     args->size = (size + remain);
+
     return 0;
 }
 
@@ -269,7 +283,7 @@ static int vchan_buf_state(void *data, uint64_t cmd) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
-        // DPRINTF(2, "Domain %d, has no vchan component instance\n", args->v.domain);
+        DVMVCHAN("Domain %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
 
@@ -280,12 +294,15 @@ static int vchan_buf_state(void *data, uint64_t cmd) {
     };
 
     /* Perfom copy of data to appropriate destination */
-    vchan_buf_t *b = get_vchan_buf(&bargs, con, cmd);
-    assert(b != NULL);
-    size_t filled = abs(b->read_pos - b->write_pos);
     if(args->checktype == NOWAIT_DATA_READY) {
+        vchan_buf_t *b = get_vchan_buf(&bargs, con, VCHAN_RECV);
+        assert(b != NULL);
+        size_t filled = abs(b->write_pos - b->read_pos);
         args->state = filled;
     } else {
+        vchan_buf_t *b = get_vchan_buf(&bargs, con, VCHAN_SEND);
+        assert(b != NULL);
+        size_t filled = abs(b->write_pos - b->read_pos);
         args->state = VCHAN_BUF_SIZE - filled;
     }
 
@@ -310,30 +327,35 @@ static int driver_connect(void *data, uint64_t cmd) {
         return -1;
     }
 
-    // printf("vchan_driver_connect: num is %d\n", *res);
+    DVMVCHAN("vchan_driver_connect: num is %d\n", *res);
     return 0;
 }
 
+/*
+    Entry point for vchan calls in the hypervisor
+        Determine and perform a given command
+*/
 void vchan_entry_point(vm_t *vm, uint32_t data) {
-	char args_buffer[256];
-	run_vmm = vm;
+    char args_buffer[256];
+    run_vmm = vm;
     int cmd;
 
-	vm_copyin(vm, &args_buffer, data, sizeof(vmcall_args_t));
-	vmcall_args_t *args = (vmcall_args_t *)args_buffer;
+    vm_copyin(vm, &args_buffer, data, sizeof(vmcall_args_t));
+    vmcall_args_t *args = (vmcall_args_t *)args_buffer;
     cmd = args->cmd;
 
     /* Catch if the request is for an invalid command */
     if(cmd >= NUM_VMM_OPS || vmm_manager_ops_table.op_func[cmd] == NULL) {
-        printf("vchan: unsupported command or null tbl arg %d\n", cmd);
+        DVMVCHAN("vchan: unsupported command or null tbl arg %d\n", cmd);
         args->err = -1;
     } else {
         /* Perform given token:command action */
-		vm_copyin(vm, &driver_arg, args->phys_data, args->size);
+        vm_copyin(vm, &driver_arg, args->phys_data, args->size);
         args->err = (*vmm_manager_ops_table.op_func[cmd])(&driver_arg, cmd);
         if(args->err != -1) {
-			vm_copyout(vm, &driver_arg, args->phys_data, args->size);
+            vm_copyout(vm, &driver_arg, args->phys_data, args->size);
         }
     }
-	vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
+    vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
+    DVMVCHAN(">>returning from hyp call |%d|<<<\n", cmd);
 }
