@@ -92,7 +92,7 @@ vm_reboot_cb(vm_t* vm, void* token)
     int err;
     printf("Received reboot from linux\n");
 
-    pwm_vmsig(0);
+    //pwm_vmsig(0);
     vm_sem_wait();
 
     return 0;
@@ -127,7 +127,7 @@ pwmsig_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
     ignore_fault(fault);
 //    printf("IN VM, GOT PWM SIGNAL 0x%x\n", data);
 //    fflush(stdout);
-    pwm_vmsig(data);
+    //pwm_vmsig(data);
     return 0;
 }
 

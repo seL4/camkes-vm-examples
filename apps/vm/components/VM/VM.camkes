@@ -14,7 +14,7 @@ component VM {
     control;
     include "vchan_sharemem.h";
 
-    uses pwm_inf pwm;
+//    uses pwm_inf pwm;
     has semaphore vm_sem;
 
     has mutex vm_lock;
