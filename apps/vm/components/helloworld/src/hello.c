@@ -24,7 +24,6 @@
 #include <helloworld.h>
 
 #include <camkes/dataport.h>
-#define NUM_PACKETS 80
 
 static camkes_vchan_con_t con = {
     .connect = &vchan_con_new_connection,
