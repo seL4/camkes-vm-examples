@@ -21,4 +21,6 @@ component VM {
     uses VchanInterface vchan_con;
     consumes VchanEvent vevent;
     dataport vchan_headers_t share_mem;
+ 
+    attribute int base_prio;
 }

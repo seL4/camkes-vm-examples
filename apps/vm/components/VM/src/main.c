@@ -37,7 +37,7 @@
 #include "vmlinux.h"
 #include "cmks_vchan_vm.h"
 
-#define VM_PRIO             100
+int VM_PRIO = 100;
 #define VM_BADGE            (1U << 0)
 #define VM_LINUX_NAME       "linux"
 #define VM_LINUX_DTB_NAME   "linux-dtb"
@@ -320,7 +320,14 @@ main_continued(void)
     return 0;
 }
 
+/* base_prio is an optional attribute of the VM component. */
+extern int __attribute__((weak)) base_prio;
+
 void run(void) {
+    /* if the base_prio attribute is set, use it */
+    if (&base_prio != NULL) {
+	VM_PRIO = base_prio;
+    }
     main_continued();
 }
 
