@@ -24,7 +24,7 @@
 // #define DEBUG_VM_VCHAN
 
 #ifdef DEBUG_VM_VCHAN
-#define DVMVCHAN(...) do{ printf("VCHAN: "); printf(__VA_ARGS__); }while(0)
+#define DVMVCHAN(...) do{ printf("VCHAN VMSIDE: "); printf(__VA_ARGS__); }while(0)
 #else
 #define DVMVCHAN(...) do{}while(0)
 #endif
@@ -65,7 +65,7 @@ static camkes_vchan_con_t vchan_camkes_component = {
     .disconnect = &vchan_con_rem_connection,
     .get_buf = &vchan_con_get_buf,
     .status = &vchan_con_status,
-    .alert_status = &vchan_con_alert_status,
+    .alert_status = &vchan_con_data_stats,
     .reg_callback = &vevent_reg_callback,
     .alert = &vchan_con_ping,
 
@@ -86,32 +86,48 @@ void vm_vchan_setup(vm_t *vm) {
 /* No ack callback needed when the vchan acknoledges a vchan irq */
 static void vchan_ack(void* token) {}
 
+
+static int update_callback_alert(void *addr) {
+    int res;
+    vchan_alert_t in_alert;
+    vm_copyin(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
+    camkes_vchan_con_t *con = get_vchan_con(run_vmm, in_alert.dest);
+    if(con == NULL) {
+        DVMVCHAN("up cb: No vchan component instance for %d\n", in_alert.dest);
+        DVMVCHAN("up cb: |%d|%d|%d|%d|%d\n",
+            in_alert.dest, in_alert.port, in_alert.buffer_space, in_alert.data_ready, in_alert.is_closed);
+        return -1;
+    }
+
+    vchan_ctrl_t ct = {
+        .domain = con->source_dom_number,
+        .dest = in_alert.dest,
+        .port = in_alert.port,
+    };
+
+    res = con->alert_status(ct, &(in_alert.data_ready), &(in_alert.buffer_space));
+    if(res != -1) {
+        if(res == 1)
+            in_alert.is_closed = 1;
+        vm_copyout(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
+    }
+
+    con->reg_callback(&vchan_callback, addr);
+    return res;
+}
+
 /*
     Callback function that is fired when a vchan event is emitted
         The nature of the event (a full or empty data buffer), is passed to the running vm
             via coping the event value and triggering a hardware IRQ
 */
 static void vchan_callback(void *addr) {
-    vchan_alert_t in_alert;
-    vm_copyin(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
+    DVMVCHAN("Callback triggered\n");
 
-    camkes_vchan_con_t *con = get_vchan_con(run_vmm, in_alert.dest);
-    if(con == NULL) {
-        DVMVCHAN("Domain %d, has no vchan component instance\n", in_alert.dest);
-        return;
-    }
-
-    vchan_ctrl_t ct = {
-        .dest = in_alert.dest,
-        .port = in_alert.port,
-    };
-
-    in_alert.alert = con->alert_status(ct);
-
-    vm_copyout(run_vmm, &in_alert, (uintptr_t) addr, sizeof(vchan_alert_t));
-    con->reg_callback(&vchan_callback, addr);
-
+    update_callback_alert(addr);
     vm_inject_IRQ(vchan_irq_handle);
+
+    DVMVCHAN("Callback concluded\n");
 }
 
 /*
@@ -152,6 +168,8 @@ static int vchan_connect(void *data, uint64_t cmd) {
     vmm_args_t *args = (vmm_args_t *)data;
     vchan_connect_t *pass = (vchan_connect_t *)args->ret_data;
 
+    DVMVCHAN("Domain %d, connecting to %d\n", pass->v.domain, pass->v.dest);
+
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
     if(con == NULL) {
         DVMVCHAN("Domain %d, has no vchan component instance\n", pass->v.domain);
@@ -175,6 +193,8 @@ static int vchan_connect(void *data, uint64_t cmd) {
         DVMVCHAN("Domain %d, failed reg callback\n", pass->v.domain);
         return -1;
     }
+
+    DVMVCHAN("Domain %d, connected to %d\n", pass->v.domain, pass->v.dest);
 
     return 0;
 }
@@ -232,43 +252,48 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
     if(cmd == VCHAN_RECV) {
         if(args->stream) {
             size = MIN(filled, args->size);
-        } else if(args->size > filled) {
+        } else if(filled < args->size) {
+            printf("vmcall_readwrite: bad recv size |%d|%d|\n", args->size, filled);
             return -1;
         }
     } else {
         if(args->stream) {
             size = MIN(VCHAN_BUF_SIZE - filled, args->size);
-        } else if (args->size > (VCHAN_BUF_SIZE - filled)) {
+        } else if ((VCHAN_BUF_SIZE - filled) < args->size) {
+            printf("vmcall_readwrite: bad send size |%d|%d|\n", args->size, filled);
             return -1;
         }
     }
 
-    if(cmd == VCHAN_SEND) {
-        update = &(b->write_pos);
-    } else {
-        update = &(b->read_pos);
-    }
-
-    off_t start = (*update % VCHAN_BUF_SIZE);
     off_t remain = 0;
-    if(start + size > VCHAN_BUF_SIZE) {
-        remain = (start + size) - VCHAN_BUF_SIZE;
-        size -= remain;
+
+    if(size != 0) {
+        if(cmd == VCHAN_SEND) {
+            update = &(b->write_pos);
+        } else {
+            update = &(b->read_pos);
+        }
+
+        off_t start = (*update % VCHAN_BUF_SIZE);
+        if(start + size > VCHAN_BUF_SIZE) {
+            remain = (start + size) - VCHAN_BUF_SIZE;
+            size -= remain;
+        }
+
+        if(cmd == VCHAN_SEND) {
+            vm_copyin(run_vmm, (b->sync_data + start), phys, size);
+            vm_copyin(run_vmm, (b->sync_data), (phys + size), remain);
+        } else {
+            vm_copyout(run_vmm, (b->sync_data + start), phys, size);
+            vm_copyout(run_vmm, (b->sync_data), (phys + size), remain);
+        }
+
+        *update += (size + remain);
+        DVMVCHAN("vmcall_readwrite: finished action %d | %d | %d\n", (int) cmd, size, (int) remain);
     }
 
-    if(cmd == VCHAN_SEND) {
-        vm_copyin(run_vmm, (b->sync_data + start), phys, size);
-        vm_copyin(run_vmm, (b->sync_data), (phys + size), remain);
-    } else {
-        vm_copyout(run_vmm, (b->sync_data + start), phys, size);
-        vm_copyout(run_vmm, (b->sync_data), (phys + size), remain);
-    }
-
-    *update += (size + remain);
-    con->alert();
-
-    DVMVCHAN("vmcall_readwrite: finished action %d | %d | %d\n", (int) cmd, size, (int) remain);
     args->size = (size + remain);
+    con->alert();
 
     return 0;
 }

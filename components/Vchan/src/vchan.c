@@ -25,6 +25,8 @@
 
 #include <Vchan.h>
 
+#define DEBUG_VCHAN
+
 #ifdef DEBUG_VCHAN
 #define DVCHAN(...) do{ printf("VCHAN: "); printf(__VA_ARGS__); }while(0)
 #else
@@ -148,34 +150,29 @@ int vchan_com_status(vchan_ctrl_t args) {
     return val;
 }
 
-
-int vchan_com_alert_status(vchan_ctrl_t args) {
-    int alert = VCHAN_EMPTY_BUF;
+int vchan_com_data_stats(vchan_ctrl_t args, int *data_ready, int *buffer_space) {
     vchan_instance_t *i = get_vchan_instance(args.domain, args.dest, args.port);
-    int closed = vchan_status(i->domx, i->domy, i->port);
-
-    vchan_buf_t *b = get_dom_buf(args.domain, i->buffers);
-    assert(b != NULL);
-
-    b->filled = abs(b->write_pos - b->read_pos);
-
-    if(closed == 0) {
-        if(b->filled) {
-            alert = VCHAN_CLOSED_DATA;
-        } else {
-            alert = VCHAN_CLOSED;
-        }
-    } else {
-        if(b->filled) {
-            if(b->filled == VCHAN_BUF_SIZE) {
-                alert = VCHAN_BUF_FULL;
-            } else {
-                alert = VCHAN_BUF_DATA;
-            }
-        }
+    if(i == NULL || data_ready == NULL || buffer_space == NULL) {
+        DVCHAN("Cannot find vchan instance, vcham_com_data_stats failed.\n");
+        return -1;
     }
 
-    return alert;
+    vchan_buf_t *b = get_dom_buf(args.dest, i->buffers);
+    assert(b != NULL);
+    b->filled = abs(b->write_pos - b->read_pos);
+    *buffer_space = VCHAN_BUF_SIZE - b->filled;
+
+    b = get_dom_buf(args.domain, i->buffers);
+    assert(b != NULL);
+    b->filled = abs(b->write_pos - b->read_pos);
+    *data_ready = b->filled;
+
+    int closed = vchan_status(i->domx, i->domy, i->port);
+    if(closed == 0) {
+        return 1;
+    }
+
+    return 0;
 }
 
 
@@ -387,29 +384,3 @@ static vchan_instance_t *get_vchan_instance(uint32_t domx, uint32_t domy, uint32
 
 //  return 0;
 // }
-
-/*
-    Return some information about the state of a given buffer,
-     assigned to a vchan instance
-*/
-int ctrl_vchan_buf_state(uint32_t source, uint32_t dest, uint32_t port, uint32_t type) {
-    int val = 0;
-    vchan_instance_t *inst = get_vchan_instance(source, dest, port);
-    if(inst == NULL) {
-        DVCHAN("vchan_bufstate: bad instance\n");
-        return -1;
-    }
-
-    vchan_buf_t *b;
-    if(type == NOWAIT_DATA_READY) {
-        b = get_dom_buf(source, inst->buffers);
-        assert(b != NULL);
-        val = b->filled;
-    } else if (type == NOWAIT_BUF_SPACE) {
-        b = get_dom_buf(dest, inst->buffers);
-        assert(b != NULL);
-        val = VCHAN_BUF_SIZE - b->filled;
-    }
-
-    return val;
-}

@@ -16,6 +16,7 @@ procedure VchanInterface {
     intptr_t get_buf(in vchan_ctrl_t args, in int cmd);
 
     int status(in vchan_ctrl_t args);
-    int alert_status(in vchan_ctrl_t args);
+
+    int data_stats(in vchan_ctrl_t args, inout int data_ready, inout int buffer_space);
     void ping();
 };
