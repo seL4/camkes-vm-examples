@@ -9,7 +9,6 @@
  */
 
 #include "vchan_testsuite.h"
-#include "linux_vchan_testsuite_util.h"
 
 #include "includes/vmm_manager.h"
 #include "includes/vchan_copy.h"
