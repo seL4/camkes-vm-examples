@@ -1,0 +1,25 @@
+#
+# Copyright 2014, NICTA
+#
+# This software may be distributed and modified according to the terms of
+# the GNU General Public License version 2. Note that NO WARRANTY is provided.
+# See "LICENSE_GPLv2.txt" for details.
+#
+# @TAG(NICTA_GPL)
+#
+
+# Contains mappings of testnames to numeric representations 
+#   In the vchan testsuite
+#   To add a new test, add the tests name and numeric representation here
+#   And it will be recognised by the testsuite (so long as the test also exists in the C binary)
+
+all,               -1
+packets,            0
+ftp_esque,          1
+funnel,             2
+badcall,            3
+close_reopen,       4
+prod_cons,          5
+ex_rdw,             6
+burst,              7
+bigwrite,           8

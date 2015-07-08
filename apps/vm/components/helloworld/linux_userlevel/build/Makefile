@@ -9,7 +9,6 @@
 #
 
 all:
-	# ./buildout
 	cd vchan_code && $(MAKE)
-
+	mv sel4_vchan_testsuite tester/
 

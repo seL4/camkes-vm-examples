@@ -111,7 +111,6 @@ int libvchan_recv(libvchan_t *ctrl, void *data, size_t size) {
     return vchan_readwrite(ctrl, data, size, VCHAN_RECV, 0);
 }
 
-
 /**
 * Packet-based send: send entire buffer if possible
 * @param ctrl The vchan control structure
@@ -134,7 +133,6 @@ int libvchan_send(libvchan_t *ctrl, const void *data, size_t size) {
 int libvchan_read(libvchan_t *ctrl, void *data, size_t size) {
     return vchan_readwrite(ctrl, data, size, VCHAN_RECV, 1);
 }
-
 
 /**
 * Stream-based send: send as much data as possible.
