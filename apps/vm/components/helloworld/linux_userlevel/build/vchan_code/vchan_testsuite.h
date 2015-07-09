@@ -45,7 +45,7 @@
 struct libvchan;
 typedef struct libvchan libvchan_t;
 
-#define VCHANTESTS_DEBUG_LVL        0
+#define VCHANTESTS_DEBUG_LVL        2
 
 #define VCHANTESTS_VCHAN_PORT       25
 #define VCHANTESTS_MAX_TESTS 	    20
@@ -54,12 +54,13 @@ typedef struct libvchan libvchan_t;
 #define FTP_TEST	 				1
 #define FUNNEL_TEST 				2
 #define BADCALLS_TEST 				3
-#define CLOSE_REOPEN_USE_TEST       4
+#define CLOSE_REOPEN                4
 #define PROD_CONS_TEST              5
 #define EXTENDED_READWRITE          6
 #define VM_BURST_TEST               7
 #define BIGWRITE_TEST               8
 
+#define VCHAN_TESTSUITE_CLOSED      0xdffdffff
 #define VCHANTESTS_HANDSHAKE_CODE 	0xdeadbffe
 #define VCHANTESTS_HANDSHAKE_ACK 	0xdbffedee
 
@@ -89,6 +90,7 @@ int vchantests_prod_cons(libvchan_t *ctrl);
 int vchantests_funnel(libvchan_t *ctrl);
 int vchantests_vm_burst(libvchan_t *ctrl);
 int vchantests_bigwrite(libvchan_t *ctrl);
+int vchantests_close_reopen(libvchan_t *ctrl);
 
 /* vchantests_packet defined */
 #define PACKET_TEST_GUARD    0xBEEDEADA
@@ -125,7 +127,7 @@ const char bigwrite_out[]  = "readback.txt";
 const int bigwrite_cmd_size = sizeof("diff") + sizeof(bigwrite_file) + sizeof(bigwrite_out) + 4;
 
 /* vchantests_bigwrite defines */
-#define VM_BIGWRITE_COMP_BUF_SIZE 1024
+#define VM_BIGWRITE_COMP_BUF_SIZE 430
 #define VM_BIGWRITE_PORT 128
 
 /* - Function table - */
@@ -137,6 +139,7 @@ static struct test_ops {
     .tfunc[VM_BURST_TEST]       =       &vchantests_vm_burst,
     .tfunc[FUNNEL_TEST]         =       &vchantests_funnel,
     .tfunc[BIGWRITE_TEST]       =       &vchantests_bigwrite,
+    .tfunc[CLOSE_REOPEN]        =       &vchantests_close_reopen,
 };
 
 

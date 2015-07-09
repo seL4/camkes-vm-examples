@@ -29,15 +29,48 @@ const char testsuite_usage[] = { "sel4_vchan_testsuite ([0..VCHAN_TESTSUITE_MAX_
 
 /* Fundamental vchan handshake test */
 int vchan_tests_handshake(libvchan_t *ctrl) {
-	TDPRINTF(2, "Start handshake to component\n");
+	TDPRINTF(2, "start handshake to component\n");
 	int handshake = VCHANTESTS_HANDSHAKE_CODE;
 
-	libvchan_write(ctrl, &handshake, sizeof(int));
+	libvchan_send(ctrl, &handshake, sizeof(int));
+    TDPRINTF(2, "wait for ack\n");
 	libvchan_wait(ctrl);
-    libvchan_read(ctrl, &handshake, sizeof(int));
+    libvchan_recv(ctrl, &handshake, sizeof(int));
     if(handshake != VCHANTESTS_HANDSHAKE_ACK)
     	return -1;
+
+    TDPRINTF(2, "handshake done\n");
 	return 0;
+}
+
+/*
+    vchantests_close_reopen:
+
+*/
+int vchantests_close_reopen(libvchan_t *ctrl) {
+    int res, ack = 1;
+
+    libvchan_close(ctrl);
+    ctrl = libvchan_client_init(50, VCHANTESTS_VCHAN_PORT);
+    if(ctrl == NULL) {
+        TERROR("close-reopen: failed to create connection")
+        return -1;
+    }
+
+    res = libvchan_send(ctrl, &ack, sizeof(int));
+    if(res != sizeof(int)) {
+        TERROR("close-reopen: got %d|%d on send\n", res, (int) sizeof(int));
+        return -1;
+    }
+
+    res = libvchan_recv(ctrl, &ack, sizeof(int));
+    if(res != sizeof(int) || ack != 0) {
+        TERROR("close-reopen: got %d|%d on recv\n", res, (int) sizeof(int));
+        return -1;
+    }
+
+    TDPRINTF(4, "close-reopen: done\n");
+    return 0;
 }
 
 /*
@@ -46,7 +79,7 @@ int vchan_tests_handshake(libvchan_t *ctrl) {
         Read back data gets placed into a file
 */
 static int vchantests_bigwrite_child(libvchan_t *ctrl, size_t sz) {
-	int ret, fd;
+	int ret = 0, fd;
     char rbuf[VM_BIGWRITE_COMP_BUF_SIZE];
 
     fd = open(bigwrite_out, 0 | O_CREAT | O_TRUNC | O_RDWR, 0 | S_IRUSR | S_IWUSR);
@@ -80,6 +113,8 @@ static int vchantests_bigwrite_child(libvchan_t *ctrl, size_t sz) {
 		else
 			sz -= ret;
 	}
+
+    libvchan_close(writeback);
 
 	return EXIT_SUCCESS;
 }
@@ -392,13 +427,12 @@ int vchantests_packet(libvchan_t *ctrl) {
 			pak.datah[i] = i + x;
 		}
 
-		pak.guard = PACKET_TEST_GUARD;
-		while(libvchan_buffer_space(ctrl) < sizeof(pak));
 		sz = libvchan_send(ctrl, &pak, sizeof(pak));
-		if(sz < sizeof(pak)) {
+		if(sz != sizeof(pak)) {
 			TERROR("bad packet send size\n");
 			return -1;
 		}
+
 	}
 
 	TDPRINTF(4, "packets: waiting for ack..\n");
@@ -493,37 +527,42 @@ static int do_tests(libvchan_t *ctrl) {
     Testsuite entry point
 */
 int main(int argc, char **argv) {
-	int i, errors;
+	int i, errors, close_code = VCHAN_TESTSUITE_CLOSED;
+    if(argc < 2) {
+        TERROR("Invalid number of arguments for testsuite, got %d\n", argc);
+        usage(1);
+    }
+
 	/* Create connection and do sanity test */
 	libvchan_t *ctrl = libvchan_client_init(50, VCHANTESTS_VCHAN_PORT);
-	if(ctrl == NULL)
-		TERROR("Failed to create control connection")
+	if(ctrl == NULL) {
+		TERROR("Failed to create control connection");
+        return EXIT_FAILURE;
+    }
 
-	if(vchan_tests_handshake(ctrl) < 0)
-		TERROR("Failed to perform initial handshake")
+	if(vchan_tests_handshake(ctrl) < 0) {
+		TERROR("Failed to perform initial handshake");
+        return EXIT_FAILURE;
+    }
 
 	/* Set up tests to run from given arguments */
-	if(argc >= 2) {
-		for(i = 1; i < argc; i++) {
-			int anum = atoi(argv[i]);
-			if(anum < 0) {
-				TDPRINTF(2, "Running all tests\n");
-				memset(test_run_arr, 1, sizeof(test_run_arr));
-				break;
-			} else if(anum < VCHANTESTS_MAX_TESTS) {
-				test_run_arr[anum] = 1;
-			} else {
-				TDPRINTF(2, "Unknown testarg num: %d\n", anum);
-			}
+	for(i = 1; i < argc; i++) {
+		int anum = atoi(argv[i]);
+		if(anum < 0) {
+			TDPRINTF(2, "Running all tests\n");
+			memset(test_run_arr, 1, sizeof(test_run_arr));
+			break;
+		} else if(anum < VCHANTESTS_MAX_TESTS) {
+			test_run_arr[anum] = 1;
+		} else {
+			TDPRINTF(2, "Unknown testarg num: %d\n", anum);
 		}
-		errors = do_tests(ctrl);
-	} else {
-		TERROR("Invalid number of arguments for testsuite, got %d\n", argc);
-		libvchan_close(ctrl);
-		usage(1);
 	}
 
+	errors = do_tests(ctrl);
+
 	TDPRINTF(4, "closing vchan ctrl\n");
+    libvchan_send(ctrl, &close_code, sizeof(int));
 	libvchan_close(ctrl);
 
 	if(errors) {

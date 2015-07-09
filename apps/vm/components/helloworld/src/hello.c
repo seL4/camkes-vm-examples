@@ -58,16 +58,33 @@ static camkes_vchan_con_t con = {
 */
 int vchantests_handshake(libvchan_t *ctrl) {
     int handshake = -1;
+
+    DHELL("> starting handshake\n");
+
     libvchan_wait(ctrl);
 
-    libvchan_read(ctrl, &handshake, sizeof(int));
-    if(handshake != VCHANTESTS_HANDSHAKE_CODE)
-        return -1;
+    libvchan_recv(ctrl, &handshake, sizeof(int));
+    assert(handshake == VCHANTESTS_HANDSHAKE_CODE);
     handshake = VCHANTESTS_HANDSHAKE_ACK;
-    libvchan_write(ctrl, &handshake, sizeof(int));
+    libvchan_send(ctrl, &handshake, sizeof(int));
+
+    DHELL("> concluded handshake\n");
 
     return 0;
 }
+
+int vchantests_close_reopen(libvchan_t *ctrl) {
+    int ack = -1;
+    libvchan_wait(ctrl);
+    libvchan_recv(ctrl, &ack, sizeof(int));
+    assert(ack == 1);
+
+    ack = 0;
+    libvchan_send(ctrl, &ack, sizeof(int));
+
+    return 0;
+}
+
 
 /*
     vchantests_prod_cons:
@@ -207,6 +224,8 @@ int vchantests_bigwrite(libvchan_t *ctrl) {
         ret = libvchan_send(writeback, buf, ret);
     }
 
+    libvchan_close(writeback);
+
     DHELL("bigwrite: finished\n");
 
     return 0;
@@ -236,6 +255,8 @@ int vchantests_packet(libvchan_t *ctrl) {
     char done = 1;
     int x, pnum;
     vchan_packet_t pak;
+
+    DHELL("packet test...\n", pnum);
 
     libvchan_wait(ctrl);
     sz = libvchan_read(ctrl, &pnum, sizeof(int));
@@ -279,25 +300,32 @@ int run(void) {
     if(ctrl != NULL)
         ctrl = link_vchan_comp(ctrl, &con);
     assert(ctrl != NULL);
-    assert(vchantests_handshake(ctrl) == 0);
 
     /* Wait for test requests */
     while(1) {
-        libvchan_wait(ctrl);
-        size = libvchan_recv(ctrl, &tcmd, sizeof(int));
-        if(size != sizeof(int)) {
-            DHELL("error? %d bytes read from connection\n", FILE_DATAPORT_MAX_SIZE);
-        } else {
-            if(tcmd < 0 || tcmd > VCHANTESTS_MAX_TESTS) {
-                DHELL("Invalid test:id .. ignoring %d:\n", tcmd);
-                continue;
-            }
-
-            if(testop_table.tfunc[tcmd] == NULL) {
-                DHELL("error! test:id %d: has no function attached, ignoring...\n", tcmd);
+        assert(vchantests_handshake(ctrl) == 0);
+        while(1) {
+            libvchan_wait(ctrl);
+            size = libvchan_recv(ctrl, &tcmd, sizeof(int));
+            if(size != sizeof(int)) {
+                DHELL("error? %d bytes read from connection\n", FILE_DATAPORT_MAX_SIZE);
             } else {
-                DHELL("Running test:id %d:\n", tcmd);
-                (*testop_table.tfunc[tcmd])(ctrl);
+                if(tcmd == VCHAN_TESTSUITE_CLOSED) {
+                    DHELL("vm testsuite closed returning to handshake\n");
+                    break;
+                }
+
+                if(tcmd < 0 || tcmd > VCHANTESTS_MAX_TESTS) {
+                    DHELL("Invalid test:id .. ignoring %d:\n", tcmd);
+                    continue;
+                }
+
+                if(testop_table.tfunc[tcmd] == NULL) {
+                    DHELL("error! test:id %d: has no function attached, ignoring...\n", tcmd);
+                } else {
+                    DHELL("Running test:id %d:\n", tcmd);
+                    (*testop_table.tfunc[tcmd])(ctrl);
+                }
             }
         }
     }

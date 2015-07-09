@@ -230,8 +230,6 @@ int vchan_readwrite(libvchan_t *ctrl, const void *data, size_t size, int cmd, in
     } else {
         return res;
     }
-
-    return 0;
 }
 
 /*
