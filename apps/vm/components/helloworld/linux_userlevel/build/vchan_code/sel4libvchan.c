@@ -28,10 +28,9 @@
 
 static int libvchan_checkbuf(libsel4vchan_t *com, int checktype, int nowait);
 libvchan_t *libvchan_new_instance(int domain, int port, size_t read_min, size_t write_min, int server);
-int vchan_readwrite(libvchan_t *ctrl, const void *data, size_t size, int cmd, int stream);
 static uint64_t u;
 
-int fd_set_blocking(int fd, int blocking);
+static int fd_set_blocking(int fd, int blocking);
 
 /**
  * Set a file descriptor to blocking or non-blocking mode.
@@ -40,7 +39,7 @@ int fd_set_blocking(int fd, int blocking);
  * @param blocking 0:non-blocking mode, 1:blocking mode
  * @return 1:success, 0:failure.
  **/
-int fd_set_blocking(int fd, int blocking) {
+static int fd_set_blocking(int fd, int blocking) {
     /* Save the current flags */
     int flags = fcntl(fd, F_GETFL, 0);
     if (flags == -1)
@@ -108,7 +107,7 @@ int libvchan_buffer_space(libvchan_t *ctrl) {
 * @return -1 on error, 0 if nonblocking and insufficient data is available, or $size
 */
 int libvchan_recv(libvchan_t *ctrl, void *data, size_t size) {
-    return vchan_readwrite(ctrl, data, size, VCHAN_RECV, 0);
+    return libvchan_readwrite(ctrl, data, size, VCHAN_RECV, VCHAN_NOSTREAM);
 }
 
 /**
@@ -119,7 +118,7 @@ int libvchan_recv(libvchan_t *ctrl, void *data, size_t size) {
 * @return -1 on error, 0 if nonblocking and insufficient space is available, or $size
 */
 int libvchan_send(libvchan_t *ctrl, const void *data, size_t size) {
-    return vchan_readwrite(ctrl, data, size, VCHAN_SEND, 0);
+    return libvchan_readwrite(ctrl, (void *) data, size, VCHAN_SEND, VCHAN_NOSTREAM);
 }
 
 /**
@@ -131,7 +130,7 @@ int libvchan_send(libvchan_t *ctrl, const void *data, size_t size) {
 * the vchan is nonblocking)
 */
 int libvchan_read(libvchan_t *ctrl, void *data, size_t size) {
-    return vchan_readwrite(ctrl, data, size, VCHAN_RECV, 1);
+    return libvchan_readwrite(ctrl, data, size, VCHAN_RECV, VCHAN_STREAM);
 }
 
 /**
@@ -143,12 +142,12 @@ int libvchan_read(libvchan_t *ctrl, void *data, size_t size) {
 * the vchan is nonblocking)
 */
 int libvchan_write(libvchan_t *ctrl, const void *data, size_t size) {
-    return vchan_readwrite(ctrl, data, size, VCHAN_SEND, 1);
+    return libvchan_readwrite(ctrl, (void *) data, size, VCHAN_SEND, VCHAN_STREAM);
 }
 
 /**
 * Query the state of the vchan shared page:
-* return 0 when one side has called libxenvchan_close() or crashed
+* return 0 when one side has called libvchan_close() or crashed
 * return 1 when both sides are open
 * return 2 [server only] when no client has yet connected
 */
@@ -170,7 +169,9 @@ int libvchan_is_open(libvchan_t *ctrl) {
 
 }
 
-/// returns nonzero if the peer has closed connection
+/*
+    Returns nonzero if the peer has closed connection
+*/
 int libvchan_is_eof(struct libvchan *ctrl) {
     /* Other side has closed connection */
     if(libvchan_is_open(ctrl) == 0) {
@@ -189,7 +190,6 @@ int libvchan_fd_for_select(struct libvchan *ctrl) {
     return ctrl->sel4vchan->event_fd;
 }
 
-
 /*
     Perform a read or write
     @stream - if 1, don't mind if not all data is sent/recieved
@@ -199,7 +199,7 @@ int libvchan_fd_for_select(struct libvchan *ctrl) {
     @data - data source or destination
     return either size of data written or retrived, or error
 */
-int vchan_readwrite(libvchan_t *ctrl, const void *data, size_t size, int cmd, int stream) {
+int libvchan_readwrite(libvchan_t *ctrl, void *data, size_t size, int cmd, int stream) {
 
     int res;
     libsel4vchan_t *com = ctrl->sel4vchan;
