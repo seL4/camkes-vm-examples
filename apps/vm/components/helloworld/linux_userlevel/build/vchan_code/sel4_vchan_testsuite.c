@@ -439,13 +439,13 @@ int vchantests_packet(libvchan_t *ctrl) {
 		for(i = 0; i < 4; i++) {
 			pak.datah[i] = i + x;
 		}
+        pak.guard = PACKET_TEST_GUARD;
 
 		sz = libvchan_send(ctrl, &pak, sizeof(pak));
 		if(sz != sizeof(pak)) {
 			TERROR("bad packet send size\n");
 			return -1;
 		}
-
 	}
 
 	TDPRINTF(4, "packets: waiting for ack..\n");
@@ -490,7 +490,6 @@ int verify_ctrl_correctness(libvchan_t *ctrl) {
 		return -1;
 	}
 
-	printf("testsuite: pack end\n");
 	return 0;
 }
 
