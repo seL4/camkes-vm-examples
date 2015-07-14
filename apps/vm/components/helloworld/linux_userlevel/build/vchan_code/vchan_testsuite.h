@@ -29,7 +29,6 @@
 		4. Add testing code into the helloworld component
 			- Helloworld component uses vchan_testsuite.h, but implements its own tests in hello.c (atm)
 */
-
 #include <sys/ioctl.h>
 #include <string.h>
 #include <fcntl.h>
@@ -45,29 +44,28 @@
 struct libvchan;
 typedef struct libvchan libvchan_t;
 
-#define VCHANTESTS_DEBUG_LVL        2
+#define VCHANTESTS_DEBUG_LVL        0
 
 #define VCHANTESTS_VCHAN_PORT       25
-#define VCHANTESTS_MAX_TESTS 	    20
+#define VCHANTESTS_MAX_TESTS        20
 
-#define PACKET_TEST 				0
-#define FTP_TEST	 				1
-#define FUNNEL_TEST 				2
-#define BADCALLS_TEST 				3
+#define PACKET_TEST                 0
+#define FTP_TEST                    1
+#define FUNNEL_TEST                 2
+#define BADCALLS_TEST               3
 #define CLOSE_REOPEN                4
 #define PROD_CONS_TEST              5
 #define EXTENDED_READWRITE          6
 #define VM_BURST_TEST               7
 #define BIGWRITE_TEST               8
+#define CLOSE_TEST                  9
 
 #define VCHAN_TESTSUITE_CLOSED      0xdffdffff
-#define VCHANTESTS_HANDSHAKE_CODE 	0xdeadbffe
-#define VCHANTESTS_HANDSHAKE_ACK 	0xdbffedee
-
-#define VCHAN_COMPONENT_DEBUG_OUTPUT
+#define VCHANTESTS_HANDSHAKE_CODE   0xdeadbffe
+#define VCHANTESTS_HANDSHAKE_ACK    0xdbffedee
 
 #define TERROR(...) do{ \
-		printf("VCHANTESTS_ERROR:%s:%d | ", __func__, __LINE__); printf(__VA_ARGS__); \
+		printf("vchantests-ERROR:%s:%d | ", __func__, __LINE__); printf(__VA_ARGS__); \
 	} while(0);
 
 #define TDPRINTF(lvl, ...) \
@@ -76,7 +74,6 @@ typedef struct libvchan libvchan_t;
     	printf(__VA_ARGS__); \
     } }while(0) \
         /*  */
-
 
 /* Simple sanity test run before any tests */
 int vchantests_handshake(libvchan_t *ctrl);
@@ -91,6 +88,7 @@ int vchantests_funnel(libvchan_t *ctrl);
 int vchantests_vm_burst(libvchan_t *ctrl);
 int vchantests_bigwrite(libvchan_t *ctrl);
 int vchantests_close_reopen(libvchan_t *ctrl);
+int vchantests_close(libvchan_t *ctrl);
 
 /* vchantests_packet defined */
 #define PACKET_TEST_GUARD    0xBEEDEADA
@@ -113,11 +111,14 @@ typedef struct vchan_packet {
 
 /* vchantests_vm_burst_test defines */
 #define VM_BURST_SLEEP_TIME 2
-#define VM_BURST_CHUNK_SIZE (1024 / sizeof(int))
 #define VM_BURST_NUM_SLEEPS 4
+#define VM_BURST_NUM_SENDS  4
+
+#define VM_BURST_CHUNK_INTS 5012
+#define VM_BURST_VM_SZ 430
+#define VM_BURST_TOTAL_SZ (5012 * sizeof(int))
+
 #define VM_BURST_CHECKSUM 0xffffffbb
-#define VM_BURST_LAST 64
-#define VM_BURST_TOTAL_SZ ((VM_BURST_CHUNK_SIZE * VM_BURST_NUM_SLEEPS) + VM_BURST_LAST)
 
 const int vm_burst_base_nums[] = { 0xdbffedee, 0xffddee11, 0xdeadbeef, 0xbeeddead };
 
@@ -140,6 +141,7 @@ static struct test_ops {
     .tfunc[FUNNEL_TEST]         =       &vchantests_funnel,
     .tfunc[BIGWRITE_TEST]       =       &vchantests_bigwrite,
     .tfunc[CLOSE_REOPEN]        =       &vchantests_close_reopen,
+    .tfunc[CLOSE_TEST]        =         &vchantests_close,
 };
 
 

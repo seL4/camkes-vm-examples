@@ -26,6 +26,15 @@
 #include <helloworld.h>
 #include <camkes/dataport.h>
 
+// #define VCHAN_TEST_COMPONENT_OUTPUT
+
+#ifdef VCHAN_TEST_COMPONENT_OUTPUT
+#define DHELL(...) do{ printf("vchantests_comp: "); printf(__VA_ARGS__); }while(0)
+#else
+#define DHELL(...) do{}while(0)
+#endif
+
+
 static camkes_vchan_con_t con = {
     .connect = &vchan_con_new_connection,
     .disconnect = &vchan_con_rem_connection,
@@ -39,12 +48,6 @@ static camkes_vchan_con_t con = {
     .dest_dom_number = 0,
     .source_dom_number = 50,
 };
-
-#ifdef VCHAN_COMPONENT_DEBUG_OUTPUT
-#define DHELL(...) do{ printf("vchantests_comp: "); printf(__VA_ARGS__); }while(0)
-#else
-#define DHELL(...) do{}while(0)
-#endif
 
 /*
     TESTSUITE:
@@ -149,49 +152,53 @@ int vchantests_funnel(libvchan_t *ctrl) {
 }
 
 /*
-    vchantests_vm_burst - initialise_buffer:
-        Initialise data that will be sent back to client
+    vchantests_vm_burst_init_buf:
 */
-static void initialise_buffer(int *buf, int sz) {
-    int x, i = 0;
-    int key = 0;
+static void vchantests_vm_burst_init_buf(int index, int *buf, int sz) {
+    DHELL("vm_burst: initialising buffer\n");
+    int x;
+    int key = vm_burst_base_nums[index % 4];
     for(x = 0; x < sz; x++) {
-        if(x % VM_BURST_CHUNK_SIZE == 0) {
-            key = vm_burst_base_nums[i % VM_BURST_NUM_SLEEPS];
-            i++;
-        }
-        buf[x] = x + key;
+        buf[x] = (x + key);
     }
-    buf[sz - 1] = VM_BURST_CHECKSUM;
 }
 
+/*
+    vchantests_close:
+*/
+int vchantests_close(libvchan_t *ctrl) {
+
+    return 0;
+}
 
 /*
     vchantests_vm_burst:
-        Send data a client that sleeps intermittently
-
-    TODO
-        - Make this more stressful, should send more data
-        - Make sure the client checks data recieved, should be correct
+        Send big chunks of data to vm, tests blocking and data sizes larger than the buffer
 */
 int vchantests_vm_burst(libvchan_t *ctrl) {
-    int sz = VM_BURST_TOTAL_SZ;
-    int buffer[sz];
-    int pos = 0;
-    initialise_buffer(buffer, sz);
+    int x, res, ack = 0;
+    int *buffer = (int *) malloc(VM_BURST_CHUNK_INTS * sizeof(int));
+    assert(buffer != NULL);
 
-    DHELL("vm_burst: planning to write %d bytes to vm client\n", sz);
-    while(sz > 0) {
-        int write = MIN(VM_BURST_CHUNK_SIZE, sz);
-        sz -= write;
-        libvchan_write(ctrl, buffer + pos, write);
-        DHELL("vm_burst: wrote %d|%d bytes to vm client\n", write, sz);
-        pos += write;
+    DHELL("vm_burst: planning to write %d bytes to vm client\n", VM_BURST_CHUNK_INTS * sizeof(int));
+
+    for(x = 0; x < VM_BURST_NUM_SENDS; x++) {
+        int key = vm_burst_base_nums[x % 4];
+        vchantests_vm_burst_init_buf(x, buffer, VM_BURST_CHUNK_INTS);
+        DHELL("vm_burst: sending key %x\n", key);
+        res = libvchan_send(ctrl, &key, sizeof(int));
+        assert(res == sizeof(int));
+
+        DHELL("vm_burst: sending data\n");
+        res = libvchan_send(ctrl, buffer, VM_BURST_CHUNK_INTS * sizeof(int));
+        assert(res == VM_BURST_CHUNK_INTS * sizeof(int));
+
+        DHELL("vm_burst: waiting for ack\n");
+        res = libvchan_recv(ctrl, &ack, sizeof(int));
+        assert(res == sizeof(int));
+        assert(ack == VM_BURST_CHECKSUM);
+        DHELL("vm_burst: done\n");
     }
-
-    DHELL("vm_burst: waiting for ack\n");
-    libvchan_recv(ctrl, &pos, sizeof(int));
-    DHELL("vm_burst: done\n");
 
     return 0;
 }
@@ -203,9 +210,8 @@ int vchantests_vm_burst(libvchan_t *ctrl) {
         When a chunk of data is recieved, send it back to the client
 */
 int vchantests_bigwrite(libvchan_t *ctrl) {
-    int sz = 0;
+    int ret, sz = 0;
     char buf[VM_BIGWRITE_COMP_BUF_SIZE];
-    int ret;
 
     libvchan_t *writeback = libvchan_server_init(0, VM_BIGWRITE_PORT, 0, 0);
     if(writeback != NULL)
@@ -225,9 +231,7 @@ int vchantests_bigwrite(libvchan_t *ctrl) {
     }
 
     libvchan_close(writeback);
-
     DHELL("bigwrite: finished\n");
-
     return 0;
 }
 

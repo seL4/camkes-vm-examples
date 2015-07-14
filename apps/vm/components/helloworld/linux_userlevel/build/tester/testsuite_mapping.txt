@@ -23,3 +23,4 @@ prod_cons,          5
 ex_rdw,             6
 burst,              7
 bigwrite,           8
+close,              9

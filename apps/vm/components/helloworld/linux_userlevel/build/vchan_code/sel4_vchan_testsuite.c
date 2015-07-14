@@ -23,6 +23,9 @@
 static char test_run_arr[VCHANTESTS_MAX_TESTS] = { 0 };
 const char testsuite_usage[] = { "sel4_vchan_testsuite ([0..VCHAN_TESTSUITE_MAX_TESTS] )+" };
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 /*
 	TESTSUITE: Tests, linux userlevel side
 */
@@ -70,6 +73,15 @@ int vchantests_close_reopen(libvchan_t *ctrl) {
     }
 
     TDPRINTF(4, "close-reopen: done\n");
+    return 0;
+}
+
+/*
+    vchantests_close:
+*/
+int vchantests_close(libvchan_t *ctrl) {
+
+
     return 0;
 }
 
@@ -189,7 +201,7 @@ int vchantests_bigwrite(libvchan_t *ctrl) {
         TERROR("bigwrite-parent: failed to snprintf compare command\n");
     }
 
-    printf("Running '%s' to compare files\n", compare_command);
+    TDPRINTF(2, "Running '%s' to compare files\n", compare_command);
 
     /* Check that the files are the same with diff */
     ret = system(compare_command);
@@ -217,7 +229,6 @@ static int vchantests_funnel_verify_buffer(char *buf, int sz) {
 		}
 		c++;
 	}
-
 	return failed;
 }
 
@@ -258,8 +269,6 @@ int vchantests_funnel(libvchan_t *ctrl) {
     		TERROR("funnel: failed on buffer getback stage!\n");
     		return -1;
     	}
-
-
 	} else {
 		TERROR("funnel: incorrect precondtion for funnel start\n");
 	}
@@ -270,84 +279,88 @@ int vchantests_funnel(libvchan_t *ctrl) {
 }
 
 /*
-    vchantests_vm_burst:
-        Recieve data from server intermittently
-
-    TODO
-        - Make this more stressful, should send more data
-        - Make sure the client checks data recieved, should be correct
+    vchantests_vm_burst_verify:
+		Verify that a given chunk of data is correct
 */
-int vchantests_vm_burst(libvchan_t *ctrl) {
-	int x, rsize, pos = 0;
-	int buf[VM_BURST_CHUNK_SIZE];
-
-	for(x = 0; x < VM_BURST_NUM_SLEEPS; x++) {
-		TDPRINTF(2, "burst: getting data chunk\n");
-		sleep(VM_BURST_SLEEP_TIME);
-		rsize = libvchan_read(ctrl, buf, VM_BURST_CHUNK_SIZE);
-		if(rsize < 0) {
-			TERROR("burst: failed to read data!\n");
-			return -1;
-		}
-		/* Do testing to make sure key/data is correct */
-	}
-
-	int remain = libvchan_data_ready(ctrl);
-	if(remain > 0) {
-		TDPRINTF(2, "burst: getting remaining data %d\n", remain);
-		rsize = libvchan_read(ctrl, buf, remain);
-		if(rsize < 0) {
-			TERROR("burst: failed to read data!\n");
-			return -1;
-		}
-	}
-
-	for(x = 0; x < rsize; x++) {
-		if(buf[x] == VM_BURST_CHECKSUM) {
-			TDPRINTF(2, "burst: found end checksum at %d\n", x);
-			break;
-		}
-	}
-
-	// if(buf[rsize - 1] != VM_BURST_CHECKSUM) {
-		// TERROR("burst: :invalid checksum: %08x:%08x\n", buf[rsize - 1], VM_BURST_CHECKSUM);
-		// return -1;
-	// }
+static int vchantests_vm_burst_verify(int key, int *buf, int sz) {
+    int i;
+    for(i = 0; i < sz; i++) {
+        if(buf[i] != (i + key)) {
+            TERROR("vm-burst: buffer mismatch :expected at %d = %x|actual = %x: \n", i, i + key, buf[i]);
+            return -1;
+        }
+    }
+    return 0;
 }
 
-static int send_packet(libvchan_t *con, int num_packets) {
-	size_t sz;
-	vchan_packet_t pak;
-	int x, i;
-	char fnack;
+static int valid_key(int key, const int *keylist, int sz) {
+    int i;
+    for(i = 0; i < sz; i++) {
+        if(key == keylist[i])
+            return 1;
+    }
 
-	printf("testsuite: packet start\n");
+    return 0;
+}
 
-	/* Check that buffer data is correct */
-	sz = libvchan_data_ready(con);
-	if(sz != 0) {
-		printf("error: incorrect start packet buffer size (data ready) %d\n", sz);
-		return -1;
-	}
+/*
+    vchantests_vm_burst:
+		Recieve big chunks of data from the component, sleep intermittently
+		Check that the chunks recieved are correct
+*/
+int vchantests_vm_burst(libvchan_t *ctrl) {
+	int key, rsize, sleep_count, x, res = 0;
+    int total_int_num;
+	int buf[VM_BURST_VM_SZ];
 
-	sz = libvchan_buffer_space(con);
-	if(sz != FILE_DATAPORT_MAX_SIZE) {
-		printf("error: incorrect start packet buffer size (bspace) %d\n", sz);
-		return -1;
-	}
+    TDPRINTF(2, "vm-burst: start\n");
 
-	/* Start */
+    for(x = 0; x < VM_BURST_NUM_SENDS; x++) {
+        sleep_count = 0;
+        res = libvchan_recv(ctrl, &key, sizeof(int));
+        if(res < 0) {
+            TERROR("vm-burst: failed to get key\n");
+            return -1;
+        }
 
-	sz = libvchan_send(con, &num_packets, sizeof(int));
-	if(sz < sizeof(int)) {
-		printf("--BAD PACKET NUM -- SEND\n");
-		return -1;
-	}
+        if(!valid_key(key, vm_burst_base_nums, sizeof(vm_burst_base_nums) / sizeof(int))) {
+            TERROR("vm-burst: key MISMATCH (got: %x)\n", key);
+            return -1;
+        }
 
-	printf("testsuite: send packets\n");
+        TDPRINTF(2, "vm-burst: key = %x\n", key);
+        rsize = VM_BURST_CHUNK_INTS * sizeof(int);
+        total_int_num = 0;
+        TDPRINTF(2, "vm-burst: going to read\n");
 
-	pos = 1;
-	libvchan_send(ctrl, &pos, sizeof(int));
+        while(rsize > 0) {
+            if(sleep_count < VM_BURST_NUM_SLEEPS) {
+                sleep_count++;
+                sleep(VM_BURST_SLEEP_TIME);
+            }
+
+            TDPRINTF(4, "vm-burst: %d bytes remaining\n", rsize);
+            int rval = MIN(rsize, sizeof(buf));
+            res = libvchan_recv(ctrl, buf, rval);
+            TDPRINTF(4, "vm-burst: returned with %d|%d bytes\n", res, rsize);
+            if(res != rval) {
+                TERROR("vm-burst: did not get correct ret\n");
+                return -1;
+            }
+
+            rsize -= res;
+            if(vchantests_vm_burst_verify(key + total_int_num, buf, (res / sizeof(int))) < 0) {
+                TERROR("vm-burst: failed data check %d\n", total_int_num);
+            	return -1;
+            } else {
+                TDPRINTF(2, "vm-burst: passed data check %d\n", total_int_num);
+            }
+            total_int_num += res / sizeof(int);
+        }
+
+        res = VM_BURST_CHECKSUM;
+        libvchan_send(ctrl, &res, sizeof(int));
+    }
 
 	return 0;
 }
@@ -494,15 +507,16 @@ static int do_tests(libvchan_t *ctrl) {
 				TDPRINTF(5, "no test for id %d! Has a test been properly connected?\n", i);
 			} else {
                 printf("Running test:%d\n", i);
-
 				/* Send test command to vchan component so it knows what to do */
 				int tcmd = i;
 				libvchan_write(ctrl, &tcmd, sizeof(int));
 				/* if non-zero result returned from test, it must have failed */
 				tcmd = abs((*testop_table.tfunc[i])(ctrl));
 				if(tcmd) {
-					TERROR("Test %d FAILED\n", tcmd);
-				}
+					printf("Test %d FAILED\n", i);
+				} else {
+                    printf("Test %d PASSED\n", i);
+                }
 
 				errcount += tcmd;
 				total++;
