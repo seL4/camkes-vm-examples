@@ -8,7 +8,6 @@
  * @TAG(NICTA_GPL)
  */
 
-
 #include <sel4vchan/vmm_manager.h>
 #include <sel4vchan/vchan_copy.h>
 #include <sel4vchan/vchan_sharemem.h>
@@ -20,12 +19,11 @@
 #include <VM.h>
 
 #include "cmks_vchan_vm.h"
-// #include "vchan_conf.h"
 
-#define VM_VCHAN_LVL 1
+#define VM_VCHAN_OUTPUT_LVL 1
 
 #define DVMVCHAN(lvl, ...) \
-    do{ if(lvl >= 1 && lvl <= VM_VCHAN_LVL){ \
+    do{ if(lvl >= 1 && lvl <= VM_VCHAN_OUTPUT_LVL){ \
         printf("vchan-vmside::%d: %s:%d | ", lvl, __func__, __LINE__); \
         printf(__VA_ARGS__); \
     } }while(0) \
@@ -99,7 +97,7 @@ static int update_callback_alert(void *addr) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, alrt->dest);
     if(con == NULL) {
-        DVMVCHAN(2, "vchan cb: No vchan component instance for %d\n", alrt->dest);
+        DVMVCHAN(2, "vchan-cb: No vchan component instance for %d\n", alrt->dest);
         return -1;
     }
 
@@ -111,20 +109,19 @@ static int update_callback_alert(void *addr) {
 
     res = con->alert_status(ct, &(alrt->data_ready), &(alrt->buffer_space));
 
-    DVMVCHAN(2, "vchan cb: |%d|%d|%d|%d|%d\n",
-        alrt->dest, alrt->port, alrt->buffer_space, alrt->data_ready, alrt->is_closed);
+    DVMVCHAN(2, "vchan-cb: |%d|%d|%d|%d|%d\n",
+        alrt->dest, alrt->port, alrt->buffer_space, alrt->data_ready);
 
-    alrt->is_closed = 0;
     if(res != -1) {
         if(res == 1) {
-            DVMVCHAN(2, "vchan cb: client side closed, cb %d\n", alrt->port);
+            DVMVCHAN(2, "vchan-cb: client side closed, cb %d\n", alrt->port);
             free(pass);
         } else {
             vm_copyout(run_vmm, alrt, pass->out_addr, sizeof(vchan_alert_t));
             con->reg_callback(&vchan_callback, addr);
         }
     } else {
-        DVMVCHAN(2, "vchan cb: getting status failed\n");
+        DVMVCHAN(2, "vchan-cb: getting status failed\n");
     }
 
     return res;
@@ -136,12 +133,12 @@ static int update_callback_alert(void *addr) {
             via coping the event value and triggering a hardware IRQ
 */
 static void vchan_callback(void *addr) {
-    DVMVCHAN(5, "vchan cb: triggered\n");
+    DVMVCHAN(5, "vchan-cb: triggered\n");
 
     update_callback_alert(addr);
     vm_inject_IRQ(vchan_irq_handle);
 
-    DVMVCHAN(5, "vchan cb: concluded\n");
+    DVMVCHAN(5, "vchan-cb: concluded\n");
 }
 
 /*
@@ -158,7 +155,6 @@ int get_vm_num() {
     return res;
 }
 
-
 /*
     Return the state of a given vchan connection
 */
@@ -166,7 +162,7 @@ static int vchan_state(void *data, uint64_t cmd) {
     vchan_check_args_t *args = (vchan_check_args_t *)data;
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
-        DVMVCHAN(2, "Domain %d, has no vchan component instance\n", args->v.domain);
+        DVMVCHAN(2, "connect: %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
 
@@ -181,17 +177,17 @@ static int vchan_connect(void *data, uint64_t cmd) {
     int res;
     vchan_connect_t *pass = (vchan_connect_t *) data;
 
-    DVMVCHAN(2, "Domain %d, connecting to %d\n", pass->v.domain, pass->v.dest);
+    DVMVCHAN(2, "connect: %d, connecting to %d\n", pass->v.domain, pass->v.dest);
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
     if(con == NULL) {
-        DVMVCHAN(2, "Domain %d, has no vchan component instance\n", pass->v.domain);
+        DVMVCHAN(2, "connect: %d, has no vchan component instance\n", pass->v.domain);
         return -1;
     }
 
     vchan_alert_internal_t *alrt = (vchan_alert_internal_t *) malloc(sizeof(vchan_alert_internal_t));
     if(pass == NULL) {
-        DVMVCHAN(2, "Domain %d, failed to allocate internal vchan-alert\n", pass->v.domain);
+        DVMVCHAN(2, "connect: %d, failed to allocate internal vchan-alert\n", pass->v.domain);
         return -1;
     }
 
@@ -202,19 +198,18 @@ static int vchan_connect(void *data, uint64_t cmd) {
         .server = pass->server,
     };
 
-
     res = con->connect(t);
     if(res < 0) {
-        DVMVCHAN(2, "Domain %d, failed to connect to %d\n", pass->v.domain, pass->v.dest);
+        DVMVCHAN(2, "connect: %d, failed to connect to %d\n", pass->v.domain, pass->v.dest);
         return -1;
     }
 
-    DVMVCHAN(2, "registering cb\n");
+    DVMVCHAN(2, "connect: registering cb\n");
     alrt->out_addr = pass->event_mon;
     vm_copyin(run_vmm, &(alrt->stats), (uintptr_t) pass->event_mon, sizeof(vchan_alert_t));
 
     if(update_callback_alert((void *) alrt) < 0) {
-        DVMVCHAN(2, "Domain %d, failed reg callback\n", pass->v.domain);
+        DVMVCHAN(2, "connect: %d, failed reg callback\n", pass->v.domain);
         return -1;
     }
 
@@ -232,7 +227,7 @@ static int vchan_close(void *data, uint64_t cmd) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
     if(con == NULL) {
-        DVMVCHAN(2, "Domain %d, has no vchan component instance\n", pass->v.domain);
+        DVMVCHAN(2, "close: %d, has no vchan component instance\n", pass->v.domain);
         return -1;
     }
 
@@ -263,7 +258,7 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
-        DVMVCHAN(2, "Domain %d, has no vchan component instance\n", args->v.domain);
+        DVMVCHAN(2, "vmcall_readwrite: %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
 
@@ -275,7 +270,6 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
         .dest = args->v.dest,
         .port = args->v.port,
     };
-
 
     /* Perfom copy of data to appropriate destination */
     vchan_buf_t *b = get_vchan_buf(&bargs, con, cmd);
@@ -365,7 +359,7 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
     run_vmm = vm;
     int cmd;
 
-    DVMVCHAN(4, ">>in vchan hyp call <<<\n", cmd);
+    DVMVCHAN(4, "entry: in call\n");
 
     vm_copyin(vm, &args_buffer, data, sizeof(vmcall_args_t));
     vmcall_args_t *args = (vmcall_args_t *)args_buffer;
@@ -384,5 +378,5 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
         }
     }
     vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
-    DVMVCHAN(4, ">>returning from hyp call |%d|<<<\n", cmd);
+    DVMVCHAN(4, "entry: returning from call with |%d|\n", cmd);
 }
