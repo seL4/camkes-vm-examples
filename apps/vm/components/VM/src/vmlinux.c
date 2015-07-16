@@ -255,12 +255,11 @@ vusb_notify(void)
 
 #endif /* FEATURE_VUSB */
 
+
 /* VCHAN */
-// #if 1
 
 static int
 vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
-
     uint32_t data = fault_get_data(fault);
     vchan_entry_point(vm, data);
     // fflush(stdout);
@@ -270,17 +269,12 @@ vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
 
 struct device vchan_dev = {
         .devid = DEV_CUSTOM,
-        .name = "Vchan driver",
+        .name = "vchan-driver",
         .pstart = 0x2040000,
         .size = 0x1000,
         .handle_page_fault = &vchan_device_fault_handler,
         .priv = NULL,
     };
-
-
-// #endif
-
-
 
 void
 configure_clocks(vm_t *vm)

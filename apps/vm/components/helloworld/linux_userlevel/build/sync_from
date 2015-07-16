@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #
 # Copyright 2014, NICTA
@@ -13,31 +13,63 @@
 # Simple script to copy zipped vchan linux code from a remote home dir
 # to a dir on the odroid xu filesystem
 
+red='\e[1;31m'
+yellow='\e[1;33m'
+cyan='\e[1;36m'
+green='\e[1;32m'
+nc='\e[0m'
+
+set -e
+
 usage() {
 	echo "Usage: sync_from 'host' -i [sshkey]"
+	echo "Host must have vchanbuild.zip in home directory"
+	exit 1
 }
 
-skey=""
+cecho() {
+	echo -e "${1}$2${nc}"
+}
 
-if [ "$#" -eq "3" ]; then
-	echo "$1 $2 $3"
-	skey="$3"
-elif [ "$#" -eq "1" ]; then
-	echo "$1"
+if [ "$#" -lt "1" ]; then
+	# load up
+	if [ -e syncrun.last ]; then
+		atcmd=`cat syncrun.last`
+		echo "running '$atcmd'"
+		eval "$atcmd"
+	else
+		usage
+	fi
 else
-	usage 1>&2; exit 1
-fi
+	skey=""
+	if [ "$#" -eq "3" ]; then
+		echo "$1 $2 $3"
+		skey="$3"
+	elif [ "$#" -eq "1" ]; then
+		echo "$1"
+	else
+		usage 1>&2; exit 1
+	fi
 
-if [ -n "$skey" ]; then
-	scp -i "$skey" "$1":vchanbuild.zip .
-else
-	scp "$1":"${path}"vchanbuild.zip .
-fi
+	if [ -n "$skey" ]; then
+		scp -i "$skey" "$1":vchanbuild.zip .
+	else
+		scp "$1":"${path}"vchanbuild.zip .
+	fi
 
-if [ -d build ]; then
-	rm -rf build
-fi
+	if [ -d build ]; then
+		rm -rf build
+	fi
 
-unzip vchanbuild.zip
-mv build/sync_from .
-rm vchanbuild.zip
+	unzip vchanbuild.zip
+	mv build/sync_from .
+	rm vchanbuild.zip
+
+	echo "./sync_from $1 -i $3" > syncrun.last
+
+	cd build
+	make
+	cd tester
+	cecho "$cyan" "--- vchan testing environment ---"
+	bash
+fi
