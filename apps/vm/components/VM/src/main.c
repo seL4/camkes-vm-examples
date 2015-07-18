@@ -34,8 +34,12 @@
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
 
+#include <camkes.h>
+
 #include "vmlinux.h"
 #include "cmks_vchan_vm.h"
+
+int start_extra_frame_caps;
 
 int VM_PRIO = 100;
 #define VM_BADGE            (1U << 0)
@@ -173,11 +177,13 @@ vmm_init(void)
 
     camkes_make_simple(simple);
 
+    start_extra_frame_caps = simple_last_valid_cap(simple) + 1;
+
     /* Initialize allocator */
     allocman = bootstrap_use_current_1level(
             simple_get_cnode(simple),
             simple_get_cnode_size_bits(simple),
-            simple_last_valid_cap(simple) + 1,
+            simple_last_valid_cap(simple) + 1 + num_extra_frame_caps,
             BIT(simple_get_cnode_size_bits(simple)),
             sizeof(allocator_mempool), allocator_mempool
     );
@@ -321,13 +327,14 @@ main_continued(void)
 }
 
 /* base_prio is an optional attribute of the VM component. */
-extern int __attribute__((weak)) base_prio;
+extern const int __attribute__((weak)) base_prio;
 
-void run(void) {
+int 
+run(void) {
     /* if the base_prio attribute is set, use it */
     if (&base_prio != NULL) {
-	VM_PRIO = base_prio;
+       VM_PRIO = base_prio;
     }
-    main_continued();
+    return main_continued();
 }
 

@@ -329,6 +329,7 @@ int run(void) {
                 } else {
                     DHELL("Running test:id %d:\n", tcmd);
                     (*testop_table.tfunc[tcmd])(ctrl);
+		    printf("**** hello: this is contents of %p: %x\n", (void*)0x0100000, *(int*)0x0100000);
                 }
             }
         }

@@ -23,4 +23,6 @@ component VM {
     dataport vchan_headers_t share_mem;
  
     attribute int base_prio;
+    attribute int num_extra_frame_caps;
+    attribute int extra_frame_map_address;
 }

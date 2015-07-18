@@ -252,6 +252,8 @@ assembly {
         vm.simple_untyped24_pool = 10;
 
 	vm.base_prio = 100;
+	vm.num_extra_frame_caps = 5;
+	vm.extra_frame_map_address = 0x1408000;
 
 	vm._control_priority = 101;
 	vm.sem_value = 0;
