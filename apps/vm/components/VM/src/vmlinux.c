@@ -337,7 +337,7 @@ install_linux_devices(vm_t* vm)
     #define FRAME_SIZE 4096
     int offset = 0;
     for (i = 0; i < num_extra_frame_caps; i++) {
-	err = vm_map_frame(vm, start_extra_frame_caps + i, extra_frame_map_address + offset, BIT(12), 1, seL4_AllRights);
+	err = vm_map_frame(vm, start_extra_frame_caps + i, extra_frame_map_address + offset, 12, 1, seL4_AllRights);
         assert(!err);
 	offset += FRAME_SIZE;
     }
