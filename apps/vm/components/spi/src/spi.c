@@ -24,45 +24,47 @@
 #define SPI_CS_RELEASE 1
 #define SPI_CS_ASSERT  0
 
-struct spi_slave_config {
+struct spi_slave {
     int id;
     spi_dev_port_p* port;
-    int speed_hz;
-    int nss_usdelay;
-    void (*cs)(int state);
+    void(*cs)(int state);
+    spi_slave_config_t cfg;
 };
 
 /**
  * Slave parameters. An ID in the table should match the id of an incoming request 
  */
-#define SLAVE_PARAMS(i, p, s, d, g)     \
+#define SLAVE_PARAMS(i, p, s, d, f, g)  \
         {                               \
             .id = i,                    \
             .port = (spi_dev_port_p*)p, \
-            .speed_hz = s,              \
-            .nss_usdelay = d,           \
-            .cs = g                     \
+	    .cs = g,                    \
+            .cfg = {                    \
+                .speed_hz = s,          \
+                .nss_udelay = d,        \
+	        .fb_delay = f           \
+             }                          \
         }
 
-const static struct spi_slave_config slave_params[] = {
-    SLAVE_PARAMS(CAN_APP_ID, &spi1_can, 10000000,  10, &gpio_spi_can_nss),
-    SLAVE_PARAMS(-1        , NULL     ,        0,   0, &gpio_spi_mpu_nss),
-    SLAVE_PARAMS(-1        , NULL     ,        0,   0, &gpio_spi_acc_mag_nss),
-    SLAVE_PARAMS(-1        , NULL     ,        0,   0, &gpio_spi_gyro_nss),
-    SLAVE_PARAMS(-1        , NULL     ,        0,   0, &gpio_spi_baro_nss),
-    SLAVE_PARAMS(-1        , NULL     ,        0,   0, &gpio_spi_ext_nss)
+const static struct spi_slave slave_params[] = {
+    SLAVE_PARAMS(CAN_APP_ID, &spi1_can, 10000000,  10, 1, &gpio_spi_can_nss),
+    SLAVE_PARAMS(-1        , NULL     ,        0,   0, 0, &gpio_spi_mpu_nss),
+    SLAVE_PARAMS(-1        , NULL     ,        0,   0, 0, &gpio_spi_acc_mag_nss),
+    SLAVE_PARAMS(-1        , NULL     ,        0,   0, 0, &gpio_spi_gyro_nss),
+    SLAVE_PARAMS(-1        , NULL     ,        0,   0, 0, &gpio_spi_baro_nss),
+    SLAVE_PARAMS(-1        , NULL     ,        0,   0, 0, &gpio_spi_ext_nss)
 };
 
 /// A handle to the SPI bus that this component drives
 static spi_bus_t* spi_bus;
-/// The current speed of the bus to avoid unnecessary recalibration
-static long spi_cur_speed;
+clock_sys_t clock_sys;
+int cur_slave_id = -1;
 
 /**
  * Pulls the slave configuration from the database
  */
-static const struct spi_slave_config*
-get_slave_config(int id)
+static const struct spi_slave*
+get_slave(int id)
 {
     int i;
     for(i = 0; i < ARRAY_SIZE(slave_params); i++){
@@ -74,19 +76,10 @@ get_slave_config(int id)
 }
 
 static inline void
-chip_select(const struct spi_slave_config* cfg, int state)
+chip_select(const struct spi_slave* slave, int state)
 {
-    cfg->cs(state);
-    udelay(cfg->nss_usdelay);
-}
-
-static inline void
-set_speed(const struct spi_slave_config* cfg)
-{
-    if(spi_cur_speed != cfg->speed_hz){
-        clktree_set_spi1_freq(cfg->speed_hz);
-        spi_cur_speed = cfg->speed_hz;
-    }
+    slave->cs(state);
+    udelay(slave->cfg.nss_udelay);
 }
 
 /**
@@ -112,21 +105,30 @@ spi_irq_event(void *arg)
     spi1_int_reg_callback(&spi_irq_event, NULL);
 }
 
+static freq_t set_spi_freq(clk_t *clk, freq_t hz)
+{
+	return (unsigned int)clktree_set_spi1_freq((uint32_t)hz);
+}
+
 /* Camkes entry point */
 void
 spi__init(void)
 {
     int err;
-    clktree_set_spi1_freq(SPI_SPEED_DEFAULT);
-    spi_cur_speed = SPI_SPEED_DEFAULT;
+    clk_t *clk;
 
     /* Initialise the SPI bus */
-    err = exynos_spi_init(SPI_PORT, spi1_reg, NULL, NULL, &spi_bus); 
+    clock_sys_init_default(&clock_sys);
+    err = exynos_spi_init(SPI_PORT, spi1_reg, NULL, &clock_sys, &spi_bus);
     assert(!err);
     if(err){
         LOG_ERROR("Failed to initialise SPI port\n");
         return;
     }
+
+    clk = clk_get_clock(&clock_sys, CLK_SPI1);
+    clk->set_freq = set_spi_freq;
+
     /* Prime the semaphore such that the first call to 'wait' will block */
     bus_sem_wait();
     /* Register an IRQ callback for the driver */
@@ -137,14 +139,18 @@ spi__init(void)
  * Performs an SPI transfer
  */
 static int
-do_spi_transfer(const struct spi_slave_config* cfg, void* txbuf, unsigned int wcount, 
+do_spi_transfer(const struct spi_slave* slave, void* txbuf, unsigned int wcount,
                 void* rxbuf, unsigned int rcount)
 {
     int ret;
     int status;
 
-    set_speed(cfg);
-    chip_select(cfg, SPI_CS_ASSERT);
+    if (cur_slave_id != slave->id) {
+        spi_prepare_transfer(spi_bus, &slave->cfg);
+	cur_slave_id = slave->id;
+    }
+
+    chip_select(slave, SPI_CS_ASSERT);
 
     /* Begin the transfer */
     ret = spi_xfer(spi_bus, txbuf, wcount, rxbuf, rcount, spi_complete_callback, &status);
@@ -153,7 +159,7 @@ do_spi_transfer(const struct spi_slave_config* cfg, void* txbuf, unsigned int wc
         ret = status;
     }
 
-    chip_select(cfg, SPI_CS_RELEASE);
+    chip_select(slave, SPI_CS_RELEASE);
     return ret;
 }
 
@@ -163,15 +169,15 @@ do_spi_transfer(const struct spi_slave_config* cfg, void* txbuf, unsigned int wc
 int
 spi_transfer(int id, unsigned int wcount, unsigned int rcount)
 {
-    const struct spi_slave_config* cfg;
+    const struct spi_slave* slave;
     /* Find the slave configuration */
-    cfg = get_slave_config(id);
-    assert(cfg);
-    if(cfg == NULL){
+    slave = get_slave(id);
+    assert(slave);
+    if(slave == NULL){
         return -1;
     }
     /* Transfer the data from the shared data port */
-    return do_spi_transfer(cfg, (*cfg->port)->txbuf, wcount, (*cfg->port)->rxbuf, rcount);
+    return do_spi_transfer(slave, (*slave->port)->txbuf, wcount, (*slave->port)->rxbuf, rcount);
 }
 
 /**
@@ -180,17 +186,17 @@ spi_transfer(int id, unsigned int wcount, unsigned int rcount)
 int
 spi_transfer_byte(int id, char byte)
 {
-    const struct spi_slave_config* cfg;
+    const struct spi_slave* slave;
     char data[2];
     int ret;
     /* Find the slave configuration */
-    cfg = get_slave_config(id);
-    assert(cfg);
-    if(cfg == NULL){
+    slave = get_slave(id);
+    assert(slave);
+    if(slave == NULL){
         return -1;
     }
     /* Transfer the data from the provided arguments */
-    ret = do_spi_transfer(cfg, &byte, 1, data, 1);
+    ret = do_spi_transfer(slave, &byte, 1, data, 1);
     if(ret < 0){
         return ret;
     }else{
