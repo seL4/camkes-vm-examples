@@ -57,13 +57,14 @@ spi_LIBS  := platsupport
 clk_LIBS  := platsupport
 timer_LIBS  := platsupport
 
+ifeq (${CONFIG_VM_VCHAN},y)
 helloworld_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.c))
 helloworld_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.h))
 helloworld_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
             platsupport sel4platsupport sel4vspace \
             sel4utils sel4simple utils  sel4simple-default \
             sel4arm-vmm sel4debug sel4dma sel4vchan
-
+endif
 
 VM_CFILES   := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.c))
 VM_OFILES   := archive.o
@@ -71,7 +72,11 @@ VM_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/VM
 VM_LIBS :=  sel4 sel4camkes sel4muslccamkes sel4vka sel4allocman \
             platsupport sel4platsupport sel4vspace elf \
             sel4utils sel4simple utils  sel4simple-default cpio \
-            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers sel4vchan
+            sel4arm-vmm sel4sync sel4debug sel4dma usbdrivers
+
+ifeq (${CONFIG_VM_VCHAN},y)
+VM_LIBS += sel4vchan
+endif
 
 include ${PWD}/tools/camkes/camkes.mk
 

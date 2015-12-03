@@ -8,6 +8,9 @@
  * @TAG(NICTA_GPL)
  */
 
+#include <autoconf.h>
+
+#ifdef CONFIG_VM_VCHAN
 #include <sel4vchan/vmm_manager.h>
 #include <sel4vchan/vchan_copy.h>
 #include <sel4vchan/vchan_sharemem.h>
@@ -380,3 +383,4 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
     vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
     DVMVCHAN(4, "entry: returning from call with |%d|\n", cmd);
 }
+#endif //CONFIG_VM_VCHAN

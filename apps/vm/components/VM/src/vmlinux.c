@@ -259,7 +259,7 @@ vusb_notify(void)
 
 #endif /* FEATURE_VUSB */
 
-
+#ifdef CONFIG_VM_VCHAN
 /* VCHAN */
 
 static int
@@ -279,6 +279,7 @@ struct device vchan_dev = {
         .handle_page_fault = &vchan_device_fault_handler,
         .priv = NULL,
     };
+#endif //CONFIG_VM_VCHAN
 
 void
 configure_clocks(vm_t *vm)
@@ -325,8 +326,11 @@ install_linux_devices(vm_t* vm)
     /* Device for signalling to the VM */
     err = vm_add_device(vm, &pwmsig_dev);
     assert(!err);
+
+#ifdef CONFIG_VM_VCHAN
     err = vm_add_device(vm, &vchan_dev);
     assert(!err);
+#endif //CONFIG_VM_VCHAN
 
     /* Install pass through devices */
     for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {

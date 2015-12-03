@@ -284,7 +284,9 @@ main_continued(void)
         return -1;
     }
 
+#ifdef CONFIG_VM_VCHAN
     vm_vchan_setup(&vm);
+#endif //CONFIG_VM_VCHAN
 
     /* Power on */
     printf("Starting VM\n\n");

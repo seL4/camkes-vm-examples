@@ -31,6 +31,12 @@ config VM_VUSB
         Selects the device tree which enables the para virtual USB driver and
         installs the device into the VM.
 
+config VM_VCHAN
+    bool "Enable vchan connection"
+    depends on APP_CAMKES_VM
+    help
+        Enable vchan connection.
+
 choice
     bool "root file system selection"
     depends on APP_CAMKES_VM

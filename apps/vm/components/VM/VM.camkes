@@ -7,20 +7,23 @@
  *
  * @TAG(NICTA_GPL)
  */
-
+#ifdef CONFIG_VM_VCHAN
 import <VchanInterface.idl4>;
+#endif //CONFIG_VM_VCHAN
 
 component VM {
     control;
-    include "vchan_sharemem.h";
 
     uses pwm_inf pwm;
     has semaphore vm_sem;
 
+#ifdef CONFIG_VM_VCHAN
+    include "vchan_sharemem.h";
     has mutex vm_lock;
     uses VchanInterface vchan_con;
     consumes VchanEvent vevent;
     dataport vchan_headers_t share_mem;
+#endif //CONFIG_VM_VCHAN
  
     attribute int base_prio;
     attribute int num_extra_frame_caps;
