@@ -225,20 +225,22 @@ vmm_init(void)
     return 0;
 }
 
-#define RAM_START 0x40000000
-#define RAM_END   0x60000000
-
 static void
 map_unity_ram(vm_t* vm)
 {
+    /* Dimensions of physical memory that we'll use. Note that we do not map the entirety of RAM.
+     */
+    static const uintptr_t paddr_start = RAM_BASE;
+    static const uintptr_t paddr_end = 0x60000000;
+
     int err;
 
     uintptr_t start;
     reservation_t res;
     unsigned int bits = 21;
-    res = vspace_reserve_range_at(&vm->vm_vspace, (void*)RAM_START, RAM_END - RAM_START, seL4_AllRights, 1);
+    res = vspace_reserve_range_at(&vm->vm_vspace, (void*)paddr_start, paddr_end - paddr_start, seL4_AllRights, 1);
     assert(res.res);
-    for (start = RAM_START;; start += BIT(bits)) {
+    for (start = paddr_start;; start += BIT(bits)) {
         cspacepath_t frame;
         err = vka_cspace_alloc_path(vm->vka, &frame);
         assert(!err);
