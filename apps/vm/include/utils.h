@@ -73,29 +73,6 @@ __be32_to_cpu(uint32_t x){
     return ret;
 }
 
-
-//int bit_is_set(int reg, int bit);
-//int bit_is_clear(int reg, int bit);
-/* A guess based on a 800MHz memory clock */
-//static __inline__ void udelay(uint64_t usec);
-
-static int bit_is_set(int reg, int bit){
-
-	if(reg & (1<<bit)){
-		return 1;
-	}
-	return 0;
-
-}
-
-static int bit_is_clear(int reg, int bit){
-
-	if(reg & (1<<bit)){
-		return 0;
-	}
-	return 1;
-}
-
 /* A guess based on a 800MHz memory clock */
 static __inline__ void udelay(uint64_t usec)
 {
@@ -184,26 +161,5 @@ static __inline__ void clrsetbits_le32(uint32_t *reg, uint32_t clrm, uint32_t se
 		}						\
 		ret;						\
 	})
-
-
-
-/* Standard C Function: Greatest Common Divisor */
-static int gcd ( int a, int b )
-{
-  int c;
-  while ( a != 0 ) {
-     c = a; a = b%a;  b = c;
-  }
-  return b;
-}
-
-/* Recursive Standard C Function: Greatest Common Divisor */
-static int gcdr ( int a, int b )
-{
-  if ( a==0 ) return b;
-  return gcdr ( b%a, a );
-}
-
-
 
 #endif /* UTILS_H_ */
