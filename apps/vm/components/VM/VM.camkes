@@ -17,6 +17,8 @@ component VM {
     uses pwm_inf pwm;
     has semaphore vm_sem;
 
+    consumes restart restart_event;
+
 #ifdef CONFIG_VM_VCHAN
     include "vchan_sharemem.h";
     has mutex vm_lock;

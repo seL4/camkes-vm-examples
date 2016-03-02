@@ -87,6 +87,8 @@ vm_shutdown_cb(vm_t* vm, void* token)
     return -1;
 }
 
+void restart_component(void);
+
 static int
 vm_reboot_cb(vm_t* vm, void* token)
 {
@@ -94,10 +96,11 @@ vm_reboot_cb(vm_t* vm, void* token)
     uint32_t dtb_addr;
     void* entry;
     int err;
-    printf("Received reboot from linux\n");
+    restart_component();
+//    printf("Received reboot from linux\n");
 
-    pwm_vmsig(0);
-    vm_sem_wait();
+//    pwm_vmsig(0);
+//    vm_sem_wait();
 
     return 0;
 
