@@ -155,9 +155,12 @@ void mavlink_recv(int uart_num, int c)
 		signal_emit();
 	}
 
-//	if (err_cnt > MAX_ERR) {
-//		printf("We are under attack!!!\n");
-//		while(1);
-//	}
+	/* XXX: Borrow the unused error counter to trigger the VM restart. */
+	err_cnt++;
+	if (err_cnt > MAX_ERR) {
+		printf("We are under attack!!!\n");
+		restart_vm_emit();
+		err_cnt = 0;
+	}
 }
 

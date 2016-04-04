@@ -156,6 +156,9 @@ assembly {
 
 	/* VM to PWM */
         connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
+
+	/* Restart VM */
+	connection seL4Asynch restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
     }
 
     configuration {

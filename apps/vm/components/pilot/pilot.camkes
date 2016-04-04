@@ -22,4 +22,5 @@ component pilot {
 
 	provides pilot_inf mavlink;
 
+	emits restart restart_vm;
 }
