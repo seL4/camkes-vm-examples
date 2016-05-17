@@ -16,6 +16,7 @@
 
 #include <platsupport/i2c.h>
 #include <platsupport/delay.h>
+#include <utils/util.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -141,7 +142,7 @@ uint8_t read_register(uint8_t address)
     return data[0];
 }
 
-static void register_dump(void){
+static void UNUSED register_dump(void){
     int i;
     printf("----PCA9685 register dump");
     for(i = 0; i < NREGS; i++){
@@ -217,7 +218,6 @@ void set_motor(int motor_id, double speed)
     write_register(motors[motor_id].off_h, out >> 8);
 }   
 
-static int ready = 0;
 static double m[ARRAY_SIZE(motors)];
 /* Take in speed values of -1 to 1 */
 void pwm_set_motors(double fl, double fr, double bl, double br)

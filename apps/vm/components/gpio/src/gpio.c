@@ -157,14 +157,13 @@ void setup_clocks(void)
 	uint32_t val;
 
 	/* Select XXTI as the clock source for UART 1 and 3 */
-	volatile uint32_t *clk_addr;
-        clk_addr = (char*)clk_tree + CLK_SRC_PERIC0;
+	volatile uint32_t *clk_addr = (volatile uint32_t*)((char*)clk_tree + CLK_SRC_PERIC0);
 	val = *clk_addr;
 	val &= ~0xF0F0;
 	*clk_addr = val;
 
 	/* Select clock divider to 0 for UART 1 and 3 */
-	clk_addr = (char*)clk_tree + CLK_DIV_PERIC0;
+	clk_addr = (volatile uint32_t*)((char*)clk_tree + CLK_DIV_PERIC0);
 	val = *clk_addr;
 	val &= ~0xF0F0;
 	*clk_addr = val;

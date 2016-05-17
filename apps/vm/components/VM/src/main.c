@@ -310,8 +310,9 @@ static seL4_CPtr restart_tcb;
 
 static void restart_event(void *arg) {
     restart_event_reg_callback(restart_event, NULL);
-    seL4_UserContext context;
-    context.pc = restart_component;
+    seL4_UserContext context = {
+        .pc = (seL4_Word)restart_component,
+    };
     seL4_TCB_WriteRegisters(restart_tcb, true, 0, 1, &context);
 }
 

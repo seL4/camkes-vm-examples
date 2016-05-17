@@ -10,7 +10,9 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <pilot.h>
+#include <utils/util.h>
 #include "commsec.h"
 
 /* the raw payload is 80 byte mavlink packets, these are wrapped
@@ -48,7 +50,7 @@ static int try_decrypt(char *buf, int msgsize) {
         return 0;
     }
     /* attempt to decrypt the actual frame to a temporary buffer */
-    char temp[COMMSEC_PAYLOAD_LEN];
+    uint8_t temp[COMMSEC_PAYLOAD_LEN];
     /* skip the first two bytes that make up the frame header */
     memcpy(temp, buf + 2, COMMSEC_PAYLOAD_LEN);
     uint32_t ret;
@@ -91,7 +93,7 @@ void pre_init(void)
 }
 
 /* For debug */
-static void print_pkt(struct packet *pkt, int uart)
+static void UNUSED print_pkt(struct packet *pkt, int uart)
 {
 	printf("From %d: ", uart);
 	for (int i = 0; i < pkt->len; i++) {
@@ -104,7 +106,7 @@ static void print_pkt(struct packet *pkt, int uart)
 }
 
 /* Decrypt packet */
-static int check_packet(struct packet *pkt, char c)
+static int UNUSED check_packet(struct packet *pkt, char c)
 {
 	int ret;
 

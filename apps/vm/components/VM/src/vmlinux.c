@@ -92,10 +92,12 @@ void restart_component(void);
 static int
 vm_reboot_cb(vm_t* vm, void* token)
 {
+#if 0
     struct pwr_token* pwr_token = (struct pwr_token*)token;
     uint32_t dtb_addr;
     void* entry;
     int err;
+#endif
     restart_component();
 //    printf("Received reboot from linux\n");
 

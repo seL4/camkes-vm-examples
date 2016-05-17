@@ -9,6 +9,7 @@
  */
 
 /* standard */
+#include <camkes.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
@@ -22,7 +23,6 @@
 int run(void)
 {
 	int error = 0;
-	struct can_id can_id;
 	struct can_frame tx, rx;
 
 	/* Initialize CAN controller. */
@@ -32,9 +32,6 @@ int run(void)
 		printf("Stop CAN Test.\n");
 		return -1;
 	}
-
-	can_id.id = 0xF;
-//	can_set_filter(can_id, 0xF);
 
 	/* Prepare CAN frame. */
 	tx.ident.id = 0x123;

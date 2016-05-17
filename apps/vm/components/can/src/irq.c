@@ -23,6 +23,9 @@
  *	1: unexpected failures
  *	2: all debug output
  */
+#ifdef DEBUG
+    #undef DEBUG
+#endif
 #define DEBUG 2
 
 #define TXIF_MASK (CANINTF_TX0IF | CANINTF_TX1IF | CANINTF_TX2IF)
