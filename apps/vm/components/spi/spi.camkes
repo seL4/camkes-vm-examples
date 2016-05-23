@@ -8,6 +8,7 @@
  * @TAG(NICTA_BSD)
  */
 
+import "../../interfaces/clk.idl4";
 import "../../interfaces/spi.idl4"; 
 import "../../interfaces/gpio.idl4"; 
 
