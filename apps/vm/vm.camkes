@@ -51,10 +51,9 @@ component i2c0 {
 
 component clkbase {
     hardware;
-    include "components/clk/include/porttype.h";
-    dataport CLKData_t cmu_cpu_clk;
+    dataport Buf cmu_cpu_clk;
     dataport Buf	   cmu_core_clk;
-    dataport CLKData_t cmu_top_clk;
+    dataport Buf cmu_top_clk;
 }
 
 component spibase {
