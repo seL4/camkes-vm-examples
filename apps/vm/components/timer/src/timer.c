@@ -12,7 +12,6 @@
  * Timer interface implementation.
  */
 
-#include <stdio.h>
 #include <platsupport/timer.h>
 
 #include <timer.h>
