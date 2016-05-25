@@ -189,9 +189,8 @@ void init_pwm_driver(void)
  * Called on every I2C interrupt, direct control to driver.
  */
 void
-i2c_irq_event(void *arg)
+i2c_irq_event(void *arg UNUSED)
 {
-    (void)arg;
     DPWM(".");
     i2c_handle_irq(&i2c_bus);
     i2c0_int_reg_callback(&i2c_irq_event, NULL);

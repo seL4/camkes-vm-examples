@@ -17,6 +17,7 @@
 #include <errno.h>
 
 #include <common.h>
+#include <utils/util.h>
 
 #define SPI_PORT          SPI1
 
@@ -97,9 +98,8 @@ spi_complete_callback(spi_bus_t* bus, int status, void* token)
  * Called on every SPI IRQ. Redirect control to the driver
  */
 void
-spi_irq_event(void *arg)
+spi_irq_event(void *arg UNUSED)
 {
-    (void)arg;
     spi_handle_irq(spi_bus);
     spi1_int_reg_callback(&spi_irq_event, NULL);
 }
