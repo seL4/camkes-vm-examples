@@ -143,7 +143,7 @@ static void UNUSED register_dump(void){
     for(i = 0; i < NREGS; i++){
         uint8_t v;
         v = read_register(i);
-        if((i % 16) == 0){
+        if(i % 16 == 0){
             printf("\n 0x%02x: ", i);
         }
         printf("0x%02x ", v);
