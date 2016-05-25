@@ -22,6 +22,7 @@
 #include <sel4arm-vmm/devices/vusb.h>
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
+#include <utils/util.h>
 
 #include <autoconf.h>
 
@@ -338,7 +339,7 @@ install_linux_devices(vm_t* vm)
 #endif //CONFIG_VM_VCHAN
 
     /* Install pass through devices */
-    for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {
+    for (i = 0; i < ARRAY_SIZE(linux_pt_devices); i++) {
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
     }
 

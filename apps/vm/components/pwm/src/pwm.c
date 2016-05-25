@@ -110,10 +110,8 @@ i2c_complete_cb(i2c_bus_t *bus, enum i2c_stat status, size_t size, void* token) 
 
 void write_register(uint8_t address, uint8_t value) 
 {
-    uint8_t data[2];
-    data[0] = address;
-    data[1] = value;
-    int count = i2c_slave_write(&i2c_pwm, data, 2, &i2c_complete_cb, NULL);  
+    uint8_t data[2] = { address, value };
+    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);  
     if (count >= 0) {
         bus_sem_wait();
         // Maybe need to pass a status back??
@@ -124,14 +122,13 @@ void write_register(uint8_t address, uint8_t value)
 
 uint8_t read_register(uint8_t address)
 {
-    uint8_t data[1];
-    data[0] = address;
-    int count = i2c_slave_write(&i2c_pwm, data, 1, &i2c_complete_cb, NULL);
+    uint8_t data[1] = { address };
+    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);
     if (count >= 0) {
         bus_sem_wait();
     }
     data[0] = 0xEE; // easier to check it was overwritten
-    count = i2c_slave_read(&i2c_pwm, data, 1, &i2c_complete_cb, NULL);
+    count = i2c_slave_read(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);
     if (count >= 0) {
         bus_sem_wait();
     } else {
@@ -157,20 +154,14 @@ static void UNUSED register_dump(void){
 void
 pwm_set_led(int led, int level)
 {
-    uint8_t data[5];
-    uint8_t* data_ptr = data;
     int count;
     int status;
 
     if(level > LEDON_FULL){
         level = LEDON_FULL;
     }
-    *data_ptr++ = LED(led);
-    *data_ptr++ = 0;
-    *data_ptr++ = 0;
-    *data_ptr++ = level;
-    *data_ptr++ = level >> 8;
-    count = i2c_slave_write(&i2c_pwm, data, sizeof(data), &i2c_complete_cb, &status);
+    uint8_t data[5] = { LED(led), 0, 0, level, level >> 8 };
+    count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, &status);
     if (count >= 0) {
         bus_sem_wait();
     } else {
