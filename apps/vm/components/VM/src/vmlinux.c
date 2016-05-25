@@ -420,18 +420,18 @@ install_linux_dtb(vm_t* vm, const char* dtb_name)
     /* Retrieve the file data */
     file = cpio_get_file(_cpio_archive, dtb_name, &size);
     if (file == NULL) {
-        printf("Error: Linux dtb file \'%s\' not found\n", dtb_name);
+        printf("Error: Linux dtb file '%s' not found\n", dtb_name);
         return 0;
     }
     if (image_get_type(file) != IMG_DTB) {
-        printf("Error: \'%s\' is not a device tree\n", dtb_name);
+        printf("Error: '%s' is not a device tree\n", dtb_name);
         return 0;
     }
 
     /* Copy the tree to the VM */
     dtb_addr = DTB_ADDR;
     if (vm_copyout(vm, file, dtb_addr, size)) {
-        printf("Error: Failed to load device tree \'%s\'\n", dtb_name);
+        printf("Error: Failed to load device tree '%s'\n", dtb_name);
         return 0;
     } else {
         return dtb_addr;
@@ -448,7 +448,7 @@ install_linux_kernel(vm_t* vm, const char* kernel_name)
     /* Retrieve the file data */
     file = cpio_get_file(_cpio_archive, kernel_name, &size);
     if (file == NULL) {
-        printf("Error: Unable to find kernel image \'%s\'\n", kernel_name);
+        printf("Error: Unable to find kernel image '%s'\n", kernel_name);
         return NULL;
     }
 
@@ -461,13 +461,13 @@ install_linux_kernel(vm_t* vm, const char* kernel_name)
         entry = zImage_get_load_address(file, LINUX_RAM_BASE);
         break;
     default:
-        printf("Error: Unknown Linux image format for \'%s\'\n", kernel_name);
+        printf("Error: Unknown Linux image format for '%s'\n", kernel_name);
         return NULL;
     }
 
     /* Load the image */
     if (vm_copyout(vm, file, entry, size)) {
-        printf("Error: Failed to load \'%s\'\n", kernel_name);
+        printf("Error: Failed to load '%s'\n", kernel_name);
         return NULL;
     } else {
         return (void*)entry;
