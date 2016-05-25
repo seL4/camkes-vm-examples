@@ -261,8 +261,6 @@ void restart_component(void) {
     longjmp(restart_jmp_buf, 1);
 }
 
-extern char __data_start[];
-extern char __data_end[];
 extern char __bss_start[];
 extern char __bss_end[];
 extern char __sysinfo[];

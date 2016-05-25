@@ -18,8 +18,6 @@
 #include <platsupport/delay.h>
 #include <utils/util.h>
 
-#define TRUE 1
-#define FALSE 0
 #define PWM_SELF_TEST
 //#define DEBUG_PWM
 #ifdef DEBUG_PWM

@@ -23,7 +23,6 @@
 static char test_run_arr[VCHANTESTS_MAX_TESTS] = { 0 };
 const char testsuite_usage[] = { "sel4_vchan_testsuite ([0..VCHAN_TESTSUITE_MAX_TESTS] )+" };
 
-#define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
 /*

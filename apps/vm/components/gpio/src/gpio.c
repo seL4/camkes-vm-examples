@@ -17,7 +17,6 @@
 #include "gpio.h"
 
 #define UART0_CTSN  GPIOID(GPA0, 2)
-#define UART0_RTSN  GPIOID(GPA0, 3)
 #define PWM_EN      XEINT17
 #define CAN_CSn     XEINT16
 #define CAN_INTn    XEINT15
@@ -38,14 +37,6 @@
 #define CAN_EINT_CIRQ      XEINT15_CIRQ
 #define MPU_EINT_CIRQ      XEINT8_CIRQ
 
-#define CAN_EINT_IRQ       60
-#define MPU_EINT_IRQ       63
-#define ACC_EINT_IRQ       64
-#define MAG_EINT_IRQ       64
-#define GYRO_EINT_IRQ      64
-#define SPI_EXT_EINT_IRQ   64
-
-#define PPM_IRQ            58
 #define PPM_CIRQ           XEINT5_CIRQ
 
 //#define LIDAR_EINT_IRQ_CIRQ

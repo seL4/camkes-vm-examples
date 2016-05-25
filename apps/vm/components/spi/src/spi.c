@@ -19,7 +19,6 @@
 #include <common.h>
 
 #define SPI_PORT          SPI1
-#define SPI_SPEED_DEFAULT 10000000
 
 #define SPI_CS_RELEASE 1
 #define SPI_CS_ASSERT  0
