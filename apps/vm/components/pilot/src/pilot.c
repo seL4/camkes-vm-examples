@@ -85,7 +85,7 @@ void pre_init(void)
 	pkt_px4.data = (char*)px4_buf;
 	pkt_px4.len = 0;
 
-	check_buf.data = (char*)malloc(CHK_BUF_SIZE);
+	check_buf.data = malloc(CHK_BUF_SIZE);
 	assert(check_buf.data);
 	check_buf.len = 0;
 

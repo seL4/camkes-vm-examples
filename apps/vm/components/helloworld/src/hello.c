@@ -177,7 +177,7 @@ int vchantests_close(libvchan_t *ctrl) {
 */
 int vchantests_vm_burst(libvchan_t *ctrl) {
     int x, res, ack = 0;
-    int *buffer = (int *) malloc(VM_BURST_CHUNK_INTS * sizeof(int));
+    int *buffer = malloc(VM_BURST_CHUNK_INTS * sizeof(int));
     assert(buffer != NULL);
 
     DHELL("vm_burst: planning to write %d bytes to vm client\n", VM_BURST_CHUNK_INTS * sizeof(int));

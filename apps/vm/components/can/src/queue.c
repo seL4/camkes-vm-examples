@@ -61,14 +61,14 @@ static void mq_remove_msg(struct mq_cb *cb, struct can_frame *frame)
 void mq_init(int size)
 {
 	/* Allocate memory for both TX and RX queues at once. */
-	txq = (struct mq_cb*)malloc(sizeof(struct mq_cb) * 2);
+	txq = malloc(sizeof(struct mq_cb) * 2);
 	if (!txq) {
 		printf("Not enough memory!\n");
 		return;
 	}
 	rxq = txq + 1;
 
-	txq->frames = (struct can_frame*)malloc(sizeof(struct can_frame) * size * 2);
+	txq->frames = malloc(sizeof(struct can_frame) * size * 2);
 	if (!txq->frames) {
 		printf("Not enough memory!\n");
 		free(txq);

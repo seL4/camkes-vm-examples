@@ -161,7 +161,7 @@ int vchantests_bigwrite(libvchan_t *ctrl) {
     sz = (size_t) buf.st_size;
     libvchan_send(ctrl, &sz, sizeof(size_t));
 
-    wbuf = (char *) malloc(sz * sizeof(char));
+    wbuf = malloc(sz * sizeof(char));
     ret = read(fd, wbuf, sz);
     if(ret < 0) {
     	TERROR("bigwrite: could not read from file\n");

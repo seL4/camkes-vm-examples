@@ -207,7 +207,7 @@ int libvchan_readwrite(libvchan_t *ctrl, void *data, size_t size, int cmd, int s
     vchan_args_t args = {
         .v.port = com->port_num,
         .v.dest = com->domain_num,
-        .mmap_ptr = (void *)data,
+        .mmap_ptr = data,
         .size = size,
         .stream = stream,
         .mmap_phys_ptr = 0,
@@ -309,7 +309,7 @@ libvchan_t *libvchan_new_instance(int domain, int port, size_t read_min, size_t 
 
 
     /* Fill out struct */
-    libsel4vchan_t *ret_type = (libsel4vchan_t *) malloc(sizeof(libsel4vchan_t));
+    libsel4vchan_t *ret_type = malloc(sizeof(libsel4vchan_t));
     if(ret_type == NULL) {
         printf("libvchan: failed to malloc\n");
         return NULL;

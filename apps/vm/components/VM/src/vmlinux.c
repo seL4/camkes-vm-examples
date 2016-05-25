@@ -357,7 +357,7 @@ install_linux_devices(vm_t* vm)
 static void
 do_irq_server_ack(void* token)
 {
-    struct irq_data* irq_data = (struct irq_data*)token;
+    struct irq_data* irq_data = token;
     irq_data_ack_irq(irq_data);
 }
 

@@ -95,7 +95,7 @@ static void vchan_ack(void* token) {}
 
 static int update_callback_alert(void *addr) {
     int res;
-    vchan_alert_internal_t *pass = (vchan_alert_internal_t *) addr;
+    vchan_alert_internal_t *pass = addr;
     vchan_alert_t *alrt = (vchan_alert_t *) &(pass->stats);
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, alrt->dest);
@@ -162,7 +162,7 @@ int get_vm_num() {
     Return the state of a given vchan connection
 */
 static int vchan_state(void *data, uint64_t cmd) {
-    vchan_check_args_t *args = (vchan_check_args_t *)data;
+    vchan_check_args_t *args = data;
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
     if(con == NULL) {
         DVMVCHAN(2, "connect: %d, has no vchan component instance\n", args->v.domain);
@@ -178,7 +178,7 @@ static int vchan_state(void *data, uint64_t cmd) {
 */
 static int vchan_connect(void *data, uint64_t cmd) {
     int res;
-    vchan_connect_t *pass = (vchan_connect_t *) data;
+    vchan_connect_t *pass = data;
 
     DVMVCHAN(2, "connect: %d, connecting to %d\n", pass->v.domain, pass->v.dest);
 
@@ -188,7 +188,7 @@ static int vchan_connect(void *data, uint64_t cmd) {
         return -1;
     }
 
-    vchan_alert_internal_t *alrt = (vchan_alert_internal_t *) malloc(sizeof(vchan_alert_internal_t));
+    vchan_alert_internal_t *alrt = malloc(sizeof(vchan_alert_internal_t));
     if(pass == NULL) {
         DVMVCHAN(2, "connect: %d, failed to allocate internal vchan-alert\n", pass->v.domain);
         return -1;
@@ -226,7 +226,7 @@ static int vchan_connect(void *data, uint64_t cmd) {
     Close a vchan connection this guest vm is using
 */
 static int vchan_close(void *data, uint64_t cmd) {
-    vchan_connect_t *pass = (vchan_connect_t *) data;
+    vchan_connect_t *pass = data;
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
     if(con == NULL) {
@@ -254,7 +254,7 @@ static int vchan_close(void *data, uint64_t cmd) {
         Defering is necessary for ensuring concurrency
 */
 static int vchan_readwrite(void *data, uint64_t cmd) {
-    vchan_args_t *args = (vchan_args_t *)data;
+    vchan_args_t *args = data;
     int *update;
 
     DVMVCHAN(4, "vmcall_readwrite: starting action %d\n", (int) cmd);
@@ -341,7 +341,7 @@ static int driver_connect(void *data, uint64_t cmd) {
     if(driver_connected)
         return -1;
 
-    struct vmm_args *vargs = (struct vmm_args *)data;
+    struct vmm_args *vargs = data;
     driver_connected = 1;
     vargs->datatype = DATATYPE_INT;
     int *res = (int *)vargs->ret_data;

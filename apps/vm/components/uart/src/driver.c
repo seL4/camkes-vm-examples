@@ -119,8 +119,7 @@ read_callback(ps_chardevice_t* device, enum chardev_status stat,
 static void
 write_callback(ps_chardevice_t* device, enum chardev_status stat,
               size_t bytes_transfered, void* token){
-    struct uart_token* t;
-    t = (struct uart_token*)token;
+    struct uart_token* t = token;
     t->cur_bytes += bytes_transfered;
     if(t->cur_bytes == t->req_bytes){
         write_sem_post();
