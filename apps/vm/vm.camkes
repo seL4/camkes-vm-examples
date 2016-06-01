@@ -8,6 +8,7 @@
  * @TAG(NICTA_BSD)
  */
 
+#include <autoconf.h>
 import <std_connector.camkes>;
 
 import "components/uart/uart.camkes";
@@ -65,6 +66,7 @@ component spibase {
 assembly {
     composition {
         component VM vm;
+#ifdef CONFIG_PLAT_EXYNOS5410
         component uartbase uartbase_gcs;
         component uartbase uartbase_px4;
         component gpiobase gpiobase_obj;
@@ -82,6 +84,7 @@ assembly {
         component can      can_obj;
         component clk      clk_obj;
         component timer	   timer_obj;
+#endif
 
 #ifdef CONFIG_VM_VCHAN
         component Vchan vchan_0;
@@ -96,6 +99,7 @@ assembly {
         connection seL4RPCCall hvchan(from hello.vchan_con, to vchan_0.vchan_com);
 #endif //CONFIG_VM_VCHAN
 
+#ifdef CONFIG_PLAT_EXYNOS5410
         connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
         connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
         connection seL4HardwareMMIO gpio_mem3(from gpio_obj.irqcbase, to gpiobase_obj.irqcbase);
@@ -158,9 +162,11 @@ assembly {
 
 	/* Restart VM */
 	connection seL4Asynch restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
+#endif
     }
 
     configuration {
+#ifdef CONFIG_PLAT_EXYNOS5410
         uartbase_gcs.mem_attributes = "0x12C30000:0x1000";
         uartbase_gcs.irq_attributes = 86;                        //UART1 interrupt
 
@@ -191,7 +197,6 @@ assembly {
 
 	uart_gcs.ID = 1;
 	uart_px4.ID = 3;
-
         /* MMIO regions are
             0x10000000 CHIP_ID
             0x10486000 VCPU
@@ -251,6 +256,191 @@ assembly {
                     107,
                     109,
                     103";
+
+#endif
+
+#ifdef CONFIG_PLAT_TK1
+        vm.mmios = "0xb0000000:0x40000000:21,
+                    0x50046000:0x1000:12,
+                    0x7000e000:0x1000:12,
+                    0x6000c000:0x1000:12,
+                    0x60004000:0x1000:12,
+                    0x60006000:0x1000:12,
+                    0x60005000:0x1000:12,
+                    0x70000000:0x1000:12,
+                    0x6000d000:0x1000:12,
+                    0x7000c000:0x1000:12,
+                    0x7000d000:0x1000:12,
+                    0x7001b000:0x1000:12,
+                    0x7009f000:0x1000:12,
+                    0x60020000:0x1000:12,
+                    0x70006000:0x1000:12,
+                    0x7d004000:0x1000:12,
+                    0x7d000000:0x1000:12,
+                    0x700b0000:0x1000:12,
+                    0x70030000:0x1000:12,
+                    0x70031000:0x1000:12,
+                    0x70038000:0x1000:12,
+                    0x70300000:0x1000:12,
+                    0x1003000:0x1000:12,
+                    0x1000000:0x1000:12,
+                    0x1001000:0x1000:12,
+                    0x70020000:0x1000:12,
+                    0x70021000:0x1000:12,
+                    0x70027000:0x1000:12,
+                    0x7d008000:0x1000:12,
+                    0x70301000:0x1000:12";
+        vm.irqs =  "27,
+                    32,
+                    33,
+                    34,
+                    35,
+                    36,
+                    37,
+                    38,
+                    39,
+                    40,
+                    41,
+                    42,
+                    43,
+                    44,
+                    45,
+                    46,
+                    47,
+                    49,
+                    50,
+                    51,
+                    52,
+                    53,
+                    54,
+                    56,
+                    58,
+                    59,
+                    60,
+                    61,
+                    62,
+                    63,
+                    64,
+                    65,
+                    66,
+                    67,
+                    68,
+                    69,
+                    70,
+                    71,
+                    72,
+                    73,
+                    74,
+                    75,
+                    76,
+                    77,
+                    78,
+                    79,
+                    80,
+                    81,
+                    82,
+                    83,
+                    84,
+                    85,
+                    86,
+                    87,
+                    88,
+                    89,
+                    90,
+                    91,
+                    92,
+                    93,
+                    94,
+                    95,
+                    96,
+                    97,
+                    98,
+                    99,
+                    100,
+                    101,
+                    102,
+                    103,
+                    104,
+                    105,
+                    106,
+                    107,
+                    108,
+                    110,
+                    111,
+                    113,
+                    114,
+                    115,
+                    116,
+                    118,
+                    119,
+                    121,
+                    122,
+                    124,
+                    127,
+                    128,
+                    129,
+                    130,
+                    131,
+                    132,
+                    133,
+                    135,
+                    136,
+                    137,
+                    138,
+                    139,
+                    140,
+                    141,
+                    142,
+                    143,
+                    144,
+                    145,
+                    146,
+                    147,
+                    148,
+                    149,
+                    150,
+                    151,
+                    152,
+                    153,
+                    154,
+                    155,
+                    156,
+                    157,
+                    158,
+                    159,
+                    160,
+                    161,
+                    162,
+                    163,
+                    164,
+                    165,
+                    166,
+                    167,
+                    168,
+                    169,
+                    170,
+                    171,
+                    172,
+                    173,
+                    174,
+                    175,
+                    176,
+                    177,
+                    178,
+                    179,
+                    180,
+                    181,
+                    182,
+                    183,
+                    184,
+                    185,
+                    186,
+                    187,
+                    188,
+                    189,
+                    190,
+                    191";
+#endif
 
         vm.asid_pool = true;
 

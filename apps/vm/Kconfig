@@ -18,7 +18,7 @@ config APP_CAMKES_VM
 
 config VM_EMMC2_NODMA
     bool "SD access control to prevent DMA"
-    depends on APP_CAMKES_VM
+    depends on APP_CAMKES_VM && PLAT_EXYNOS5410
     default n
     help
         Installs SD card into the VM with read only access. Write access is
@@ -26,7 +26,7 @@ config VM_EMMC2_NODMA
 
 config VM_VUSB
     bool "Para-virtual USB driver"
-    depends on APP_CAMKES_VM
+    depends on APP_CAMKES_VM && PLAT_EXYNOS5410
     help
         Selects the device tree which enables the para virtual USB driver and
         installs the device into the VM.
@@ -39,7 +39,7 @@ config VM_VCHAN
 
 choice
     bool "root file system selection"
-    depends on APP_CAMKES_VM
+    depends on APP_CAMKES_VM && PLAT_EXYNOS5410
     default VM_ROOTFS_MMCBLK1P2
     help
         Selects the root device and partition which should be used for the

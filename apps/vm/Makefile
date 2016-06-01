@@ -67,6 +67,7 @@ endif
 
 include ${PWD}/tools/camkes/camkes.mk
 
+ifeq (${CONFIG_PLAT_EXYNOS5410},y)
 ifeq (${CONFIG_VM_ROOTFS_MMCBLK0P2},y)
 ROOTFS := mmcblk0p2
 else ifeq (${CONFIG_VM_ROOTFS_MMCBLK1P2},y)
@@ -85,7 +86,22 @@ $(STAGE_DIR)/linux/linux-dtb:
 	$(Q)mkdir -p $(dir $@)
 	sed "s/root=\/dev\/mmcblk1p2/root=\/dev\/${ROOTFS}/g" $(DEVICE_TREE_SRC) > $@
 
-COMPONENTS := ${SOURCE_DIR}/linux/linux $(STAGE_DIR)/linux/linux-dtb
+$(STAGE_DIR}/linux/linux:
+	$(Q)mkdir -p $(dir $@)
+	cp ${SOURCE_DIR}/linux/linux $@
+endif
+
+ifeq (${CONFIG_PLAT_TK1},y)
+$(STAGE_DIR)/linux/linux-dtb:
+	$(Q)mkdir -p $(dir $@)
+	cp ${SOURCE_DIR}/linux/linux-tk1-dtb $@
+
+$(STAGE_DIR)/linux/linux:
+	$(Q)mkdir -p $(dir $@)
+	cp ${SOURCE_DIR}/linux/linux-tk1 $@
+endif
+
+COMPONENTS := $(STAGE_DIR)/linux/linux $(STAGE_DIR)/linux/linux-dtb
 
 ${BUILD_DIR}/src/vm/static/archive.o: ${COMPONENTS}
 	$(Q)mkdir -p $(dir $@)
