@@ -86,7 +86,7 @@ $(STAGE_DIR)/linux/linux-dtb:
 	$(Q)mkdir -p $(dir $@)
 	sed "s/root=\/dev\/mmcblk1p2/root=\/dev\/${ROOTFS}/g" $(DEVICE_TREE_SRC) > $@
 
-$(STAGE_DIR}/linux/linux:
+$(STAGE_DIR)/linux/linux:
 	$(Q)mkdir -p $(dir $@)
 	cp ${SOURCE_DIR}/linux/linux $@
 endif

@@ -7,6 +7,9 @@
  *
  * @TAG(NICTA_GPL)
  */
+
+#include <autoconf.h>
+
 #ifdef CONFIG_VM_VCHAN
 import <VchanInterface.idl4>;
 #endif //CONFIG_VM_VCHAN
