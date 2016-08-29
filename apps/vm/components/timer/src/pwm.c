@@ -19,7 +19,7 @@
 
 pstimer_t *timer_drv = NULL;
 
-void pwm_irq_callback(void *_ UNUSED)
+void irq_handle(void)
 {
 	/* Hardware routine. */
 	timer_handle_irq(timer_drv, PWM_T4_INTERRUPT);
@@ -27,7 +27,7 @@ void pwm_irq_callback(void *_ UNUSED)
 	/* Signal other components. */
 	timer_update_emit();
 
-	irq_reg_callback(pwm_irq_callback, NULL);
+    irq_acknowledge();
 }
 
 void pre_init()
@@ -43,8 +43,6 @@ void pre_init()
 	if (!timer_drv) {
 		printf("PWM timer does not exist.\n");
 	}
-
-	irq_reg_callback(pwm_irq_callback, NULL);
 
 	/* Run in periodic mode and start the timer. */
 	timer_periodic(timer_drv, NS_IN_SECOND);

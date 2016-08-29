@@ -86,37 +86,37 @@ gpio_t o_can_resetn;
 /* PPM Input */
 gpio_t i_ppm;
 
-static void
-irq_grp26_event(void* arg){
+void
+irq_grp26_int_handle(void){
     if(gpio_is_pending(&i_ppm)){
         gpio_pending_clear(&i_ppm);
         printf("               <<PPM INT>>\n");
         /* TODO: Call handler */
     }
-    irq_grp26_int_reg_callback(&irq_grp26_event, NULL);
+    irq_grp26_int_acknowledge();
 }
 
-static void
-irq_grp28_event(void * arg){
+void
+irq_grp28_int_handle(void){
     if(gpio_is_pending(&i_spi_mpu_int)){
         gpio_pending_clear(&i_spi_mpu_int);
         printf("               <<MPU INT>>\n");
         /* TODO: Call handler */
     }
-    irq_grp28_int_reg_callback(&irq_grp28_event, NULL);
+    irq_grp28_int_acknowledge();
 }
 
-static void
-irq_grp31_event(void *arg){
+void
+irq_grp31_int_handle(void){
     if(gpio_is_pending(&i_spi_can_int)){
         gpio_pending_clear(&i_spi_can_int);
 	CANInt_emit();
     }
-    irq_grp31_int_reg_callback(&irq_grp31_event, NULL);
+    irq_grp31_int_acknowledge();
 }
 
-static void
-irq_xint16_31_event(void *arg){
+void
+xint16_31_int_handle(void){
 #if 0
     if(gpio_is_pending(&i_spi_acc_int)){
         gpio_pending_clear(&i_spi_acc_int);
@@ -139,7 +139,7 @@ irq_xint16_31_event(void *arg){
         printf("               <<SPI EXT INT>>\n");
         /* TODO: Call handler */
     }
-    xint16_31_int_reg_callback(&irq_xint16_31_event, NULL);
+    xint16_31_int_acknowledge();
 }
 #define CLK_SRC_PERIC0  0x250
 #define CLK_DIV_PERIC0  0x558
@@ -210,10 +210,6 @@ void pre_init(void) {
     irq_combiner_enable_irq(&irq_combiner, CAN_EINT_CIRQ);
     irq_combiner_enable_irq(&irq_combiner, MPU_EINT_CIRQ);
     irq_combiner_enable_irq(&irq_combiner, PPM_CIRQ);
-    xint16_31_int_reg_callback(&irq_xint16_31_event, NULL);
-    irq_grp28_int_reg_callback(&irq_grp28_event, NULL);
-    irq_grp31_int_reg_callback(&irq_grp31_event, NULL);
-    irq_grp26_int_reg_callback(&irq_grp26_event, NULL);
 
     /* PWM */
     printf("GPIO: Enable PWM output\n");

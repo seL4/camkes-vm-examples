@@ -189,11 +189,11 @@ void init_pwm_driver(void)
  * Called on every I2C interrupt, direct control to driver.
  */
 void
-i2c_irq_event(void *arg UNUSED)
+i2c0_int_handle(void)
 {
     DPWM(".");
     i2c_handle_irq(&i2c_bus);
-    i2c0_int_reg_callback(&i2c_irq_event, NULL);
+    i2c0_int_acknowledge();
 }
 
 void set_motor(int motor_id, double speed)
@@ -260,7 +260,6 @@ void pwm__init(void)
     } 
 
     set_motors_lock(); // Prime the lock so the first call to lock blocks
-    i2c0_int_reg_callback(&i2c_irq_event, NULL);
     DPWM("Finished init");
 }
 

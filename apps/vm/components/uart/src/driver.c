@@ -34,13 +34,12 @@ struct uart_token {
 
 static ps_chardevice_t serial_device;
 
-static void
-interrupt_event(void* token)
+void
+interrupt_handle(void)
 {
     ps_chardevice_t* device;
-    device = (ps_chardevice_t*)token;
-    ps_cdev_handle_irq(device, 0);
-    interrupt_reg_callback(&interrupt_event, token);
+    ps_cdev_handle_irq(&serial_device, 0);
+    interrupt_acknowledge();
 }
 
 /* UART 1 dummy input clock */
@@ -90,8 +89,6 @@ void uart__init(void)
     /* Prime semaphores */
     read_sem_wait();
     write_sem_wait();
-    /* Register for IRQs */
-    interrupt_reg_callback(&interrupt_event, &serial_device);
 }
 
 
