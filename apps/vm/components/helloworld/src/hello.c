@@ -23,7 +23,7 @@
 
 #include "vchan_testsuite.h"
 
-#include <helloworld.h>
+#include <camkes.h>
 #include <camkes/dataport.h>
 
 // #define VCHAN_TEST_COMPONENT_OUTPUT

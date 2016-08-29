@@ -8,7 +8,7 @@
  * @TAG(NICTA_BSD)
  */
 
-#include <pwm.h>
+#include <camkes.h>
 
 #include <stdio.h>
 #include <assert.h>

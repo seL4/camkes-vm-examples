@@ -14,7 +14,7 @@
 #include <queue.h>
 
 #include <utils.h>
-#include <can.h>
+#include <camkes.h>
 
 #define MSG_QUEUE_SIZE  128
 

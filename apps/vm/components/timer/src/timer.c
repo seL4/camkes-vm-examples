@@ -14,7 +14,7 @@
 
 #include <platsupport/timer.h>
 
-#include <timer.h>
+#include <camkes.h>
 
 extern pstimer_t *timer_drv;
 

@@ -13,7 +13,7 @@
 #include <platsupport/chardev.h>
 #include <platsupport/serial.h>
 #include <utils/util.h>
-#include <uart.h>
+#include <camkes.h>
 
 //#define BAUD_RATE 115200
 #define BAUD_RATE 57600

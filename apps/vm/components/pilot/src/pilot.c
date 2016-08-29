@@ -11,7 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <pilot.h>
+#include <camkes.h>
 #include <utils/util.h>
 #include "commsec.h"
 

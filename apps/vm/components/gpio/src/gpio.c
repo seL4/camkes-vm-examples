@@ -14,7 +14,7 @@
 
 #include "utils.h"
 
-#include "gpio.h"
+#include <camkes.h>
 
 #define UART0_CTSN  GPIOID(GPA0, 2)
 #define PWM_EN      XEINT17

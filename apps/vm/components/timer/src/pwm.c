@@ -13,7 +13,7 @@
 #include <platsupport/mach/pwm.h>
 #include <platsupport/timer.h>
 
-#include <timer.h>
+#include <camkes.h>
 
 #define NS_IN_SECOND 1000000000ULL
 

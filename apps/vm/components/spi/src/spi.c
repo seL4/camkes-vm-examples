@@ -13,7 +13,7 @@
 #include <platsupport/gpio.h>
 #include <utils.h>
 #include <string.h>
-#include <spi.h>
+#include <camkes.h>
 #include <errno.h>
 
 #include <common.h>
