@@ -9,7 +9,7 @@
  */
 
 procedure can_inf {
-	include "include/can_inf.h";
+	include "can_inf.h";
 	int setup(in int baudrate);
 	void send(in can_frame_t frame);
 	void recv(out can_frame_t frame);

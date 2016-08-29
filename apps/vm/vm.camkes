@@ -91,10 +91,10 @@ assembly {
         component helloworld hello;
 
         connection seL4RPCCall vchan(from vm.vchan_con, to vchan_0.vchan_com);
-        connection seL4Asynch vchan_event_init(from vchan_0.vevent_cl, to vm.vevent);
+        connection seL4Notification vchan_event_init(from vchan_0.vevent_cl, to vm.vevent);
         connection seL4SharedData vchan_sharemem_0(from vm.share_mem, to vchan_0.share_mem);
 
-        connection seL4Asynch vchan_event(from vchan_0.vevent_sv, to hello.vevent);
+        connection seL4Notification vchan_event(from vchan_0.vevent_sv, to hello.vevent);
         connection seL4SharedData hvchan_sharemem_0(from hello.share_mem, to vchan_0.share_mem);
         connection seL4RPCCall hvchan(from hello.vchan_con, to vchan_0.vchan_com);
 #endif //CONFIG_VM_VCHAN
@@ -124,8 +124,8 @@ assembly {
         /* Can driver */
         connection seL4RPCCall 	  can_spi(from can_obj.spi, to spi_obj.spi);
         connection seL4SharedData can_spi_channel	(from can_obj.spi_can,	to spi_obj.spi1_can);
-        connection seL4Asynch 	  gpio_can_int(from gpio_obj.CANInt, to can_obj.Int);
-        connection seL4Asynch 	  gpio_can_intAck(from can_obj.IntAck, to gpio_obj.CANIntAck);
+        connection seL4Notification 	  gpio_can_int(from gpio_obj.CANInt, to can_obj.Int);
+        connection seL4Notification 	  gpio_can_intAck(from can_obj.IntAck, to gpio_obj.CANIntAck);
 
 	/* GCS hardware connection */
         connection seL4HardwareMMIO uartbase_mem(from uart_gcs.uart0base, to uartbase_gcs.mem);
@@ -150,8 +150,8 @@ assembly {
         connection seL4HardwareMMIO      i2c0_mem(from pwm_obj.i2c0, to i2c0_obj.i2c0_reg);
         connection seL4HardwareInterrupt i2c0_irq(from i2c0_obj.i2c0_int, to pwm_obj.i2c0_int);
         connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
-        connection seL4Asynch pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
-        connection seL4Asynch pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
+        connection seL4Notification pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
+        connection seL4Notification pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
 
 	/* PWM timer connections */
         connection seL4HardwareMMIO timer_mem(from timer_obj.timerbase, to timerbase_obj.timer_reg);
@@ -161,39 +161,57 @@ assembly {
         connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
 
 	/* Restart VM */
-	connection seL4Asynch restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
+	connection seL4Notification restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
 #endif
     }
 
     configuration {
 #ifdef CONFIG_PLAT_EXYNOS5410
-        uartbase_gcs.mem_attributes = "0x12C30000:0x1000";
-        uartbase_gcs.irq_attributes = 86;                        //UART1 interrupt
+        uartbase_gcs.mem_paddr = 0x12C30000;
+        uartbase_gcs.mem_size = 0x1000;
+        uartbase_gcs.irq_irq_number = 86;                        //UART1 interrupt
 
-        uartbase_px4.mem_attributes = "0x12C10000:0x1000";
-        uartbase_px4.irq_attributes = 84;                        //UART1 interrupt
+        uartbase_px4.mem_paddr = 0x12C10000;
+        uartbase_px4.mem_size = 0x1000;
+        uartbase_px4.irq_irq_number = 84;                        //UART1 interrupt
 
-        gpiobase_obj.gpio2base_attributes = "0x14000000:0x1000"; //GPIO
-        gpiobase_obj.gpio1base_attributes = "0x13400000:0x1000"; //GPIO
-        gpiobase_obj.clk_tree_attributes  = "0x10020000:0x1000"; //GPIO
-        gpiobase_obj.irqcbase_attributes  = "0x10440000:0x1000"; //IRQ COMBINER
-        gpiobase_obj.irq_grp26_int_attributes = 58; //Combined IRQ group 26
-        gpiobase_obj.irq_grp28_int_attributes = 60; //Combined IRQ group 28
-        gpiobase_obj.irq_grp31_int_attributes = 63; //Combined IRQ group 31
-        gpiobase_obj.xint16_31_int_attributes = 64; //Extern Interrupt EINT16-EINT31
+        gpiobase_obj.gpio2base_paddr = 0x14000000;
+        gpiobase_obj.gpio2base_size = 0x1000;
 
-        spibase_obj.spi1_reg_attributes = "0x12D30000:0x1000";    //SPI1
-	spibase_obj.spi1_int_attributes = 101;                    //SPI1  interrupt
+        gpiobase_obj.gpio1base_paddr = 0x13400000;
+        gpiobase_obj.gpio1base_size = 0x1000;
 
-        clkbase_obj.cmu_cpu_clk_attributes 	= 	"0x10010000:0x1000";	//CMU_CPU
-        clkbase_obj.cmu_core_clk_attributes 	= 	"0x10014000:0x1000";	//CMU_CORE
-        clkbase_obj.cmu_top_clk_attributes 	= 	"0x10020000:0x1000";	//CMU_TOP
+        gpiobase_obj.clk_tree_paddr = 0x10020000;
+        gpiobase_obj.clk_tree_size = 0x1000;
 
-        i2c0_obj.i2c0_reg_attributes = "0x12C60000:0x1000";
-        i2c0_obj.i2c0_int_attributes = 88;
+        gpiobase_obj.irqcbase_paddr = 0x10440000;
+        gpiobase_obj.irqcbase_size = 0x1000;
 
-        timerbase_obj.timer_reg_attributes     = "0x12DD0000:0x1000";	//PWM timers
-        timerbase_obj.irq_attributes	       = 72;			//Timer interrupt
+        gpiobase_obj.irq_grp26_int_irq_number = 58; //Combined IRQ group 26
+        gpiobase_obj.irq_grp28_int_irq_number = 60; //Combined IRQ group 28
+        gpiobase_obj.irq_grp31_int_irq_number = 63; //Combined IRQ group 31
+        gpiobase_obj.xint16_31_int_irq_number = 64; //Extern Interrupt EINT16-EINT31
+
+        spibase_obj.spi1_reg_paddr = 0x12D30000;
+        spibase_obj.spi1_reg_size = 0x1000;
+        spibase_obj.spi1_int_irq_number = 101;                    //SPI1  interrupt
+
+        clkbase_obj.cmu_cpu_clk_paddr = 0x10010000;
+        clkbase_obj.cmu_cpu_clk_size = 0x1000;
+
+        clkbase_obj.cmu_core_clk_paddr = 0x10014000;
+        clkbase_obj.cmu_core_clk_size = 0x1000;
+
+        clkbase_obj.cmu_top_clk_paddr = 0x10020000;
+        clkbase_obj.cmu_top_clk_size = 0x1000;
+
+        i2c0_obj.i2c0_reg_paddr = 0x12C60000;
+        i2c0_obj.i2c0_reg_size = 0x1000;
+        i2c0_obj.i2c0_int_irq_number = 88;
+
+        timerbase_obj.timer_reg_paddr = 0x12DD0000;
+        timerbase_obj.timer_reg_size = 0x1000;
+        timerbase_obj.irq_irq_number	       = 72;			//Timer interrupt
 
 	uart_gcs.ID = 1;
 	uart_px4.ID = 3;
