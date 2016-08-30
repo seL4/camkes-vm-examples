@@ -18,6 +18,8 @@
 
 #define MSG_QUEUE_SIZE  128
 
+void spi__init(void);
+
 void can__init(void)
 {
 	printf("CAN device started...\n");
@@ -26,6 +28,7 @@ void can__init(void)
 
 int can_setup(int baudrate)
 {
+	spi__init();
 	mcp2515_reset();
 
 	/* Wait until reset finishes. */
