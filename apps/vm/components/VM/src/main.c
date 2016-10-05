@@ -280,7 +280,8 @@ void reset_resources(void) {
     for (i = 0; i < simple_get_untyped_count(&simple); i++) {
         size_t size_bits;
         uintptr_t paddr;
-        seL4_CPtr ut = simple_get_nth_untyped(&simple, i, &size_bits, &paddr, NULL);
+        bool device;
+        seL4_CPtr ut = simple_get_nth_untyped(&simple, i, &size_bits, &paddr, &device);
         error = seL4_CNode_Revoke(root, ut, 32);
         assert(error == seL4_NoError);
     }
