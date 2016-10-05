@@ -247,14 +247,14 @@ map_unity_ram(vm_t* vm)
         cspacepath_t frame;
         err = vka_cspace_alloc_path(vm->vka, &frame);
         assert(!err);
-        err = simple_get_frame_cap(vm->simple, start, bits, &frame);
+        err = simple_get_frame_cap(vm->simple, (void*)start, bits, &frame);
         if (err) {
             printf("Failed to map ram page 0x%x\n", start);
             vka_cspace_free(vm->vka, frame.capPtr);
             break;
         }
         uintptr_t addr = start - LINUX_RAM_OFFSET;
-        err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, addr, 1, bits, res);
+        err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void*)addr, 1, bits, res);
         assert(!err);
     }
 }
@@ -278,9 +278,9 @@ void reset_resources(void) {
     int error;
     /* revoke any of our initial untyped resources */
     for (i = 0; i < simple_get_untyped_count(&simple); i++) {
-        uint32_t size_bits;
-        uint32_t paddr;
-        seL4_CPtr ut = simple_get_nth_untyped(&simple, i, &size_bits, &paddr);
+        size_t size_bits;
+        uintptr_t paddr;
+        seL4_CPtr ut = simple_get_nth_untyped(&simple, i, &size_bits, &paddr, NULL);
         error = seL4_CNode_Revoke(root, ut, 32);
         assert(error == seL4_NoError);
     }
