@@ -159,6 +159,127 @@ _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor* dma_desc)
     return 0;
 }
 
+typedef struct vm_io_cookie {
+    simple_t simple;
+    vka_t vka;
+    vspace_t vspace;
+} vm_io_cookie_t;
+
+static void *
+vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t size, int page_size_bits, int cached)
+{
+
+    vka_t *vka = &io_mapper->vka;
+    vspace_t *vspace = &io_mapper->vspace;
+    simple_t *simple = &io_mapper->simple;
+
+    /* search at start of page */
+    int page_size = BIT(page_size_bits);
+    uintptr_t start = ROUND_DOWN(paddr, page_size);
+    uintptr_t offset = paddr - start;
+    size += offset;
+
+    /* calculate number of pages */
+    unsigned int num_pages = ROUND_UP(size, page_size) >> page_size_bits;
+    assert(num_pages << page_size_bits >= size);
+    seL4_CPtr frames[num_pages];
+
+    /* get all of the physical frame caps */
+    for (unsigned int i = 0; i < num_pages; i++) {
+        /* allocate a cslot */
+        int error = vka_cspace_alloc(vka, &frames[i]);
+        if (error) {
+            ZF_LOGE("cspace alloc failed");
+            assert(error == 0);
+            /* we don't clean up as everything has gone to hell */
+            return NULL;
+        }
+
+        /* create a path */
+        cspacepath_t path;
+        vka_cspace_make_path(vka, frames[i], &path);
+
+        error = simple_get_frame_cap(simple, (void*)start + (i * page_size), page_size_bits, &path);
+
+        if (error) {
+            /* free this slot, and then do general cleanup of the rest of the slots.
+             * this avoids a needless seL4_CNode_Delete of this slot, as there is no
+             * cap in it */
+            vka_cspace_free(vka, frames[i]);
+            num_pages = i;
+            goto error;
+        }
+
+    }
+
+    /* Now map the frames in */
+    void *vaddr = vspace_map_pages(vspace, frames, NULL, seL4_AllRights, num_pages, page_size_bits, cached);
+    if (vaddr) {
+        return vaddr + offset;
+    }
+error:
+    for (unsigned int i = 0; i < num_pages; i++) {
+        cspacepath_t path;
+        vka_cspace_make_path(vka, frames[i], &path);
+        vka_cnode_delete(&path);
+        vka_cspace_free(vka, frames[i]);
+    }
+    return NULL;
+}
+
+static void *
+vm_map_paddr(void *cookie, uintptr_t paddr, size_t size, int cached, ps_mem_flags_t flags)
+{
+    vm_io_cookie_t* io_mapper = (vm_io_cookie_t*)cookie;
+
+    int frame_size_index = 0;
+    /* find the largest reasonable frame size */
+    while (frame_size_index + 1 < SEL4_NUM_PAGE_SIZES) {
+        if (size >> sel4_page_sizes[frame_size_index + 1] == 0) {
+            break;
+        }
+        frame_size_index++;
+    }
+
+    /* try mapping in this and all smaller frame sizes until something works */
+    for (int i = frame_size_index; i >= 0; i--) {
+        void *result = vm_map_paddr_with_page_size(io_mapper, paddr, size, sel4_page_sizes[i], cached);
+        if (result) {
+            return result;
+        }
+    }
+    ZF_LOGE("Failed to map address %p", (void *)paddr);
+    return NULL;
+}
+
+static void
+vm_unmap_vaddr(void *cookie, void *vaddr, size_t size)
+{
+    ZF_LOGF("Not unmapping vaddr %p", vaddr);
+}
+
+static int
+vm_new_io_mapper(simple_t simple, vspace_t vspace, vka_t vka, ps_io_mapper_t *io_mapper)
+{
+    vm_io_cookie_t *cookie;
+    cookie = (vm_io_cookie_t*)malloc(sizeof(*cookie));
+    if (!cookie) {
+        ZF_LOGE("Failed to allocate %zu bytes", sizeof(*cookie));
+        return -1;
+    }
+    *cookie = (vm_io_cookie_t) {
+        .vspace = vspace,
+        .simple = simple,
+        .vka = vka
+    };
+    *io_mapper = (ps_io_mapper_t) {
+        .cookie = cookie,
+        .io_map_fn = vm_map_paddr,
+        .io_unmap_fn = vm_unmap_vaddr
+    };
+    return 0;
+}
+
 static int
 vmm_init(void)
 {
@@ -201,8 +322,8 @@ vmm_init(void)
     assert(!err);
 
     /* Initialise device support */
-    err = sel4platsupport_new_io_mapper(*simple, *vspace, *vka,
-                                        &_io_ops.io_mapper);
+    err = vm_new_io_mapper(*simple, *vspace, *vka,
+                           &_io_ops.io_mapper);
     assert(!err);
 
     /* Initialise MUX subsystem */
