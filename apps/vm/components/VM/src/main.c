@@ -32,6 +32,7 @@
 #include <cpio/cpio.h>
 
 #include <sel4arm-vmm/vm.h>
+#include <sel4arm-vmm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
 
@@ -63,7 +64,7 @@ simple_t _simple;
 vspace_t _vspace;
 sel4utils_alloc_data_t _alloc_data;
 allocman_t *allocman;
-static char allocator_mempool[8388608];
+static char allocator_mempool[83886080];
 seL4_CPtr _fault_endpoint;
 irq_server_t _irq_server;
 
@@ -183,6 +184,7 @@ vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t s
     unsigned int num_pages = ROUND_UP(size, page_size) >> page_size_bits;
     assert(num_pages << page_size_bits >= size);
     seL4_CPtr frames[num_pages];
+    seL4_Word cookies[num_pages];
 
     /* get all of the physical frame caps */
     for (unsigned int i = 0; i < num_pages; i++) {
@@ -199,15 +201,19 @@ vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t s
         cspacepath_t path;
         vka_cspace_make_path(vka, frames[i], &path);
 
-        error = simple_get_frame_cap(simple, (void*)start + (i * page_size), page_size_bits, &path);
+        error = vka_utspace_alloc_at(vka, &path, kobject_get_type(KOBJECT_FRAME, page_size_bits), page_size_bits, start + (i * page_size), &cookies[i]);
 
         if (error) {
-            /* free this slot, and then do general cleanup of the rest of the slots.
-             * this avoids a needless seL4_CNode_Delete of this slot, as there is no
-             * cap in it */
-            vka_cspace_free(vka, frames[i]);
-            num_pages = i;
-            goto error;
+            cookies[i] = -1;
+            error = simple_get_frame_cap(simple, (void*)start + (i * page_size), page_size_bits, &path);
+            if (error) {
+                /* free this slot, and then do general cleanup of the rest of the slots.
+                 * this avoids a needless seL4_CNode_Delete of this slot, as there is no
+                 * cap in it */
+                vka_cspace_free(vka, frames[i]);
+                num_pages = i;
+                goto error;
+            }
         }
 
     }
@@ -222,6 +228,9 @@ error:
         cspacepath_t path;
         vka_cspace_make_path(vka, frames[i], &path);
         vka_cnode_delete(&path);
+        if (cookies[i] != -1) {
+            vka_utspace_free(vka, kobject_get_type(KOBJECT_FRAME, page_size_bits), page_size_bits, cookies[i]);
+        }
         vka_cspace_free(vka, frames[i]);
     }
     return NULL;
@@ -314,7 +323,21 @@ vmm_init(void)
     assert(allocman);
     err = allocman_add_simple_untypeds(allocman, simple);
     assert(!err);
+
     allocman_make_vka(vka, allocman);
+
+    for (int i = 0; i < simple_get_untyped_count(simple); i++) {
+        size_t size;
+        uintptr_t paddr;
+        bool device;
+        seL4_CPtr cap = simple_get_nth_untyped(simple, i, &size, &paddr, &device);
+        if (device) {
+            cspacepath_t path;
+            vka_cspace_make_path(vka, cap, &path);
+            err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, ALLOCMAN_UT_DEV);
+            assert(!err);
+        }
+    }
 
     /* Initialize the vspace */
     err = sel4utils_bootstrap_vspace(vspace, &_alloc_data,
@@ -361,14 +384,15 @@ map_unity_ram(vm_t* vm)
 
     uintptr_t start;
     reservation_t res;
-    unsigned int bits = 21;
+    unsigned int bits = seL4_PageBits;
     res = vspace_reserve_range_at(&vm->vm_vspace, (void*)(paddr_start - LINUX_RAM_OFFSET), paddr_end - paddr_start, seL4_AllRights, 1);
     assert(res.res);
     for (start = paddr_start; start < paddr_end; start += BIT(bits)) {
         cspacepath_t frame;
         err = vka_cspace_alloc_path(vm->vka, &frame);
         assert(!err);
-        err = simple_get_frame_cap(vm->simple, (void*)start, bits, &frame);
+        seL4_Word cookie;
+        err = vka_utspace_alloc_at(vm->vka, &frame, kobject_get_type(KOBJECT_FRAME, bits), bits, start, &cookie);
         if (err) {
             printf("Failed to map ram page 0x%x\n", start);
             vka_cspace_free(vm->vka, frame.capPtr);
@@ -468,6 +492,22 @@ main_continued(void)
         seL4_DebugHalt();
         return -1;
     }
+
+#ifdef CONFIG_ARM_SMMU
+    /* install any iospaces */
+    int iospace_caps;
+    err = simple_get_iospace_cap_count(&_simple, &iospace_caps);
+    if (err) {
+        ZF_LOGF("Failed to get iospace count");
+    }
+    for (int i = 0; i < iospace_caps; i++) {
+        seL4_CPtr iospace = simple_get_nth_iospace_cap(&_simple, i);
+        err = vmm_guest_vspace_add_iospace(&_vspace, &vm.vm_vspace, iospace);
+        if (err) {
+            ZF_LOGF("Failed to add iospace");
+        }
+    }
+#endif /* CONFIG_ARM_SMMU */
 
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
