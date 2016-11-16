@@ -349,9 +349,11 @@ vmm_init(void)
                            &_io_ops.io_mapper);
     assert(!err);
 
-    /* Initialise MUX subsystem */
+    /* Initialise MUX subsystem for platforms that need it */
+#ifndef CONFIG_PLAT_TK1
     err = mux_sys_init(&_io_ops, &_io_ops.mux_sys);
     assert(!err);
+#endif
 
     /* Initialise DMA */
     err = dma_dmaman_init(&_dma_morecore, NULL, &_io_ops.dma_manager);
