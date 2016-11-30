@@ -92,11 +92,11 @@ $(STAGE_DIR)/linux/linux:
 endif
 
 ifeq (${CONFIG_PLAT_TK1},y)
-$(STAGE_DIR)/linux/linux-dtb:
+$(STAGE_DIR)/linux/linux-dtb: $(SOURCE_DIR)/linux/linux-tk1-dtb
 	$(Q)mkdir -p $(dir $@)
 	cp ${SOURCE_DIR}/linux/linux-tk1-dtb $@
 
-$(STAGE_DIR)/linux/linux:
+$(STAGE_DIR)/linux/linux: $(SOURCE_DIR)/linux/linux-tk1
 	$(Q)mkdir -p $(dir $@)
 	cp ${SOURCE_DIR}/linux/linux-tk1 $@
 endif
