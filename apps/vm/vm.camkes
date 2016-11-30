@@ -463,7 +463,7 @@ assembly {
                     190,
                     191";
 
-        vm.smmu = [5, 15, 16, 24];
+        vm.smmu = [5, 10, 15, 16, 24];
 #endif
 
         vm.asid_pool = true;
