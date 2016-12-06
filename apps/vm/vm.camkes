@@ -278,43 +278,43 @@ assembly {
 #endif
 
 #ifdef CONFIG_PLAT_TK1
-        vm.untyped_mmios = "
-                    0x01000000:12, // PCIe Controller 0 config registers
-                    0x01001000:12, // PCIe Controller 1 config registers
-                    0x01003000:12, // PCIe Pads & AFI
-                    0x02000000:20, // Start of PCIE_A2 region
-                    0x13000000:20, // In PCIE_A3 region 
-                    0x50046000:12, // Interrupt Controller Virtual CPU interface (Virtual Machine view)
+        vm.untyped_mmios = [
+           //         "0x01000000:12", // PCIe Controller 0 config registers
+           //         "0x01001000:12", // PCIe Controller 1 config registers
+           //         "0x01003000:12", // PCIe Pads & AFI
+           //         "0x02000000:20", // Start of PCIE_A2 region
+           //         "0x13000000:20", // In PCIE_A3 region 
+                    "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
                                    //  Note: In the address map this region is 8KB, but we only pass through 4KB
-                    0x60004000:12, // Interrupt controller registers (ICTLR)
-                    0x60005000:12, // Timers (TMR)
-                    0x60006000:12, // Clock and Reset (CAR)
-                    0x6000c000:12, // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor 
-                    0x6000d000:12, // GPIOS 1-8
-                    0x60020000:12, // APB-DMA 
-                    0x70000000:12, // APB-MISC: pinmux@0x70000868
-                    0x70006000:12, // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
-                    0x7000c000:12, // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
-                    0x7000d000:12, // I2C5, I2C6, SPI 2B-(1..6)
-                    0x7000e000:12, // RTC, KBC, PMC
-                    0x7001b000:12, // EMC
-                    0x70020000:12, // SATA
-                    0x70021000:12, // SATA
-                    0x70027000:12, // SATA
-                    0x70030000:12, // HDA
-                    0x70031000:12, // HDA
-                    0x70038000:12, // HDA
-                    0x7009f000:12, // XUSB_PADCTL
-                    0x700b0000:12, // SDMMC-1
-                    0x70300000:12, // Audio Cluster
-                    0x70301000:12, // Audio Cluster
-                    0x7d000000:12, // USB
-                    0x7d004000:12, // USB2
-                    0x7d008000:12, // USB3
-                    0xb0000000:28, // Linux kernel memory regions
-                    0xc0000000:29, // Linux kernel memory regions
-                    0xe0000000:28";// Linux kernel memory regions
-        vm.irqs =  "27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
+                    "0x60004000:12", // Interrupt controller registers (ICTLR)
+                    "0x60005000:12", // Timers (TMR)
+                    "0x60006000:12", // Clock and Reset (CAR)
+                    "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor 
+                    "0x6000d000:12", // GPIOS 1-8
+                    "0x60020000:12", // APB-DMA 
+                    "0x70000000:12", // APB-MISC: pinmux@0x70000868
+                    "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
+                    "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
+                    "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
+                    "0x7000e000:12", // RTC, KBC, PMC
+                    "0x7001b000:12", // EMC
+                    "0x70020000:12", // SATA
+                    "0x70021000:12", // SATA
+                    "0x70027000:12", // SATA
+                    "0x70030000:12", // HDA
+                    "0x70031000:12", // HDA
+                    "0x70038000:12", // HDA
+                    "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
+                    "0x700b0000:12", // SDMMC-1
+                    "0x70300000:12", // Audio Cluster
+                    "0x70301000:12", // Audio Cluster
+                    "0x7d000000:12", // USB
+                    "0x7d004000:12", // USB2
+                    "0x7d008000:12", // USB3
+                    "0xb0000000:28", // Linux kernel memory regions
+                    "0xc0000000:29", // Linux kernel memory regions
+                    "0xe0000000:28"];// Linux kernel memory regions
+        vm.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
                     34, // INTERRUPT_RTC
@@ -403,9 +403,9 @@ assembly {
                     127, // INTERRUPT_SW
                     128, // INTERRUPT_SNOR
                     129, // INTERRUPT_USB3
-                    130, // INTERRUPT_PCIE_INT
-                    131, // INTERRUPT_PCIE_MSI
-                    132, // INTERRUPT_PCIE_WAKE
+                //    130, // INTERRUPT_PCIE_INT
+                //    131, // INTERRUPT_PCIE_MSI
+                //    132, // INTERRUPT_PCIE_WAKE
                     133, // INTERRUPT_AVP_CACHE
                     135, // INTERRUPT_AUDIO_CLUSTER
                     136, // INTERRUPT_APB_DMA_CH0
@@ -463,7 +463,7 @@ assembly {
                     188, // INTERRUPT_TMR0
                     189, // INTERRUPT_GPU
                     190, // INTERRUPT_GPU_NONSTALL
-                    191";// ARDPAUX
+                    191];// ARDPAUX
 
         vm.smmu = [5, 10, 15, 16, 24];
 #endif
