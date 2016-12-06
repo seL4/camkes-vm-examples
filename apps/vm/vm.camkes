@@ -348,8 +348,8 @@ assembly {
                     65, // INTERRUPT_GPIO2
                     66, // INTERRUPT_GPIO3
                     67, // INTERRUPT_GPIO4
-                    68, // INTERRUPT_UARTA
-                    69, // INTERRUPT_UARTB
+             //       68, // INTERRUPT_UARTA
+             //       69, // INTERRUPT_UARTB
                     70, // INTERRUPT_I2C
                     71, // INTERRUPT_USB3_HOST
                     72, // INTERRUPT_USB3_HOST_SMI
@@ -358,7 +358,7 @@ assembly {
                     75, // INTERRUPT_USB3_HOST_PME
                     76, // INTERRUPT_USB3_DEV_HOST
              //       77, // INTERRUPT_ACTMON
-                    78, // INTERRUPT_UARTC
+             //       78, // INTERRUPT_UARTC
                     79, // INTERRUPT_HSI
                     80, // INTERRUPT_THERMAL
                     81, // INTERRUPT_XUSB_PADCTL
