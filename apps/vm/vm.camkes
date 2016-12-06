@@ -294,8 +294,8 @@ assembly {
                     "0x60020000:12", // APB-DMA 
                     "0x70000000:12", // APB-MISC: pinmux@0x70000868
                     "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
-                    "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
-                    "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
+              //      "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
+              //      "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
                     "0x7000e000:12", // RTC, KBC, PMC
                     "0x7001b000:12", // EMC
                     "0x70020000:12", // SATA
@@ -350,7 +350,7 @@ assembly {
                     67, // INTERRUPT_GPIO4
              //       68, // INTERRUPT_UARTA
              //       69, // INTERRUPT_UARTB
-                    70, // INTERRUPT_I2C
+             //       70, // INTERRUPT_I2C
                     71, // INTERRUPT_USB3_HOST
                     72, // INTERRUPT_USB3_HOST_SMI
                     73, // INTERRUPT_TMR3
@@ -365,17 +365,17 @@ assembly {
                     82, // INTERRUPT_TSEC
                     83, // INTERRUPT_EDP
                     84, // INTERRUPT_VFIR
-                    85, // INTERRUPT_I2C5
+             //       85, // INTERRUPT_I2C5
                     86, // INTERRUPT_STAT_MON
                     87, // INTERRUPT_GPIO5
                     88, // INTERRUPT_USB3_DEV_SMI
                     89, // INTERRUPT_USB3_DEV_PME
                     90, // INTERRUPT_SE
-                    91, // INTERRUPT_SPI1
+             //       91, // INTERRUPT_SPI1
                     92, // INTERRUPT_APB_DMA_COP
                     93, // INTERRUPT_AHB_DMA_COP
                     94, // INTERRUPT_CLDVFS
-                    95, // INTERRUPT_I2C6
+             //       95, // INTERRUPT_I2C6
                     96, // INTERRUPT_HOST1X_SYNCPT_COP
                 //    97, // INTERRUPT_HOST1X_SYNCPT_CPU
                     98, // INTERRUPT_HOST1X_GEN_COP
@@ -390,16 +390,16 @@ assembly {
                 //    107, // INTERRUPT_HDMI
                 //    108, // INTERRUPT_SOR
                     110, // INTERRUPT_EMC
-                    111, // INTERRUPT_SPI6
+                //    111, // INTERRUPT_SPI6
                     113, // INTERRUPT_HDA
-                    114, // INTERRUPT_SPI2
-                    115, // INTERRUPT_SPI3
-                    116, // INTERRUPT_I2C2
-                    118, // INTERRUPT_PMU_EXT
+                //    114, // INTERRUPT_SPI2
+                //    115, // INTERRUPT_SPI3
+                //    116, // INTERRUPT_I2C2
+                //    118, // INTERRUPT_PMU_EXT
                     119, // INTERRUPT_GPIO6
                     121, // INTERRUPT_GPIO7
                     122, // INTERRUPT_UARTD
-                    124, // INTERRUPT_I2C3
+                //    124, // INTERRUPT_I2C3
                     127, // INTERRUPT_SW
                     128, // INTERRUPT_SNOR
                     129, // INTERRUPT_USB3
@@ -424,7 +424,7 @@ assembly {
                     149, // INTERRUPT_APB_DMA_CH13
                     150, // INTERRUPT_APB_DMA_CH14
                     151, // INTERRUPT_APB_DMA_CH15
-                    152, // INTERRUPT_I2C4
+                //    152, // INTERRUPT_I2C4
                     153, // INTERRUPT_TMR5
                     154, // INTERRUPT_HIER_GROUP1_COP
                     155, // INTERRUPT_WDT_CPU
