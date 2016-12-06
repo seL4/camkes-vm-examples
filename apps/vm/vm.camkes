@@ -377,18 +377,18 @@ assembly {
                     94, // INTERRUPT_CLDVFS
                     95, // INTERRUPT_I2C6
                     96, // INTERRUPT_HOST1X_SYNCPT_COP
-                    97, // INTERRUPT_HOST1X_SYNCPT_CPU
+                //    97, // INTERRUPT_HOST1X_SYNCPT_CPU
                     98, // INTERRUPT_HOST1X_GEN_COP
-                    99, // INTERRUPT_HOST1X_GEN_CPU
+                //    99, // INTERRUPT_HOST1X_GEN_CPU
                     100, // INTERRUPT_MSENC
                     101, // INTERRUPT_VI
                     102, // INTERRUPT_ISPB
                     103, // INTERRUPT_ISP
                     104, // INTERRUPT_VIC
-                    105, // INTERRUPT_DISPLAY
-                    106, // INTERRUPT_DISPLAYB
-                    107, // INTERRUPT_HDMI
-                    108, // INTERRUPT_SOR
+                //    105, // INTERRUPT_DISPLAY
+                //    106, // INTERRUPT_DISPLAYB
+                //    107, // INTERRUPT_HDMI
+                //    108, // INTERRUPT_SOR
                     110, // INTERRUPT_EMC
                     111, // INTERRUPT_SPI6
                     113, // INTERRUPT_HDA
@@ -463,7 +463,8 @@ assembly {
                     188, // INTERRUPT_TMR0
                     189, // INTERRUPT_GPU
                     190, // INTERRUPT_GPU_NONSTALL
-                    191];// ARDPAUX
+                //    191  // ARDPAUX
+                    ];
 
         vm.smmu = [5, 10, 15, 16, 24];
 #endif
