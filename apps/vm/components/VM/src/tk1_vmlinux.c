@@ -193,8 +193,8 @@ INTERRUPT_TMR7                 ,
 INTERRUPT_TMR8                 , 
 INTERRUPT_TMR9                 , 
 INTERRUPT_TMR0                 , 
-INTERRUPT_GPU                  , 
-INTERRUPT_GPU_NONSTALL         , 
+//INTERRUPT_GPU                  , 
+//INTERRUPT_GPU_NONSTALL         , 
 //ARDPAUX                        , 
 };
 

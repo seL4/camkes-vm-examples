@@ -461,8 +461,8 @@ assembly {
                     186, // INTERRUPT_TMR8
                     187, // INTERRUPT_TMR9
                     188, // INTERRUPT_TMR0
-                    189, // INTERRUPT_GPU
-                    190, // INTERRUPT_GPU_NONSTALL
+                //    189, // INTERRUPT_GPU
+                //    190, // INTERRUPT_GPU_NONSTALL
                 //    191  // ARDPAUX
                     ];
 
