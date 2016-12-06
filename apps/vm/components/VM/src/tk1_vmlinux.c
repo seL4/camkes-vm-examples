@@ -49,7 +49,7 @@ static const int linux_pt_irqs[] = {
 INTERRUPT_VTIMER               , 
 INTERRUPT_TMR1                 , 
 INTERRUPT_TMR2                 ,
-INTERRUPT_RTC                  , 
+//INTERRUPT_RTC                  , 
 INTERRUPT_CEC                  , 
 INTERRUPT_SHR_SEM_INBOX_FULL   ,
 INTERRUPT_SHR_SEM_INBOX_EMPTY  , 

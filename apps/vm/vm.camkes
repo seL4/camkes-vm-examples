@@ -296,7 +296,7 @@ assembly {
                     "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
               //      "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
               //      "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
-                    "0x7000e000:12", // RTC, KBC, PMC
+              //      "0x7000e000:12", // RTC, KBC, PMC
                     "0x7001b000:12", // EMC
                     "0x70020000:12", // SATA
                     "0x70021000:12", // SATA
@@ -317,7 +317,7 @@ assembly {
         vm.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
-                    34, // INTERRUPT_RTC
+               //     34, // INTERRUPT_RTC
                     35, // INTERRUPT_CEC
                     36, // INTERRUPT_SHR_SEM_INBOX_FULL
                     37, // INTERRUPT_SHR_SEM_INBOX_EMPTY
