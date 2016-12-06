@@ -297,7 +297,7 @@ assembly {
               //      "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
               //      "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
               //      "0x7000e000:12", // RTC, KBC, PMC
-                    "0x7001b000:12", // EMC
+              //      "0x7001b000:12", // EMC
                     "0x70020000:12", // SATA
                     "0x70021000:12", // SATA
                     "0x70027000:12", // SATA
@@ -389,7 +389,7 @@ assembly {
                 //    106, // INTERRUPT_DISPLAYB
                 //    107, // INTERRUPT_HDMI
                 //    108, // INTERRUPT_SOR
-                    110, // INTERRUPT_EMC
+                //    110, // INTERRUPT_EMC
                 //    111, // INTERRUPT_SPI6
                     113, // INTERRUPT_HDA
                 //    114, // INTERRUPT_SPI2
