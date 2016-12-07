@@ -360,7 +360,7 @@ assembly {
              //       77, // INTERRUPT_ACTMON
              //       78, // INTERRUPT_UARTC
                     79, // INTERRUPT_HSI
-                    80, // INTERRUPT_THERMAL
+             //       80, // INTERRUPT_THERMAL
                     81, // INTERRUPT_XUSB_PADCTL
                     82, // INTERRUPT_TSEC
                     83, // INTERRUPT_EDP
@@ -374,7 +374,7 @@ assembly {
              //       91, // INTERRUPT_SPI1
                     92, // INTERRUPT_APB_DMA_COP
                     93, // INTERRUPT_AHB_DMA_COP
-                    94, // INTERRUPT_CLDVFS
+             //       94, // INTERRUPT_CLDVFS
              //       95, // INTERRUPT_I2C6
                     96, // INTERRUPT_HOST1X_SYNCPT_COP
                 //    97, // INTERRUPT_HOST1X_SYNCPT_CPU
