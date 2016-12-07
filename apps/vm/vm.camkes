@@ -466,7 +466,7 @@ assembly {
                 //    191  // ARDPAUX
                     ];
 
-        vm.smmu = [5, 10, 15, 16, 24];
+        vm.smmu = [10, 24];
 #endif
 
         vm.asid_pool = true;
