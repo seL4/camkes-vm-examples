@@ -291,7 +291,7 @@ assembly {
                     "0x60006000:12", // Clock and Reset (CAR)
            //         "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor 
                     "0x6000d000:12", // GPIOS 1-8
-                    "0x60020000:12", // APB-DMA 
+              //      "0x60020000:12", // APB-DMA 
                     "0x70000000:12", // APB-MISC: pinmux@0x70000868
                     "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
               //      "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
@@ -408,22 +408,22 @@ assembly {
                 //    132, // INTERRUPT_PCIE_WAKE
                     133, // INTERRUPT_AVP_CACHE
                 //    135, // INTERRUPT_AUDIO_CLUSTER
-                    136, // INTERRUPT_APB_DMA_CH0
-                    137, // INTERRUPT_APB_DMA_CH1
-                    138, // INTERRUPT_APB_DMA_CH2
-                    139, // INTERRUPT_APB_DMA_CH3
-                    140, // INTERRUPT_APB_DMA_CH4
-                    141, // INTERRUPT_APB_DMA_CH5
-                    142, // INTERRUPT_APB_DMA_CH6
-                    143, // INTERRUPT_APB_DMA_CH7
-                    144, // INTERRUPT_APB_DMA_CH8
-                    145, // INTERRUPT_APB_DMA_CH9
-                    146, // INTERRUPT_APB_DMA_CH10
-                    147, // INTERRUPT_APB_DMA_CH11
-                    148, // INTERRUPT_APB_DMA_CH12
-                    149, // INTERRUPT_APB_DMA_CH13
-                    150, // INTERRUPT_APB_DMA_CH14
-                    151, // INTERRUPT_APB_DMA_CH15
+                //    136, // INTERRUPT_APB_DMA_CH0
+                //    137, // INTERRUPT_APB_DMA_CH1
+                //    138, // INTERRUPT_APB_DMA_CH2
+                //    139, // INTERRUPT_APB_DMA_CH3
+                //    140, // INTERRUPT_APB_DMA_CH4
+                //    141, // INTERRUPT_APB_DMA_CH5
+                //    142, // INTERRUPT_APB_DMA_CH6
+                //    143, // INTERRUPT_APB_DMA_CH7
+                //    144, // INTERRUPT_APB_DMA_CH8
+                //    145, // INTERRUPT_APB_DMA_CH9
+                //    146, // INTERRUPT_APB_DMA_CH10
+                //    147, // INTERRUPT_APB_DMA_CH11
+                //    148, // INTERRUPT_APB_DMA_CH12
+                //    149, // INTERRUPT_APB_DMA_CH13
+                //    150, // INTERRUPT_APB_DMA_CH14
+                //    151, // INTERRUPT_APB_DMA_CH15
                 //    152, // INTERRUPT_I2C4
                     153, // INTERRUPT_TMR5
                     154, // INTERRUPT_HIER_GROUP1_COP
@@ -432,22 +432,22 @@ assembly {
                     157, // INTERRUPT_GPIO8
                     158, // INTERRUPT_CAR
                     159, // INTERRUPT_HIER_GROUP1_CPU
-                    160, // INTERRUPT_APB_DMA_CH16
-                    161, // INTERRUPT_APB_DMA_CH17
-                    162, // INTERRUPT_APB_DMA_CH18
-                    163, // INTERRUPT_APB_DMA_CH19
-                    164, // INTERRUPT_APB_DMA_CH20
-                    165, // INTERRUPT_APB_DMA_CH21
-                    166, // INTERRUPT_APB_DMA_CH22
-                    167, // INTERRUPT_APB_DMA_CH23
-                    168, // INTERRUPT_APB_DMA_CH24
-                    169, // INTERRUPT_APB_DMA_CH25
-                    170, // INTERRUPT_APB_DMA_CH26
-                    171, // INTERRUPT_APB_DMA_CH27
-                    172, // INTERRUPT_APB_DMA_CH28
-                    173, // INTERRUPT_APB_DMA_CH29
-                    174, // INTERRUPT_APB_DMA_CH30
-                    175, // INTERRUPT_APB_DMA_CH31
+                //    160, // INTERRUPT_APB_DMA_CH16
+                //    161, // INTERRUPT_APB_DMA_CH17
+                //    162, // INTERRUPT_APB_DMA_CH18
+                //    163, // INTERRUPT_APB_DMA_CH19
+                //    164, // INTERRUPT_APB_DMA_CH20
+                //    165, // INTERRUPT_APB_DMA_CH21
+                //    166, // INTERRUPT_APB_DMA_CH22
+                //    167, // INTERRUPT_APB_DMA_CH23
+                //    168, // INTERRUPT_APB_DMA_CH24
+                //    169, // INTERRUPT_APB_DMA_CH25
+                //    170, // INTERRUPT_APB_DMA_CH26
+                //    171, // INTERRUPT_APB_DMA_CH27
+                //    172, // INTERRUPT_APB_DMA_CH28
+                //    173, // INTERRUPT_APB_DMA_CH29
+                //    174, // INTERRUPT_APB_DMA_CH30
+                //    175, // INTERRUPT_APB_DMA_CH31
                     176, // INTERRUPT_CPU0_PMU
                     177, // INTERRUPT_CPU1_PMU
                     178, // INTERRUPT_CPU2_PMU
