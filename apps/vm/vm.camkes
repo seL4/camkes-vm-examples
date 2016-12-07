@@ -304,7 +304,7 @@ assembly {
               //      "0x70030000:12", // HDA
               //      "0x70031000:12", // HDA
               //      "0x70038000:12", // HDA
-                    "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
+              //      "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
                     "0x700b0000:12", // SDMMC-1
               //      "0x70300000:12", // Audio Cluster
               //      "0x70301000:12", // Audio Cluster
@@ -361,7 +361,7 @@ assembly {
              //       78, // INTERRUPT_UARTC
                     79, // INTERRUPT_HSI
              //       80, // INTERRUPT_THERMAL
-                    81, // INTERRUPT_XUSB_PADCTL
+             //       81, // INTERRUPT_XUSB_PADCTL
                     82, // INTERRUPT_TSEC
                     83, // INTERRUPT_EDP
                     84, // INTERRUPT_VFIR
