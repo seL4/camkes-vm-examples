@@ -306,8 +306,8 @@ assembly {
                     "0x70038000:12", // HDA
                     "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
                     "0x700b0000:12", // SDMMC-1
-                    "0x70300000:12", // Audio Cluster
-                    "0x70301000:12", // Audio Cluster
+              //      "0x70300000:12", // Audio Cluster
+              //      "0x70301000:12", // Audio Cluster
                     "0x7d000000:12", // USB
                     "0x7d004000:12", // USB2
                     "0x7d008000:12", // USB3
@@ -407,7 +407,7 @@ assembly {
                 //    131, // INTERRUPT_PCIE_MSI
                 //    132, // INTERRUPT_PCIE_WAKE
                     133, // INTERRUPT_AVP_CACHE
-                    135, // INTERRUPT_AUDIO_CLUSTER
+                //    135, // INTERRUPT_AUDIO_CLUSTER
                     136, // INTERRUPT_APB_DMA_CH0
                     137, // INTERRUPT_APB_DMA_CH1
                     138, // INTERRUPT_APB_DMA_CH2
