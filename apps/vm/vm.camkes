@@ -310,7 +310,7 @@ assembly {
               //      "0x70301000:12", // Audio Cluster
                     "0x7d000000:12", // USB
                     "0x7d004000:12", // USB2
-                    "0x7d008000:12", // USB3
+              //      "0x7d008000:12", // USB3
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28"];// Linux kernel memory regions
@@ -334,9 +334,9 @@ assembly {
                     49, // INTERRUPT_VDE
                     50, // INTERRUPT_AVP_UCQ
              //       51, // INTERRUPT_SDMMC3
-                    52, // INTERRUPT_USB
+             //       52, // INTERRUPT_USB
                     53, // INTERRUPT_KEYPAD
-                    54, // INTERRUPT_USB2
+             //       54, // INTERRUPT_USB2
                     56, // INTERRUPT_SATA_CTL
                     58, // INTERRUPT_VCP
                     59, // INTERRUPT_APB_DMA_CPU
@@ -351,12 +351,12 @@ assembly {
              //       68, // INTERRUPT_UARTA
              //       69, // INTERRUPT_UARTB
              //       70, // INTERRUPT_I2C
-                    71, // INTERRUPT_USB3_HOST
-                    72, // INTERRUPT_USB3_HOST_SMI
+             //       71, // INTERRUPT_USB3_HOST
+             //       72, // INTERRUPT_USB3_HOST_SMI
                     73, // INTERRUPT_TMR3
                     74, // INTERRUPT_TMR4
-                    75, // INTERRUPT_USB3_HOST_PME
-                    76, // INTERRUPT_USB3_DEV_HOST
+             //       75, // INTERRUPT_USB3_HOST_PME
+             //       76, // INTERRUPT_USB3_DEV_HOST
              //       77, // INTERRUPT_ACTMON
              //       78, // INTERRUPT_UARTC
                     79, // INTERRUPT_HSI
@@ -368,8 +368,8 @@ assembly {
              //       85, // INTERRUPT_I2C5
                     86, // INTERRUPT_STAT_MON
                     87, // INTERRUPT_GPIO5
-                    88, // INTERRUPT_USB3_DEV_SMI
-                    89, // INTERRUPT_USB3_DEV_PME
+             //       88, // INTERRUPT_USB3_DEV_SMI
+             //       89, // INTERRUPT_USB3_DEV_PME
                     90, // INTERRUPT_SE
              //       91, // INTERRUPT_SPI1
                     92, // INTERRUPT_APB_DMA_COP
@@ -402,7 +402,7 @@ assembly {
                 //    124, // INTERRUPT_I2C3
                     127, // INTERRUPT_SW
                     128, // INTERRUPT_SNOR
-                    129, // INTERRUPT_USB3
+                //    129, // INTERRUPT_USB3
                 //    130, // INTERRUPT_PCIE_INT
                 //    131, // INTERRUPT_PCIE_MSI
                 //    132, // INTERRUPT_PCIE_WAKE
