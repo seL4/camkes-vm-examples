@@ -329,11 +329,11 @@ assembly {
                     43, // INTERRUPT_VDE_BSEA
                     44, // INTERRUPT_VDE_SXE
                     45, // INTERRUPT_SATA_RX_STAT
-                    46, // INTERRUPT_SDMMC1
-                    47, // INTERRUPT_SDMMC2
+             //       46, // INTERRUPT_SDMMC1
+             //       47, // INTERRUPT_SDMMC2
                     49, // INTERRUPT_VDE
                     50, // INTERRUPT_AVP_UCQ
-                    51, // INTERRUPT_SDMMC3
+             //       51, // INTERRUPT_SDMMC3
                     52, // INTERRUPT_USB
                     53, // INTERRUPT_KEYPAD
                     54, // INTERRUPT_USB2
