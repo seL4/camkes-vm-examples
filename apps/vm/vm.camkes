@@ -301,9 +301,9 @@ assembly {
               //      "0x70020000:12", // SATA
               //      "0x70021000:12", // SATA
               //      "0x70027000:12", // SATA
-                    "0x70030000:12", // HDA
-                    "0x70031000:12", // HDA
-                    "0x70038000:12", // HDA
+              //      "0x70030000:12", // HDA
+              //      "0x70031000:12", // HDA
+              //      "0x70038000:12", // HDA
                     "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
                     "0x700b0000:12", // SDMMC-1
               //      "0x70300000:12", // Audio Cluster
@@ -391,7 +391,7 @@ assembly {
                 //    108, // INTERRUPT_SOR
                 //    110, // INTERRUPT_EMC
                 //    111, // INTERRUPT_SPI6
-                    113, // INTERRUPT_HDA
+                //    113, // INTERRUPT_HDA
                 //    114, // INTERRUPT_SPI2
                 //    115, // INTERRUPT_SPI3
                 //    116, // INTERRUPT_I2C2
