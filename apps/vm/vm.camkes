@@ -290,7 +290,7 @@ assembly {
            //         "0x60005000:12", // Timers (TMR)
                     "0x60006000:12", // Clock and Reset (CAR)
            //         "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor 
-                    "0x6000d000:12", // GPIOS 1-8
+              //      "0x6000d000:12", // GPIOS 1-8
               //      "0x60020000:12", // APB-DMA 
               //      "0x70000000:12", // APB-MISC: pinmux@0x70000868
                     "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
