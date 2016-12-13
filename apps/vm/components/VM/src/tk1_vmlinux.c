@@ -50,7 +50,7 @@ INTERRUPT_VTIMER               ,
 //INTERRUPT_TMR1                 , 
 //INTERRUPT_TMR2                 ,
 //INTERRUPT_RTC                  , 
-INTERRUPT_CEC                  , 
+/*INTERRUPT_CEC                  , 
 INTERRUPT_SHR_SEM_INBOX_FULL   ,
 INTERRUPT_SHR_SEM_INBOX_EMPTY  , 
 INTERRUPT_SHR_SEM_OUTBOX_FULL  , 
@@ -66,16 +66,16 @@ INTERRUPT_SATA_RX_STAT         ,
 INTERRUPT_VDE                  , 
 INTERRUPT_AVP_UCQ              , 
 //INTERRUPT_SDMMC3               , 
-//INTERRUPT_USB                  , 
-INTERRUPT_KEYPAD               , 
+//INTERRUPT_USB                  ,*/ 
+INTERRUPT_KEYPAD               , /*
 //INTERRUPT_USB2                 , 
 INTERRUPT_SATA_CTL             , 
 INTERRUPT_VCP                  , 
 INTERRUPT_APB_DMA_CPU          , 
 INTERRUPT_AHB_DMA_CPU          , 
 INTERRUPT_ARB_SEM_GNT_CPU      , 
-INTERRUPT_OWR                  , 
-INTERRUPT_SDMMC4               , 
+INTERRUPT_OWR                  ,*/ 
+INTERRUPT_SDMMC4               ,/* 
 INTERRUPT_GPIO1                , 
 INTERRUPT_GPIO2                , 
 INTERRUPT_GPIO3                , 
@@ -129,8 +129,8 @@ INTERRUPT_VIC                  ,
 //INTERRUPT_I2C2                 , 
 //INTERRUPT_PMU_EXT              , 
 INTERRUPT_GPIO6                , 
-INTERRUPT_GPIO7                , 
-INTERRUPT_UARTD                , 
+INTERRUPT_GPIO7                ,*/ 
+INTERRUPT_UARTD                , /*
 //INTERRUPT_I2C3                 , 
 INTERRUPT_SW                   , 
 INTERRUPT_SNOR                 , 
@@ -195,7 +195,7 @@ INTERRUPT_TMR9                 ,
 INTERRUPT_TMR0                 , 
 //INTERRUPT_GPU                  , 
 //INTERRUPT_GPU_NONSTALL         , 
-//ARDPAUX                        , 
+//ARDPAUX                        ,*/ 
 };
 
 struct pwr_token {
