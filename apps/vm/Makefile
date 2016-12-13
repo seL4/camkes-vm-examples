@@ -92,13 +92,26 @@ $(STAGE_DIR)/linux/linux:
 endif
 
 ifeq (${CONFIG_PLAT_TK1},y)
-$(STAGE_DIR)/linux/linux-dtb: $(SOURCE_DIR)/linux/linux-tk1-dtb
-	$(Q)mkdir -p $(dir $@)
-	cp ${SOURCE_DIR}/linux/linux-tk1-dtb $@
 
-$(STAGE_DIR)/linux/linux: $(SOURCE_DIR)/linux/linux-tk1
+ifeq (${CONFIG_TK1_INSECURE},y)
+DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-tk1-dtb-nonsecured
+else
+DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-tk1-dtb-secure
+endif
+
+ifeq (${CONFIG_VM_TK1_INITRD_ROOTFS},y)
+TK1_LINUX_BINARY := ${SOURCE_DIR}/linux/linux-tk1-initrd
+else
+TK1_LINUX_BINARY := ${SOURCE_DIR}/linux/linux-tk1-debian
+endif
+
+$(STAGE_DIR)/linux/linux-dtb: $(DEVICE_TREE_SRC)
 	$(Q)mkdir -p $(dir $@)
-	cp ${SOURCE_DIR}/linux/linux-tk1 $@
+	cp $(DEVICE_TREE_SRC) $@
+
+$(STAGE_DIR)/linux/linux: $(TK1_LINUX_BINARY)
+	$(Q)mkdir -p $(dir $@)
+	cp $(TK1_LINUX_BINARY) $@
 endif
 
 COMPONENTS := $(STAGE_DIR)/linux/linux $(STAGE_DIR)/linux/linux-dtb

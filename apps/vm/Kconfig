@@ -16,6 +16,27 @@ config APP_CAMKES_VM
             LIB_SEL4_DMA && LIB_USB
     default y
 
+choice
+    bool "boot mode selection"
+    depends on APP_CAMKES_VM && PLAT_TK1
+    default VM_TK1_INITRD
+    help
+        Selects whether to load root file system off emmc or ramdisk
+
+    config VM_TK1_INITRD_ROOTFS
+        bool "initrd"
+        help
+            Selects initrd as the root filesystem.
+
+    config VM_TK1_EMMC_ROOTFS
+        bool "mmcblk0p2"
+        help
+            Selects partition 2 of the emmc card as the root
+            filesystem.
+
+endchoice
+
+
 config TK1_INSECURE
     bool "Insecure: Give all devices to VM component"
     depends on APP_CAMKES_VM && PLAT_TK1
@@ -39,7 +60,7 @@ config VM_VUSB
 
 config VM_VCHAN
     bool "Enable vchan connection"
-    depends on APP_CAMKES_VM
+    depends on APP_CAMKES_VM && PLAT_EXYNOS5410
     help
         Enable vchan connection.
 
