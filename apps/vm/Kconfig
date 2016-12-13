@@ -16,6 +16,12 @@ config APP_CAMKES_VM
             LIB_SEL4_DMA && LIB_USB
     default y
 
+config TK1_INSECURE
+    bool "Insecure: Give all devices to VM component"
+    depends on APP_CAMKES_VM && PLAT_TK1
+    default n
+    help
+        The option when disabled only passes through UARTD, USB, EMMC, VGIC and a Clock and reset controller 
 config VM_EMMC2_NODMA
     bool "SD access control to prevent DMA"
     depends on APP_CAMKES_VM && PLAT_EXYNOS5410

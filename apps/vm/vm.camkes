@@ -289,7 +289,7 @@ assembly {
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28", // Linux kernel memory regions
-#if 0
+#ifdef CONFIG_TK1_INSECURE
                     "0x01000000:12", // PCIe Controller 0 config registers
                     "0x01001000:12", // PCIe Controller 1 config registers
                     "0x01003000:12", // PCIe Pads & AFI
@@ -321,7 +321,7 @@ assembly {
                     53, // INTERRUPT_KEYPAD
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
-#if 0
+#ifdef CONFIG_TK1_INSECURE
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
                     34, // INTERRUPT_RTC

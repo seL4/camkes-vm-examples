@@ -50,7 +50,7 @@ INTERRUPT_VTIMER               ,
 INTERRUPT_KEYPAD               ,
 INTERRUPT_SDMMC4               ,
 INTERRUPT_UARTD                ,
-#if 0
+#ifdef CONFIG_TK1_INSECURE
 INTERRUPT_TMR1                 ,
 INTERRUPT_TMR2                 ,
 INTERRUPT_RTC                  ,
