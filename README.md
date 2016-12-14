@@ -19,14 +19,44 @@ Currently the exynos5 and tk1 machines are supported.
 
 ## tk1 configuration
 
-The tk1 currently uses a ramfs constructed using [Buildroot 2016.08.1](https://buildroot.org/downloads/) with the following config:
-`apps/vm/linux/buildroot_tk1_defconfig`
+We currently provide two linux binaries and two device tree blobs.  
+* `linux-tk1-debian` will try and load a debian userspace off of an emmc partition
+* `linux-tk1-initrd` will load an included buildroot ramdisk
+* `linux-tk1-dtb-secure` is a device tree blob configuration with the devices that aren't provided to the linux are disabled.
+* `linux-tk1-dtb-nonsecured` is a device tree blob configuration with all devices enabled.
 
-When build root starts:
+In the tk1 app configuration there is a `boot mode selection` option that chooses between the two linux binaries, and
+an `Insecure` option which selects whether to provide all hardware devices to the linux vm or not. If `Insecure` is not set
+then the VM will only be provided a minimal amount of hardware frames and the `linux-tk1-dtb-secure` DTB will be used.  If `Insecure`
+is set then the VM will be provided all device frames apart from the Memory controller and the `linux-tk1-dtb-nonsecured` DTB will be used.
+
+U-Boot is required to initialise the USB devices if `linux-tk1-dtb-secure` is used.  This is done by: `usb start 0`.
+
+The tk1 currently uses linux binaries and device tree blobs constructed using [Buildroot 2016.08.1](https://buildroot.org/downloads/) with the following configs:
+* `buildroot_tk1_initrd_defconfig` builds linux with an included ramdisk that will be loaded at boot.
+* `buildroot_tk1_emmc_defconfig` builds linux without a ramdisk and it will mount and run /sbin/init /dev/mmcblk0p2
+
+Both of these configs use the tegra124-jetson-tk1-sel4vm-secure device tree file.  
+To change to the tegra124-jetson-tk1-sel4vm.dts this will need to be changed in the buildroot make menuconfig.
+To change the mounted emmc partition the chosen dts file's bootargs entry will need to be updated.
+
+The linux version used can be found in the seL4 branch of our [linux-tegra repo](https://github.com/SEL4PROJ/linux-tegra/tree/sel4).
+
+
+When buildroot starts:
 ```
 buildroot login: root
 #
 ```
+When debian starts:
+```
+Debian GNU/Linux 8 tk1 ttyS0
+tk1 login: root
+Password: root
+root@tk1:~#
+```
+
+
 
 ### wireless configuration
 To configure the Ralink 2780 USB wifi dongle:
