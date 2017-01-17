@@ -287,7 +287,7 @@ assembly {
 #endif
                     ];
         vm.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
-                    53, // INTERRUPT_KEYPAD
+                    53, // INTERRUPT_USB2
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
 #ifdef CONFIG_TK1_INSECURE
@@ -312,10 +312,11 @@ assembly {
                     51, // INTERRUPT_SDMMC3
                     52, // INTERRUPT_USB
                     54, // INTERRUPT_USB2
-                    56, // INTERRUPT_SATA_CTL
-                    58, // INTERRUPT_VCP
-                    59, // INTERRUPT_APB_DMA_CPU
-                    60, // INTERRUPT_AHB_DMA_CPU
+                    55, // INTERRUPT_SATA_CTL
+                    57, // INTERRUPT_VCP
+                    58, // INTERRUPT_APB_DMA_CPU
+                    59, // INTERRUPT_AHB_DMA_CPU
+                    60, // INTERRUPT_ARB_SEM_GNT_COP
                     61, // INTERRUPT_ARB_SEM_GNT_CPU
                     62, // INTERRUPT_OWR
                     64, // INTERRUPT_GPIO1

@@ -47,7 +47,7 @@ static const struct device *linux_pt_devices[] = {
 
 static const int linux_pt_irqs[] = {
 INTERRUPT_VTIMER               ,
-INTERRUPT_KEYPAD               ,
+INTERRUPT_USB2                 ,
 INTERRUPT_SDMMC4               ,
 INTERRUPT_UARTD                ,
 #ifdef CONFIG_TK1_INSECURE
@@ -71,11 +71,11 @@ INTERRUPT_VDE                  ,
 INTERRUPT_AVP_UCQ              ,
 INTERRUPT_SDMMC3               ,
 INTERRUPT_USB                  ,
-INTERRUPT_USB2                 ,
 INTERRUPT_SATA_CTL             ,
 INTERRUPT_VCP                  ,
 INTERRUPT_APB_DMA_CPU          ,
 INTERRUPT_AHB_DMA_CPU          ,
+INTERRUPT_ARB_SEM_GNT_COP      ,
 INTERRUPT_ARB_SEM_GNT_CPU      ,
 INTERRUPT_OWR                  ,
 INTERRUPT_GPIO1                ,
