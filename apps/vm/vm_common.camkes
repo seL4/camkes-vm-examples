@@ -1,220 +1,38 @@
 /*
- * Copyright 2014, NICTA
+ * Copyright 2017, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
  *
  * This software may be distributed and modified according to the terms of
  * the BSD 2-Clause license. Note that NO WARRANTY is provided.
  * See "LICENSE_BSD2.txt" for details.
  *
- * @TAG(NICTA_BSD)
+ * @TAG(D61_BSD)
  */
 
 #include <autoconf.h>
-import <std_connector.camkes>;
 
-import "components/uart/uart.camkes";
-import "components/gpio/gpio.camkes";
-import "components/pilot/pilot.camkes";
 import "components/VM/VM.camkes";
-import "components/pwm/pwm.camkes";
-import "components/spi/spi.camkes";
-import "components/can/can.camkes";
-import "components/clk/clk.camkes";
-import "components/timer/timer.camkes";
-
-#ifdef CONFIG_VM_VCHAN
-import <Vchan/Vchan.camkes>;
-import "components/helloworld/helloworld.camkes";
-#endif //CONFIG_VM_VCHAN
-
-component uartbase {
-    hardware;
-    dataport Buf mem;
-    emits DataAvailable	irq;
-}
-
-component gpiobase {
-    hardware;
-    dataport Buf gpio1base;
-    dataport Buf gpio2base;
-    dataport Buf irqcbase;
-    dataport Buf clk_tree;
-    emits IRQGroup26 irq_grp26_int;
-    emits IRQGroup28 irq_grp28_int;
-    emits IRQGroup31 irq_grp31_int;
-    emits EXINT16_31 xint16_31_int;
-}
-
-component i2c0 {
-    hardware;
-    dataport Buf i2c0_reg;
-    emits DataAvailable i2c0_int;
-}
-
-component clkbase {
-    hardware;
-    dataport Buf cmu_cpu_clk;
-    dataport Buf	   cmu_core_clk;
-    dataport Buf cmu_top_clk;
-}
-
-component spibase {
-	hardware;
-	dataport Buf spi1_reg;
-	emits DataAvailable spi1_int;
-}
 
 assembly {
     composition {
         component VM vm;
-#ifdef CONFIG_PLAT_EXYNOS5410
-        component uartbase uartbase_gcs;
-        component uartbase uartbase_px4;
-        component gpiobase gpiobase_obj;
-        component i2c0     i2c0_obj;
-        component spibase  spibase_obj;
-        component clkbase   clkbase_obj;
-        component timerbase timerbase_obj;
-
-        component gpio     gpio_obj;
-        component uart     uart_gcs;
-        component uart     uart_px4;
-        component pilot    pilot_obj;
-        component pwm      pwm_obj;
-        component spi      spi_obj;
-        component can      can_obj;
-        component clk      clk_obj;
-        component timer	   timer_obj;
-#endif
-
-#ifdef CONFIG_VM_VCHAN
-        component Vchan vchan_0;
-        component helloworld hello;
-
-        connection seL4RPCCall vchan(from vm.vchan_con, to vchan_0.vchan_com);
-        connection seL4Notification vchan_event_init(from vchan_0.vevent_cl, to vm.vevent);
-        connection seL4SharedData vchan_sharemem_0(from vm.share_mem, to vchan_0.share_mem);
-
-        connection seL4Notification vchan_event(from vchan_0.vevent_sv, to hello.vevent);
-        connection seL4SharedData hvchan_sharemem_0(from hello.share_mem, to vchan_0.share_mem);
-        connection seL4RPCCall hvchan(from hello.vchan_con, to vchan_0.vchan_com);
-#endif //CONFIG_VM_VCHAN
-
-#ifdef CONFIG_PLAT_EXYNOS5410
-        connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
-        connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
-        connection seL4HardwareMMIO gpio_mem3(from gpio_obj.irqcbase, to gpiobase_obj.irqcbase);
-        connection seL4HardwareMMIO gpio_clk(from gpio_obj.clk_tree, to gpiobase_obj.clk_tree);
-
-        connection seL4HardwareMMIO clk_cmu_cpu_mem(from clk_obj.cmu_cpu_clk, to clkbase_obj.cmu_cpu_clk);
-        connection seL4HardwareMMIO clk_cmu_top_mem(from clk_obj.cmu_top_clk, to clkbase_obj.cmu_top_clk);
-        connection seL4HardwareMMIO clk_cmu_core_mem(from clk_obj.cmu_core_clk, to clkbase_obj.cmu_core_clk);
-
-        /* Interrupts */
-        connection seL4HardwareInterrupt spi1_irq(from spibase_obj.spi1_int, to spi_obj.spi1_int);
-        connection seL4HardwareInterrupt gpio_grp28_irq(from gpiobase_obj.irq_grp28_int, to gpio_obj.irq_grp28_int);
-        connection seL4HardwareInterrupt gpio_grp26_irq(from gpiobase_obj.irq_grp26_int, to gpio_obj.irq_grp26_int);
-        connection seL4HardwareInterrupt gpio_grp31_irq(from gpiobase_obj.irq_grp31_int, to gpio_obj.irq_grp31_int);
-        connection seL4HardwareInterrupt gpio_xint16_31_irq(from gpiobase_obj.xint16_31_int, to gpio_obj.xint16_31_int);
-
-	/* SPI connections */
-        connection seL4RPCCall spi_gpio(from spi_obj.gpio, to gpio_obj.gpio);
-        connection seL4RPCCall spi_clk(from spi_obj.clktree, to clk_obj.clktree);
-        connection seL4HardwareMMIO spi1_mem(from spi_obj.spi1_reg, to spibase_obj.spi1_reg);
-
-        /* Can driver */
-        connection seL4RPCCall 	  can_spi(from can_obj.spi, to spi_obj.spi);
-        connection seL4SharedData can_spi_channel	(from can_obj.spi_can,	to spi_obj.spi1_can);
-        connection seL4Notification 	  gpio_can_int(from gpio_obj.CANInt, to can_obj.Int);
-        connection seL4Notification 	  gpio_can_intAck(from can_obj.IntAck, to gpio_obj.CANIntAck);
-
-	/* GCS hardware connection */
-        connection seL4HardwareMMIO uartbase_mem(from uart_gcs.uart0base, to uartbase_gcs.mem);
-        connection seL4HardwareInterrupt uartbase_irq(from uartbase_gcs.irq, to uart_gcs.interrupt);
-
-	/* PX4 hardware connection */
-        connection seL4HardwareMMIO uartpx4_mem(from uart_px4.uart0base, to uartbase_px4.mem);
-        connection seL4HardwareInterrupt uartpx4_irq(from uartbase_px4.irq, to uart_px4.interrupt);
-
-	/* Pilot connection */
-        connection seL4RPCCall uart_inf(from pilot_obj.uart_gcs, to uart_gcs.uart);
-        connection seL4SharedData uart_data(from pilot_obj.gcs_buf, to uart_gcs.client_buf);
-
-        connection seL4RPCCall uartpx4_inf(from pilot_obj.uart_px4, to uart_px4.uart);
-        connection seL4SharedData uartpx4_data(from pilot_obj.px4_buf, to uart_px4.client_buf);
-
-	/* Recv connection */
-        connection seL4RPCCall gcs_recv_inf(from uart_gcs.pilot, to pilot_obj.mavlink);
-        connection seL4RPCCall px4_recv_inf(from uart_px4.pilot, to pilot_obj.mavlink);
-
-        /* PWM connection */
-        connection seL4HardwareMMIO      i2c0_mem(from pwm_obj.i2c0, to i2c0_obj.i2c0_reg);
-        connection seL4HardwareInterrupt i2c0_irq(from i2c0_obj.i2c0_int, to pwm_obj.i2c0_int);
-        connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
-        connection seL4Notification pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
-        connection seL4Notification pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
-
-	/* PWM timer connections */
-        connection seL4HardwareMMIO timer_mem(from timer_obj.timerbase, to timerbase_obj.timer_reg);
-        connection seL4HardwareInterrupt timer_irq(from timerbase_obj.irq, to timer_obj.irq);
-
-	/* VM to PWM */
-        connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
-
-	/* Restart VM */
-	connection seL4Notification restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
-#endif
     }
-
     configuration {
+        vm.asid_pool = true;
+
+        vm.simple = true;
+        vm.cnode_size_bits = 23;
+        vm.simple_untyped24_pool = 10;
+
+        vm.base_prio = 100;
+        vm.num_extra_frame_caps = 0;
+        vm.extra_frame_map_address = 0;
+
+        vm._priority = 101;
+        vm.sem_value = 0;
 #ifdef CONFIG_PLAT_EXYNOS5410
-        uartbase_gcs.mem_paddr = 0x12C30000;
-        uartbase_gcs.mem_size = 0x1000;
-        uartbase_gcs.irq_irq_number = 86;                        //UART1 interrupt
 
-        uartbase_px4.mem_paddr = 0x12C10000;
-        uartbase_px4.mem_size = 0x1000;
-        uartbase_px4.irq_irq_number = 84;                        //UART1 interrupt
-
-        gpiobase_obj.gpio2base_paddr = 0x14000000;
-        gpiobase_obj.gpio2base_size = 0x1000;
-
-        gpiobase_obj.gpio1base_paddr = 0x13400000;
-        gpiobase_obj.gpio1base_size = 0x1000;
-
-        gpiobase_obj.clk_tree_paddr = 0x10020000;
-        gpiobase_obj.clk_tree_size = 0x1000;
-
-        gpiobase_obj.irqcbase_paddr = 0x10440000;
-        gpiobase_obj.irqcbase_size = 0x1000;
-
-        gpiobase_obj.irq_grp26_int_irq_number = 58; //Combined IRQ group 26
-        gpiobase_obj.irq_grp28_int_irq_number = 60; //Combined IRQ group 28
-        gpiobase_obj.irq_grp31_int_irq_number = 63; //Combined IRQ group 31
-        gpiobase_obj.xint16_31_int_irq_number = 64; //Extern Interrupt EINT16-EINT31
-
-        spibase_obj.spi1_reg_paddr = 0x12D30000;
-        spibase_obj.spi1_reg_size = 0x1000;
-        spibase_obj.spi1_int_irq_number = 101;                    //SPI1  interrupt
-
-        clkbase_obj.cmu_cpu_clk_paddr = 0x10010000;
-        clkbase_obj.cmu_cpu_clk_size = 0x1000;
-
-        clkbase_obj.cmu_core_clk_paddr = 0x10014000;
-        clkbase_obj.cmu_core_clk_size = 0x1000;
-
-        clkbase_obj.cmu_top_clk_paddr = 0x10020000;
-        clkbase_obj.cmu_top_clk_size = 0x1000;
-
-        i2c0_obj.i2c0_reg_paddr = 0x12C60000;
-        i2c0_obj.i2c0_reg_size = 0x1000;
-        i2c0_obj.i2c0_int_irq_number = 88;
-
-        timerbase_obj.timer_reg_paddr = 0x12DD0000;
-        timerbase_obj.timer_reg_size = 0x1000;
-        timerbase_obj.irq_irq_number	       = 72;			//Timer interrupt
-
-        uart_gcs.ID = 1;
-        uart_px4.ID = 3;
         vm.untyped_mmios = [
                     "0x10000000:12", // CHIP_ID
                     "0x10486000:12", // VCPU
@@ -244,9 +62,9 @@ assembly {
                     109, // SDMMC2
                     103]; // USB
 
-#endif
+  #endif
 
-#ifdef CONFIG_PLAT_TK1
+  #ifdef CONFIG_PLAT_TK1
         vm.untyped_mmios = [
                     "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
                     "0x60004000:12", // Interrupt controller registers (ICTLR)
@@ -258,17 +76,17 @@ assembly {
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28", // Linux kernel memory regions
-#ifdef CONFIG_TK1_INSECURE
+  #ifdef CONFIG_TK1_INSECURE
                     "0x01000000:12", // PCIe Controller 0 config registers
                     "0x01001000:12", // PCIe Controller 1 config registers
                     "0x01003000:12", // PCIe Pads & AFI
                     "0x02000000:20", // Start of PCIE_A2 region
-                    "0x13000000:20", // In PCIE_A3 region 
+                    "0x13000000:20", // In PCIE_A3 region
                                    //  Note: In the address map this region is 8KB, but we only pass through 4KB
                     "0x60005000:12", // Timers (TMR)
-                    "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor 
+                    "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor
                     "0x6000d000:12", // GPIOS 1-8
-                    "0x60020000:12", // APB-DMA 
+                    "0x60020000:12", // APB-DMA
                     "0x70000000:12", // APB-MISC: pinmux@0x70000868
                     "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
                     "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
@@ -284,13 +102,13 @@ assembly {
                     "0x70300000:12", // Audio Cluster
                     "0x70301000:12", // Audio Cluster
                     "0x7d008000:12", // USB3
-#endif
+  #endif
                     ];
         vm.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
                     53, // INTERRUPT_USB2
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
-#ifdef CONFIG_TK1_INSECURE
+  #ifdef CONFIG_TK1_INSECURE
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
                     34, // INTERRUPT_RTC
@@ -438,23 +256,12 @@ assembly {
                     189, // INTERRUPT_GPU
                     190, // INTERRUPT_GPU_NONSTALL
                     191  // ARDPAUX
-#endif
+  #endif
                     ];
 
         vm.smmu = [10, 23];
-#endif
+  #endif
 
-        vm.asid_pool = true;
-
-        vm.simple = true;
-        vm.cnode_size_bits = 23;
-        vm.simple_untyped24_pool = 10;
-
-	vm.base_prio = 100;
-	vm.num_extra_frame_caps = 0;
-	vm.extra_frame_map_address = 0;
-
-	vm._priority = 101;
-	vm.sem_value = 0;
     }
+
 }

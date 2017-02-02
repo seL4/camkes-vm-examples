@@ -9,9 +9,18 @@
 #
 
 TARGETS := $(notdir ${SOURCE_DIR}).cdl
-ADL := vm.camkes
 
+ifeq (${CONFIG_PLAT_EXYNOS5410},y)
+ADL := vm_odroid.camkes
+endif
+
+ifeq (${CONFIG_PLAT_TK1},y)
+ADL := vm_tk1.camkes
+endif
 include Vchan/Vchan.mk
+
+
+ifeq (${CONFIG_PLAT_EXYNOS5410},y)
 
 pilot_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/pilot/src/*.c)) \
@@ -49,6 +58,8 @@ clk_CFILES := \
 
 timer_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/timer/src/*.c))
+
+endif
 
 ifeq (${CONFIG_VM_VCHAN},y)
 helloworld_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.c))
@@ -121,4 +132,3 @@ ${BUILD_DIR}/src/vm/static/archive.o: ${COMPONENTS}
 	${COMMON_PATH}/files_to_obj.sh $@ _cpio_archive $^
 
 $(vm_CFILES:%.c=%.o) $(COMPONENTS): $(srctree)/.config
-
