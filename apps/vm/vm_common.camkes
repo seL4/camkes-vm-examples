@@ -64,19 +64,23 @@ assembly {
 
   #endif
 
-  #ifdef CONFIG_PLAT_TK1
+
+#ifdef CONFIG_PLAT_TK1
+
         vm.untyped_mmios = [
                     "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
                     "0x60004000:12", // Interrupt controller registers (ICTLR)
-                    "0x60006000:12", // Clock and Reset (CAR)
-                    "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
                     "0x700b0000:12", // SDMMC-1, SDMMC-2, SDMMC-3, SDMMC-4,
                     "0x7d000000:12", // USB
                     "0x7d004000:12", // USB2
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28", // Linux kernel memory regions
-  #ifdef CONFIG_TK1_INSECURE
+#ifndef CONFIG_TK1_DEVICE_FWD
+                    "0x60006000:12", // Clock and Reset (CAR)
+                    "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
+#endif
+#ifdef CONFIG_TK1_INSECURE
                     "0x01000000:12", // PCIe Controller 0 config registers
                     "0x01001000:12", // PCIe Controller 1 config registers
                     "0x01003000:12", // PCIe Pads & AFI

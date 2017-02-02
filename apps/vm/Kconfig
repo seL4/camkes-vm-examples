@@ -36,13 +36,20 @@ choice
 
 endchoice
 
+config TK1_DEVICE_FWD
+    bool "Forward VM access to UART and Clock and reset controller"
+    depends on APP_CAMKES_VM && PLAT_TK1
+    default n
+    help
+        When using the VM with other components that need access to the UART and clock and reset controller
+        devices, this option will cause the vm to forward the faults over a RPC connection
 
 config TK1_INSECURE
     bool "Insecure: Give all devices to VM component"
     depends on APP_CAMKES_VM && PLAT_TK1
     default n
     help
-        The option when disabled only passes through UARTD, USB, EMMC, VGIC and a Clock and reset controller 
+        The option when disabled only passes through UARTD, USB, EMMC, VGIC and a Clock and reset controller
 config VM_EMMC2_NODMA
     bool "SD access control to prevent DMA"
     depends on APP_CAMKES_VM && PLAT_EXYNOS5410
@@ -84,5 +91,3 @@ choice
             filesystem.
 
 endchoice
-
-

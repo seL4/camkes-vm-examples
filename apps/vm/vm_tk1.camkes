@@ -20,7 +20,7 @@ import "vm_common.camkes";
 
 assembly {
     composition {
-
+    
     }
 
     configuration {

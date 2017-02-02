@@ -27,6 +27,8 @@
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 
+#include <sel4arm-vmm/devices/generic_forward.h>
+
 #define ATAGS_ADDR        (LINUX_RAM_BASE + 0x100)
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x01000000)
 
@@ -333,15 +335,20 @@ configure_gpio(vm_t *vm)
 #endif /* CONFIG_APP_LINUX_SECURE */
 }
 
-static void
-configure_clocks(vm_t *vm)
-{
-    /* TODO for TK1 */
-#ifdef CONFIG_APP_LINUX_SECURE
-#else /* CONFIG_APP_LINUX_SECURE */
-#endif /* CONFIG_APP_LINUX_SECURE */
-}
+#ifdef CONFIG_TK1_DEVICE_FWD
 
+#include <camkes.h>
+struct generic_forward_cfg camkes_uart_d = {
+  .read_fn = uartfwd_read,
+  .write_fn = uartfwd_write
+};
+
+struct generic_forward_cfg camkes_clk_car =  {
+  .read_fn = clkcarfwd_read,
+  .write_fn = clkcarfwd_write
+};
+
+#endif
 static int
 install_linux_devices(vm_t* vm)
 {
@@ -365,9 +372,15 @@ install_linux_devices(vm_t* vm)
 #endif /* CONFIG_APP_LINUX_SECURE */
 
     configure_gpio(vm);
-    configure_clocks(vm);
-
+#ifdef CONFIG_TK1_DEVICE_FWD
+    /* Configure UART forward device */
+    err = vm_install_generic_forward_device(vm, &dev_vconsole, camkes_uart_d);
     assert(!err);
+
+    /* Configure Clock and Reset forward device */
+    err = vm_install_generic_forward_device(vm, &dev_clkcar, camkes_clk_car);
+    assert(!err);
+#endif // CONFIG_TK1_DEVICE_FWD
 
     /* Install pass through devices */
     /* TK1 passes through all devices at the moment by using on-demand device mapping */
