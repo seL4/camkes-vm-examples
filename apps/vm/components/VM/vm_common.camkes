@@ -12,7 +12,7 @@
 
 #include <autoconf.h>
 
-import "components/VM/VM.camkes";
+import "VM.camkes";
 
 assembly {
     composition {

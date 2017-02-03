@@ -16,40 +16,8 @@ config APP_CAMKES_VM
             LIB_SEL4_DMA && LIB_USB
     default y
 
-choice
-    bool "boot mode selection"
-    depends on APP_CAMKES_VM && PLAT_TK1
-    default VM_TK1_INITRD
-    help
-        Selects whether to load root file system off emmc or ramdisk
+source "apps/vm/components/VM/Kconfig"
 
-    config VM_TK1_INITRD_ROOTFS
-        bool "initrd"
-        help
-            Selects initrd as the root filesystem.
-
-    config VM_TK1_EMMC_ROOTFS
-        bool "mmcblk0p2"
-        help
-            Selects partition 2 of the emmc card as the root
-            filesystem.
-
-endchoice
-
-config TK1_DEVICE_FWD
-    bool "Forward VM access to UART and Clock and reset controller"
-    depends on APP_CAMKES_VM && PLAT_TK1
-    default n
-    help
-        When using the VM with other components that need access to the UART and clock and reset controller
-        devices, this option will cause the vm to forward the faults over a RPC connection
-
-config TK1_INSECURE
-    bool "Insecure: Give all devices to VM component"
-    depends on APP_CAMKES_VM && PLAT_TK1
-    default n
-    help
-        The option when disabled only passes through UARTD, USB, EMMC, VGIC and a Clock and reset controller
 config VM_EMMC2_NODMA
     bool "SD access control to prevent DMA"
     depends on APP_CAMKES_VM && PLAT_EXYNOS5410

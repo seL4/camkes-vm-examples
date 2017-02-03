@@ -15,12 +15,12 @@
 import <std_connector.camkes>;
 
 import "components/VM/VM.camkes";
-import "vm_common.camkes";
+import <VM/vm_common.camkes>;
 
 
 assembly {
     composition {
-    
+
     }
 
     configuration {

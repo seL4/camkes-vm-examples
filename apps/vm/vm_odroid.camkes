@@ -23,7 +23,7 @@ import "components/spi/spi.camkes";
 import "components/can/can.camkes";
 import "components/clk/clk.camkes";
 import "components/timer/timer.camkes";
-import "vm_common.camkes";
+import <VM/vm_common.camkes>;
 
 #ifdef CONFIG_VM_VCHAN
 import <Vchan/Vchan.camkes>;
