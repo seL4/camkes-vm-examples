@@ -17,7 +17,6 @@ import <std_connector.camkes>;
 import "components/uart/uart.camkes";
 import "components/gpio/gpio.camkes";
 import "components/pilot/pilot.camkes";
-import "components/VM/VM.camkes";
 import "components/pwm/pwm.camkes";
 import "components/spi/spi.camkes";
 import "components/can/can.camkes";

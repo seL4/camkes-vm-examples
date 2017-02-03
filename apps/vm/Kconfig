@@ -16,7 +16,7 @@ config APP_CAMKES_VM
             LIB_SEL4_DMA && LIB_USB
     default y
 
-source "apps/vm/components/VM/Kconfig"
+source "projects/vm/components/VM/Kconfig"
 
 config VM_EMMC2_NODMA
     bool "SD access control to prevent DMA"

@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
 # CAmkES project configuration
-# Fri Feb  3 14:53:46 2017
+# Fri Feb  3 16:01:25 2017
 #
 
 #
@@ -196,7 +196,7 @@ CONFIG_ARM_ERRATA_764369=y
 CONFIG_CAMKES_DEFAULT_STACK_SIZE=16384
 CONFIG_CAMKES_DEFAULT_HEAP_SIZE=1048576
 CONFIG_CAMKES_CPP=y
-CONFIG_CAMKES_IMPORT_PATH="${PWD}/projects/vm/components ${PWD}/projects/vm/interfaces ${PWD}/apps/vm/components"
+CONFIG_CAMKES_IMPORT_PATH="${PWD}/projects/vm/components ${PWD}/projects/vm/interfaces"
 CONFIG_CAMKES_DEFAULT_PRIORITY=254
 CONFIG_CAMKES_DEFAULT_AFFINITY=0
 CONFIG_CAMKES_ERROR_HANDLER_CONFIGURABLE=y

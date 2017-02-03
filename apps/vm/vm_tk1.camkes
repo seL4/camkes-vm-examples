@@ -10,20 +10,7 @@
  * @TAG(D61_BSD)
  */
 
-
 #include <autoconf.h>
 import <std_connector.camkes>;
 
-import "components/VM/VM.camkes";
 import <VM/vm_common.camkes>;
-
-
-assembly {
-    composition {
-
-    }
-
-    configuration {
-
-    }
-}
