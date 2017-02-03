@@ -59,76 +59,16 @@ clk_CFILES := \
 timer_CFILES := \
     $(patsubst ${SOURCE_DIR}/%,%,$(wildcard ${SOURCE_DIR}/components/timer/src/*.c))
 
-endif
-
 ifeq (${CONFIG_VM_VCHAN},y)
 helloworld_CFILES := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.c))
 helloworld_HFILES += $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/helloworld/src/*.h))
 helloworld_LIBS += sel4allocman sel4simple sel4simple-default sel4arm-vmm sel4dma sel4vchan
-endif
+endif # CONFIG_VM_VCHAN
 
-VM_CFILES   := $(patsubst $(SOURCE_DIR)/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.c))
-VM_OFILES   := archive.o
-VM_HFILES := $(patsubst ${SOURCE_DIR}/%,%,$(wildcard $(SOURCE_DIR)/components/VM/src/*.h))
-VM_LIBS += sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma usbdrivers
-
-ifeq (${CONFIG_VM_VCHAN},y)
-VM_LIBS += sel4vchan
-endif
-
-include ${PWD}/tools/camkes/camkes.mk
-
-ifeq (${CONFIG_PLAT_EXYNOS5410},y)
-ifeq (${CONFIG_VM_ROOTFS_MMCBLK0P2},y)
-ROOTFS := mmcblk0p2
-else ifeq (${CONFIG_VM_ROOTFS_MMCBLK1P2},y)
-ROOTFS := mmcblk1p2
-else
-$(error Unknown root filesystem)
-endif
-
-ifeq (${CONFIG_VM_VUSB},y)
-DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-vusb-dtb
-else
-DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-secure-dtb
-endif
-
-$(STAGE_DIR)/linux/linux-dtb:
-	$(Q)mkdir -p $(dir $@)
-	sed "s/root=\/dev\/mmcblk1p2/root=\/dev\/${ROOTFS}/g" $(DEVICE_TREE_SRC) > $@
-
-$(STAGE_DIR)/linux/linux:
-	$(Q)mkdir -p $(dir $@)
-	cp ${SOURCE_DIR}/linux/linux $@
-endif
+endif # CONFIG_PLAT_EXYNOS5410
 
 ifeq (${CONFIG_PLAT_TK1},y)
 
-ifeq (${CONFIG_TK1_INSECURE},y)
-DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-tk1-dtb-nonsecured
-else
-DEVICE_TREE_SRC := ${SOURCE_DIR}/linux/linux-tk1-dtb-secure
 endif
 
-ifeq (${CONFIG_VM_TK1_INITRD_ROOTFS},y)
-TK1_LINUX_BINARY := ${SOURCE_DIR}/linux/linux-tk1-initrd
-else
-TK1_LINUX_BINARY := ${SOURCE_DIR}/linux/linux-tk1-debian
-endif
-
-$(STAGE_DIR)/linux/linux-dtb: $(DEVICE_TREE_SRC)
-	$(Q)mkdir -p $(dir $@)
-	cp $(DEVICE_TREE_SRC) $@
-
-$(STAGE_DIR)/linux/linux: $(TK1_LINUX_BINARY)
-	$(Q)mkdir -p $(dir $@)
-	cp $(TK1_LINUX_BINARY) $@
-endif
-
-COMPONENTS := $(STAGE_DIR)/linux/linux $(STAGE_DIR)/linux/linux-dtb
-
-${BUILD_DIR}/src/vm/static/archive.o: ${COMPONENTS}
-	$(Q)mkdir -p $(dir $@)
-	${COMMON_PATH}/files_to_obj.sh $@ _cpio_archive $^
-
-$(vm_CFILES:%.c=%.o) $(COMPONENTS): $(srctree)/.config
+include VM/VM.mk
