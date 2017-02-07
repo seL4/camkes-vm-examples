@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <vka/capops.h>
+#include <camkes.h>
 
 #include <sel4arm-vmm/vm.h>
 #include <sel4arm-vmm/images.h>
@@ -34,7 +35,9 @@
 
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
+#define PAGE_SIZE_BITS 12
 
+extern int start_extra_frame_caps;
 
 extern char _cpio_archive[];
 
@@ -337,7 +340,6 @@ configure_gpio(vm_t *vm)
 
 #ifdef CONFIG_TK1_DEVICE_FWD
 
-#include <camkes.h>
 struct generic_forward_cfg camkes_uart_d = {
   .read_fn = uartfwd_read,
   .write_fn = uartfwd_write
@@ -387,6 +389,16 @@ install_linux_devices(vm_t* vm)
     for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
         assert(!err);
+    }
+
+    /* hack to give access to other components
+       see https://github.com/smaccm/vm_hack/blob/master/details.md for details */
+    int offset = 0;
+    for (i = 0; i < num_extra_frame_caps; i++) {
+        err = vm_map_frame(vm, start_extra_frame_caps + i,
+            extra_frame_map_address + offset, PAGE_SIZE_BITS, 1, seL4_AllRights);
+        assert(!err);
+        offset += PAGE_SIZE;
     }
 
     return 0;
