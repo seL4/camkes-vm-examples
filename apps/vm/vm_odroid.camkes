@@ -165,6 +165,9 @@ assembly {
     }
 
     configuration {
+        vm.num_extra_frame_caps = 0;
+        vm.extra_frame_map_address = 0;
+
         uartbase_gcs.mem_paddr = 0x12C30000;
         uartbase_gcs.mem_size = 0x1000;
         uartbase_gcs.irq_irq_number = 86;                        //UART1 interrupt

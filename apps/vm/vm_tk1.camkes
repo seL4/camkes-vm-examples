@@ -14,3 +14,12 @@
 import <std_connector.camkes>;
 
 import <VM/vm_common.camkes>;
+
+assembly {
+    composition {
+    }
+    configuration {
+        vm.num_extra_frame_caps = 0;
+        vm.extra_frame_map_address = 0;
+    }
+}
