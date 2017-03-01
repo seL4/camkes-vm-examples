@@ -1103,7 +1103,7 @@
 		resets = <0x2 0x3b>;
 		reset-names = "usb";
 		nvidia,phy = <0x1f>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	usb-phy@0,7d008000 {
@@ -1124,7 +1124,7 @@
 		nvidia,hssquelch-level = <0x2>;
 		nvidia,hsdiscon-level = <0x5>;
 		nvidia,xcvr-hsslew = <0xc>;
-		status = "disabled";
+		status = "okay";
 		vbus-supply = <0x1e>;
 		linux,phandle = <0x1f>;
 		phandle = <0x1f>;

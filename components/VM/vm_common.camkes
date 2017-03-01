@@ -71,6 +71,7 @@ assembly {
                     "0x700b0000:12", // SDMMC-1, SDMMC-2, SDMMC-3, SDMMC-4,
                     "0x7d000000:12", // USB
                     "0x7d004000:12", // USB2
+                    "0x7d008000:12", // USB3
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28", // Linux kernel memory regions
@@ -112,13 +113,13 @@ assembly {
                     "0x7009f000:12", // XUSB_PADCTL TODO: Look into pads
                     "0x70300000:12", // Audio Cluster
                     "0x70301000:12", // Audio Cluster
-                    "0x7d008000:12", // USB3
   #endif
                     ];
         vm.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
                     53, // INTERRUPT_USB2
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
+                    129, // INTERRUPT_USB3
   #ifdef CONFIG_TK1_INSECURE
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
@@ -205,7 +206,6 @@ assembly {
                     124, // INTERRUPT_I2C3
                     127, // INTERRUPT_SW
                     128, // INTERRUPT_SNOR
-                    129, // INTERRUPT_USB3
                     130, // INTERRUPT_PCIE_INT
                     131, // INTERRUPT_PCIE_MSI
                     132, // INTERRUPT_PCIE_WAKE
