@@ -26,8 +26,8 @@ component VM {
 
 #ifdef CONFIG_PLAT_EXYNOS5410
     uses pwm_inf pwm;
-    consumes restart restart_event;
 #endif
+    maybe consumes restart restart_event;
     has semaphore vm_sem;
 
 
