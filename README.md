@@ -36,6 +36,15 @@ The tk1 currently uses linux binaries and device tree blobs constructed using [B
 * `buildroot_tk1_initrd_defconfig` builds linux with an included ramdisk that will be loaded at boot.
 * `buildroot_tk1_emmc_defconfig` builds linux without a ramdisk and it will mount and run /sbin/init /dev/mmcblk0p2
 
+To copy the files back into this project, change into the Linux directory and run make for each file as shown below. **Note that you can only
+update one of linux-tk1-debian or linux-tk1-initrd at a time as they are built from different Buildroot configs**:
+```
+cd projects/vm/linux
+LINUX_FILE=linux-tk1-initrd BUILDROOT_DIR=~/workspaces/buildroot-2016.08.1/ make
+LINUX_FILE=linux-tk1-dtb-secure BUILDROOT_DIR=~/workspaces/buildroot-2016.08.1/ make
+```
+
+
 Both of these configs use the tegra124-jetson-tk1-sel4vm-secure device tree file.  
 To change to the tegra124-jetson-tk1-sel4vm.dts this will need to be changed in the buildroot make menuconfig.
 To change the mounted emmc partition the chosen dts file's bootargs entry will need to be updated.
