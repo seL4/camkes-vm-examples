@@ -82,9 +82,16 @@ assembly {
                     "0x01000000:12", // PCIe Controller 0 config registers
                     "0x01001000:12", // PCIe Controller 1 config registers
                     "0x01003000:12", // PCIe Pads & AFI
-                    "0x02000000:20", // Start of PCIE_A2 region
+                    "0x02000000:25", // Start of PCIE_A2 region
+                    "0x04000000:26", // Start of PCIE_A2 region
+                    "0x08000000:27", // Start of PCIE_A2 region
                     "0x13000000:20", // In PCIE_A3 region
                                    //  Note: In the address map this region is 8KB, but we only pass through 4KB
+                    "0x50000000:17", // Graphics host registers
+                    "0x50020000:16", // Graphics host registers
+                    "0x50030000:14", // Graphics host registers
+                    "0x54200000:18", // Display A
+                    "0x54240000:18", // Display B
                     "0x60005000:12", // Timers (TMR)
                     "0x6000c000:12", // System Registers, AHB Arbitration + Gizmo Controller, AHB/APB Debug Bus, Secure Boot, STAT-MON, Activity Monitor
                     "0x6000d000:12", // GPIOS 1-8
@@ -93,6 +100,8 @@ assembly {
                     "0x7000c000:12", // I2C, TWC, DTV, I2C2, I2C3, OWR, I2C4
                     "0x7000d000:12", // I2C5, I2C6, SPI 2B-(1..6)
                     "0x7000e000:12", // RTC, KBC, PMC
+                    "0x7000f000:12", // FUSE, KFUSE
+                    "0x70110000:12", // DVFS
                     "0x7001b000:12", // EMC
                     "0x70020000:12", // SATA
                     "0x70021000:12", // SATA
