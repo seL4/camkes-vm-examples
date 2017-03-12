@@ -20,26 +20,14 @@ supported:=true
 SRC_FILE := $(BUILDROOT_DIR)/output/build/linux-custom/arch/arm/boot/Image
 DEST_FILE := linux-tk1-initrd
 endif
-ifeq ($(LINUX_FILE), linux-tk1-dtb-nonsecured)
-supported:=true
-SRC_FILE := $(BUILDROOT_DIR)/output/images/tegra124-jetson-tk1-sel4vm.dtb
-DEST_FILE := linux-tk1-dtb-nonsecured
-endif
-ifeq ($(LINUX_FILE), linux-tk1-dtb-secure)
-supported:=true
-SRC_FILE := $(BUILDROOT_DIR)/output/images/tegra124-jetson-tk1-sel4vm-secure.dtb
-DEST_FILE := linux-tk1-dtb-secure
-endif
-ifneq (${supported},true)
-$(error Specify LINUX_FILE.  Only supported files are: linux-tk1-debian, \
-		linux-tk1-initrd, linux-tk1-dtb-nonsecured, linux-tk1-dtb-secure)
-endif
 
 
 .PHONY: copy_buildroot
 copy_buildroot:
-	@if [ ! -e "${BUILDROOT_DIR}" ]; then \
+	@if [ ! -e "${BUILDROOT_DIR}" ] || [ "${supported}" == "false" ]; then \
 		echo "Specify a BUILDROOT_DIR to ${BUILDROOT_DIR} buildroot"; \
+		echo "Specify LINUX_FILE.  Only supported files are: linux-tk1-debian, \
+linux-tk1-initrd";\
 		exit 1; \
 	else \
 		echo "cp ${SRC_FILE} ${DEST_FILE}"; \

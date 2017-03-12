@@ -51,9 +51,9 @@ endif
 ifeq (${CONFIG_PLAT_TK1},y)
 
 ifeq (${CONFIG_TK1_INSECURE},y)
-DEVICE_TREE_SRC := ${CURRENT_DIR}/../../linux/linux-tk1-dtb-nonsecured
+DEVICE_TREE_SRC := ${CURRENT_DIR}/../../linux/linux-tk1-nonsecured.dts
 else
-DEVICE_TREE_SRC := ${CURRENT_DIR}/../../linux/linux-tk1-dtb-secure
+DEVICE_TREE_SRC := ${CURRENT_DIR}/../../linux/linux-tk1-secure.dts
 endif
 
 ifeq (${CONFIG_VM_TK1_INITRD_ROOTFS},y)
@@ -64,7 +64,8 @@ endif
 
 $(STAGE_DIR)/linux/linux-dtb: $(DEVICE_TREE_SRC)
 	$(Q)mkdir -p $(dir $@)
-	cp $(DEVICE_TREE_SRC) $@
+	$(Q)which dtc && dtc -I dts -O dtb $(DEVICE_TREE_SRC) > $@ || \
+	(echo "ERROR: dtc potentially not installed" && false)
 
 $(STAGE_DIR)/linux/linux: $(TK1_LINUX_BINARY)
 	$(Q)mkdir -p $(dir $@)
