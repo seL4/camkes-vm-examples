@@ -48,6 +48,22 @@ extern seL4_CPtr _fault_endpoint;
 
 
 static const struct device *linux_pt_devices[] = {
+    &dev_usb1,
+    &dev_usb3,
+    &dev_sdmmc,
+};
+
+static const struct device *linux_ram_devices[] = {
+#ifndef CONFIG_TK1_INSECURE
+    &dev_rtc_kbc_pmc,
+    &dev_data_memory,
+    &dev_exception_vectors,
+    &dev_system_registers,
+    &dev_ictlr,
+    &dev_apb_misc,
+    &dev_fuse,
+    &dev_gpios,
+#endif /* CONFIG_TK1_INSECURE */
 };
 
 static const int linux_pt_irqs[] = {
@@ -385,9 +401,16 @@ install_linux_devices(vm_t* vm)
 #endif // CONFIG_TK1_DEVICE_FWD
 
     /* Install pass through devices */
-    /* TK1 passes through all devices at the moment by using on-demand device mapping */
+    /* In insecure mode TK1 passes through all devices at the moment by using on-demand device mapping */
     for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
+        assert(!err);
+    }
+
+    /* Install ram backed devices */
+    /* Devices that are just anonymous memory mappings */
+    for (i = 0; i < sizeof(linux_ram_devices) / sizeof(*linux_ram_devices); i++) {
+        err = vm_install_ram_only_device(vm, linux_ram_devices[i]);
         assert(!err);
     }
 
