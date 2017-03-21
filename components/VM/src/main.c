@@ -476,6 +476,10 @@ main_continued(void)
 
     /* setup for restart with a setjmp */
     while (setjmp(restart_jmp_buf) != 0) {
+        err = vm_process_reboot_callbacks(&vm);
+        if (err) {
+            ZF_LOGF("vm_process_reboot_callbacks failed: %d", err);
+        }
         reset_resources();
     }
     restart_tcb = camkes_get_tls()->tcb_cap;
