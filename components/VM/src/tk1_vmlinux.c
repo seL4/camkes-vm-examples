@@ -400,6 +400,9 @@ install_linux_devices(vm_t* vm)
     assert(!err);
 #endif // CONFIG_TK1_DEVICE_FWD
 
+    err = vm_install_tk1_usb_passthrough_device(vm);
+    assert(!err);
+
     /* Install pass through devices */
     /* In insecure mode TK1 passes through all devices at the moment by using on-demand device mapping */
     for (i = 0; i < sizeof(linux_pt_devices) / sizeof(*linux_pt_devices); i++) {
