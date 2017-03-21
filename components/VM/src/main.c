@@ -418,6 +418,7 @@ extern char __sysinfo[];
 extern char __libc[];
 extern char morecore_area[];
 extern char morecore_size[];
+extern uintptr_t morecore_top;
 
 void reset_resources(void) {
     simple_t simple;
@@ -454,6 +455,7 @@ void reset_resources(void) {
     memcpy(__sysinfo, save_sysinfo, 4);
     memcpy(morecore_area, save_morecore_area, 4);
     memcpy(morecore_size, save_morecore_size, 4);
+    morecore_top = (uintptr_t) &morecore_area[CONFIG_LIB_SEL4_MUSLC_SYS_MORECORE_BYTES];
 }
 
 static seL4_CPtr restart_tcb;
