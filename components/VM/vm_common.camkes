@@ -270,7 +270,18 @@ assembly {
   #endif
                     ];
 
-        vm.smmu = [10, 23];
+#ifdef CONFIG_TK1_INSECURE
+       /* See
+        * .../kernel/include/plat/tk1/plat/machine/smmu.h
+        * ASID IDs, minus one
+        * Each additional ASID here represents an entire page table;
+        * make sure you have enough RAM.
+        */
+       vm.smmu = [0,5,6,10,11,12,15,16,21,23,24,25,26,27];
+#else
+       vm.smmu = [10, 23];
+#endif
+
   #endif
 
     }
