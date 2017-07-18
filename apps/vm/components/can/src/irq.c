@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <sync/spinlock.h>
+#include <platsupport/sync/spinlock.h>
 
 #include "mcp2515.h"
 #include <queue.h>

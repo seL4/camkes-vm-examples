@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sync/spinlock.h>
+#include <platsupport/sync/spinlock.h>
 #include <can_inf.h>
 
 struct mq_cb {

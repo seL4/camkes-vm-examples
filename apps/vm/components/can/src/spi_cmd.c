@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <sync/spinlock.h>
+#include <platsupport/sync/spinlock.h>
 
 #include <camkes.h>
 #include "mcp2515.h"
