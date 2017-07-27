@@ -15,8 +15,6 @@
 
 #include <camkes.h>
 
-#define NS_IN_SECOND 1000000000ULL
-
 pstimer_t *timer_drv = NULL;
 
 void irq_handle(void)
@@ -45,7 +43,7 @@ void pre_init()
 	}
 
 	/* Run in periodic mode and start the timer. */
-	timer_periodic(timer_drv, NS_IN_SECOND);
+	timer_periodic(timer_drv, NS_IN_S);
 	timer_start(timer_drv);
 }
 
