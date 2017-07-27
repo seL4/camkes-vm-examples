@@ -12,11 +12,11 @@
  * Timer interface implementation.
  */
 
-#include <platsupport/timer.h>
+#include <platsupport/mach/pwm.h>
 
 #include <camkes.h>
 
-extern pstimer_t *timer_drv;
+extern pwm_t *timer_drv;
 
 /*
  * Get current time.
@@ -25,5 +25,5 @@ extern pstimer_t *timer_drv;
  */
 int tm_get_time()
 {
-	return timer_get_time(timer_drv);
+	return pwm_get_time(timer_drv);
 }

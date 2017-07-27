@@ -10,40 +10,42 @@
 
 #include <stdio.h>
 
+#include <utils/time.h>
 #include <platsupport/mach/pwm.h>
-#include <platsupport/timer.h>
 
 #include <camkes.h>
 
-pstimer_t *timer_drv = NULL;
+pwm_t pwm;
+pwm_t *timer_drv = NULL;
 
 void irq_handle(void)
 {
-	/* Hardware routine. */
-	timer_handle_irq(timer_drv, PWM_T4_INTERRUPT);
+    /* Hardware routine. */
+    pwm_handle_irq(timer_drv, PWM_T4_INTERRUPT);
 
-	/* Signal other components. */
-	timer_update_emit();
+    /* Signal other components. */
+    timer_update_emit();
 
     irq_acknowledge();
 }
 
 void pre_init()
 {
-	pwm_config_t config;
+    pwm_config_t config;
 
-	/*
-	 * Provide hardware info to platsupport.
-	 */
-	config.vaddr = (void*)timerbase;
+    /*
+     * Provide hardware info to platsupport.
+     */
+    config.vaddr = (void*)timerbase;
 
-	timer_drv = pwm_get_timer(&config);
-	if (!timer_drv) {
-		printf("PWM timer does not exist.\n");
-	}
+    int error = pwm_init(&pwm, config);
+    if (error) {
+        printf("PWM timer does not exist.\n");
+    }
+    timer_drv = &pwm;
 
-	/* Run in periodic mode and start the timer. */
-	timer_periodic(timer_drv, NS_IN_S);
-	timer_start(timer_drv);
+    /* Run in periodic mode and start the timer. */
+    pwm_start(timer_drv);
+    pwm_set_timeout(timer_drv, NS_IN_S, true);
 }
 
