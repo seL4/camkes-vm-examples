@@ -19,20 +19,20 @@ Currently the exynos5 and tk1 machines are supported.
 
 ## tk1 configuration
 
-We currently provide two linux binaries and two device tree blobs.  
+We currently provide two linux binaries and two device tree configurations.
 * `linux-tk1-debian` will try and load a debian userspace off of an emmc partition
 * `linux-tk1-initrd` will load an included buildroot ramdisk
-* `linux-tk1-dtb-secure` is a device tree blob configuration with the devices that aren't provided to the linux are disabled.
-* `linux-tk1-dtb-nonsecured` is a device tree blob configuration with all devices enabled.
+* `linux-tk1-secure.dts` is a device tree configuration with the devices that aren't provided to the linux are disabled.
+* `linux-tk1-nonsecured.dts` is a device tree configuration with all devices enabled.
 
 In the tk1 app configuration there is a `boot mode selection` option that chooses between the two linux binaries, and
 an `Insecure` option which selects whether to provide all hardware devices to the linux vm or not. If `Insecure` is not set
-then the VM will only be provided a minimal amount of hardware frames and the `linux-tk1-dtb-secure` DTB will be used.  If `Insecure`
-is set then the VM will be provided all device frames apart from the Memory controller and the `linux-tk1-dtb-nonsecured` DTB will be used.
+then the VM will only be provided a minimal amount of hardware frames and the `linux-tk1-secure.dts` DTS will be used.  If `Insecure`
+is set then the VM will be provided all device frames apart from the Memory controller and the `linux-tk1-nonsecured.dts` DTS will be used.
 
-U-Boot is required to initialise the USB devices if `linux-tk1-dtb-secure` is used.  This is done by: `usb start 0`.
+U-Boot is required to initialise the USB devices if `linux-tk1-secure.dts` is used.  This is done by: `usb start 0`.
 
-The tk1 currently uses linux binaries and device tree blobs constructed using [Buildroot 2016.08.1](https://buildroot.org/downloads/) with the following configs:
+The tk1 currently uses linux binaries constructed using [Buildroot 2016.08.1](https://buildroot.org/downloads/) with the following configs:
 * `buildroot_tk1_initrd_defconfig` builds linux with an included ramdisk that will be loaded at boot.
 * `buildroot_tk1_emmc_defconfig` builds linux without a ramdisk and it will mount and run /sbin/init /dev/mmcblk0p2
 
