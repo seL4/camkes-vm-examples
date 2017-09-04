@@ -238,7 +238,7 @@ install_vusb(vm_t* vm)
     int err;
 
     /* Initialise the USB host controller. We hand it over to linux later */
-    err = usb_host_init(USB_HOST_DEFAULT, vm->io_ops, &hcd);
+    err = usb_host_init(USB_HOST_DEFAULT, vm->io_ops, NULL, &hcd);
     assert(!err);
 
     /* Initialise I2C and GPIO and PMIC for USB power control */
