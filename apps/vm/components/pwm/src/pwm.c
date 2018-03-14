@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include <platsupport/i2c.h>
 #include <platsupport/delay.h>
@@ -112,7 +113,8 @@ i2c_complete_cb(i2c_bus_t *bus, enum i2c_stat status, size_t size, void* token) 
 void write_register(uint8_t address, uint8_t value) 
 {
     uint8_t data[2] = { address, value };
-    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);  
+    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data),
+                                false, &i2c_complete_cb, NULL);
     if (count >= 0) {
         bus_sem_wait();
         // Maybe need to pass a status back??
@@ -124,12 +126,14 @@ void write_register(uint8_t address, uint8_t value)
 uint8_t read_register(uint8_t address)
 {
     uint8_t data[1] = { address };
-    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);
+    int count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data),
+                                true, &i2c_complete_cb, NULL);
     if (count >= 0) {
         bus_sem_wait();
     }
     data[0] = 0xEE; // easier to check it was overwritten
-    count = i2c_slave_read(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, NULL);
+    count = i2c_slave_read(&i2c_pwm, data, ARRAY_SIZE(data),
+                           false, &i2c_complete_cb, NULL);
     if (count >= 0) {
         bus_sem_wait();
     } else {
@@ -162,7 +166,8 @@ pwm_set_led(int led, int level)
         level = LEDON_FULL;
     }
     uint8_t data[5] = { LED(led), 0, 0, level, level >> 8 };
-    count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data), &i2c_complete_cb, &status);
+    count = i2c_slave_write(&i2c_pwm, data, ARRAY_SIZE(data),
+                            false, &i2c_complete_cb, &status);
     if (count >= 0) {
         bus_sem_wait();
     } else {
@@ -236,7 +241,9 @@ void pwm__init(void)
     assert(!err);
 
     // Initalise slave
-    err = i2c_kvslave_init(&i2c_bus, I2C_PWM_ADDR, BIG8, BIG8, &i2c_pwm);
+    err = i2c_kvslave_init(&i2c_bus, I2C_PWM_ADDR,
+                           I2C_SLAVE_ADDR_7BIT, I2C_SLAVE_SPEED_FAST,
+                           BIG8, BIG8, &i2c_pwm);
     assert(!err);
  
     // Scan the bus 
