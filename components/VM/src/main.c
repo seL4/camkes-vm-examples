@@ -353,7 +353,7 @@ vmm_init(void)
 
     /* Initialise MUX subsystem for platforms that need it */
 #ifndef CONFIG_PLAT_TK1
-    err = mux_sys_init(&_io_ops, &_io_ops.mux_sys);
+    err = mux_sys_init(&_io_ops, NULL, &_io_ops.mux_sys);
     assert(!err);
 #endif
 

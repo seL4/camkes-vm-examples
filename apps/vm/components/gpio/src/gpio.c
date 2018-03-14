@@ -171,10 +171,10 @@ void pre_init(void) {
 
     /* Enable UART0, UART3*/
     printf("GPIO: enable UART 0, 1 and 3\n");
-    mux_feature_enable(&exynos_mux, MUX_UART0);
-    mux_feature_enable(&exynos_mux, MUX_UART1);
-    mux_feature_enable(&exynos_mux, MUX_UART3);
-    mux_feature_enable(&exynos_mux, MUX_SPI1);
+    mux_feature_enable(&exynos_mux, MUX_UART0, MUX_DIR_NOT_A_GPIO);
+    mux_feature_enable(&exynos_mux, MUX_UART1, MUX_DIR_NOT_A_GPIO);
+    mux_feature_enable(&exynos_mux, MUX_UART3, MUX_DIR_NOT_A_GPIO);
+    mux_feature_enable(&exynos_mux, MUX_SPI1, MUX_DIR_NOT_A_GPIO);
 
     /* SPI chip selects */
     gpio_new(&gpio_sys, CAN_CSn,    GPIO_DIR_OUT, &o_spi_can_nss);
@@ -214,7 +214,7 @@ void pre_init(void) {
 
     /* PWM */
     printf("GPIO: Enable PWM output\n");
-    mux_feature_enable(&exynos_mux, MUX_I2C0);
+    mux_feature_enable(&exynos_mux, MUX_I2C0, MUX_DIR_NOT_A_GPIO);
     gpio_new(&gpio_sys, PWM_EN, GPIO_DIR_OUT, &o_pwm_en);
     gpio_clr(&o_pwm_en);
     printf("GPIO: Initialisation complete\n");
