@@ -89,6 +89,7 @@
 
 i2c_bus_t i2c_bus;
 i2c_slave_t i2c_pwm;
+i2c_kvslave_t pwm_kvslave;
 
 typedef struct {
     uint8_t on_l;
@@ -241,10 +242,15 @@ void pwm__init(void)
     assert(!err);
 
     // Initalise slave
-    err = i2c_kvslave_init(&i2c_bus, I2C_PWM_ADDR,
+    err = i2c_slave_init(&i2c_bus, I2C_PWM_ADDR,
                            I2C_SLAVE_ADDR_7BIT, I2C_SLAVE_SPEED_FAST,
-                           BIG8, BIG8, &i2c_pwm);
+                           0, &i2c_pwm);
     assert(!err);
+
+    err = i2c_kvslave_init(&i2c_pwm, BIG8, BIG8, &pwm_kvslave);
+    if (err) {
+        ZF_LOGF("Failed to initialize lib I2C-KVSlave instance.");
+    }
  
     // Scan the bus 
     int count, addr;
