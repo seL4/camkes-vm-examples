@@ -381,8 +381,8 @@ map_unity_ram(vm_t* vm)
 {
     /* Dimensions of physical memory that we'll use. Note that we do not map the entirety of RAM.
      */
-    static const uintptr_t paddr_start = LINUX_RAM_PADDR_BASE;
-    static const uintptr_t paddr_end = paddr_start + LINUX_RAM_SIZE;
+    const uintptr_t paddr_start = LINUX_RAM_PADDR_BASE;
+    const uintptr_t paddr_end = paddr_start + LINUX_RAM_SIZE;
 
     int err;
 
