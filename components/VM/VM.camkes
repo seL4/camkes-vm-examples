@@ -9,36 +9,37 @@
  *
  * @TAG(DATA61_GPL)
  */
-#include <autoconf.h>
 
-#ifdef CONFIG_VM_VCHAN
+#if VMVCHAN
 import <VchanInterface.idl4>;
-#endif //CONFIG_VM_VCHAN
-#ifdef CONFIG_TK1_DEVICE_FWD
+#endif //VMVCHAN
+
+#if TK1DEVICEFWD
 import <gen_fwd.idl4>;
 #endif
+
 component VM {
     control;
 
-#ifdef CONFIG_TK1_DEVICE_FWD
+#if TK1DEVICEFWD
     uses gen_fwd_inf uartfwd;
     uses gen_fwd_inf clkcarfwd;
 #endif
 
-#ifdef CONFIG_PLAT_EXYNOS5410
+#ifdef KERNELARMPLATFORM_EXYNOS5410
     uses pwm_inf pwm;
 #endif
     maybe consumes restart restart_event;
     has semaphore vm_sem;
 
 
-#ifdef CONFIG_VM_VCHAN
+#if VMVCHAN
     include "vchan_sharemem.h";
     has mutex vm_lock;
     uses VchanInterface vchan_con;
     consumes VchanEvent vevent;
     dataport vchan_headers_t share_mem;
-#endif //CONFIG_VM_VCHAN
+#endif //VMVCHAN
 
     attribute int base_prio;
     attribute int num_extra_frame_caps;

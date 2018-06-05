@@ -10,8 +10,6 @@
  * @TAG(DATA61_BSD)
  */
 
-#include <autoconf.h>
-
 import "VM.camkes";
 
 assembly {
@@ -29,7 +27,7 @@ assembly {
 
         vm._priority = 101;
         vm.sem_value = 0;
-#ifdef CONFIG_PLAT_EXYNOS5410
+#ifdef KERNELARMPLATFORM_EXYNOS5410
 
         vm.untyped_mmios = [
                     "0x10000000:12", // CHIP_ID
@@ -63,7 +61,7 @@ assembly {
   #endif
 
 
-#ifdef CONFIG_PLAT_TK1
+#ifdef KERNELARMPLATFORM_TK1
 
         vm.untyped_mmios = [
                     "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
@@ -75,11 +73,11 @@ assembly {
                     "0xb0000000:28", // Linux kernel memory regions
                     "0xc0000000:29", // Linux kernel memory regions
                     "0xe0000000:28", // Linux kernel memory regions
-#ifndef CONFIG_TK1_DEVICE_FWD
+#if TK1DEVICEFWD == 0
                     "0x60006000:12", // Clock and Reset (CAR)
                     "0x70006000:12", // UARTA, UARTB, VFIR, UARTC, UARTD, HDMI_IOBIST, MIPI_IOBIST, LPDDR2_IOBIST, PCIE_X2_0_IOBIST, PCIE_X2_1_IOBIST, PCIE_X4_IOBIST, SATA_IOBIST
 #endif
-#ifdef CONFIG_TK1_INSECURE
+#if TK1INSECURE
                     "0x01000000:12", // PCIe Controller 0 config registers
                     "0x01001000:12", // PCIe Controller 1 config registers
                     "0x01003000:12", // PCIe Pads & AFI
@@ -120,7 +118,7 @@ assembly {
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
                     129, // INTERRUPT_USB3
-  #ifdef CONFIG_TK1_INSECURE
+  #if TK1INSECURE
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2
                     34, // INTERRUPT_RTC
@@ -270,7 +268,7 @@ assembly {
   #endif
                     ];
 
-#ifdef CONFIG_TK1_INSECURE
+#if TK1INSECURE
        /* See
         * .../kernel/include/plat/tk1/plat/machine/smmu.h
         * ASID IDs, minus one

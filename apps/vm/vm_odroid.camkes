@@ -11,7 +11,6 @@
  */
 
 
-#include <autoconf.h>
 import <std_connector.camkes>;
 
 import "components/uart/uart.camkes";
@@ -24,10 +23,10 @@ import "components/clk/clk.camkes";
 import "components/timer/timer.camkes";
 import <VM/vm_common.camkes>;
 
-#ifdef CONFIG_VM_VCHAN
+#if VMVCHAN
 import <Vchan/Vchan.camkes>;
 import "components/helloworld/helloworld.camkes";
-#endif //CONFIG_VM_VCHAN
+#endif //VMVCHAN
 
 component uartbase {
     hardware;
@@ -87,7 +86,7 @@ assembly {
         component timer	   timer_obj;
 
 
-#ifdef CONFIG_VM_VCHAN
+#if VMVCHAN
         component Vchan vchan_0;
         component helloworld hello;
 
@@ -98,7 +97,7 @@ assembly {
         connection seL4Notification vchan_event(from vchan_0.vevent_sv, to hello.vevent);
         connection seL4SharedData hvchan_sharemem_0(from hello.share_mem, to vchan_0.share_mem);
         connection seL4RPCCall hvchan(from hello.vchan_con, to vchan_0.vchan_com);
-#endif //CONFIG_VM_VCHAN
+#endif //VMVCHAN
 
         connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
         connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
