@@ -12,24 +12,15 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-if (NOT ${PLATFORM} IN_LIST KernelARMPlatform_all_strings)
-    message(FATAL_ERROR "Unknown ARM PLATFORM")
-endif()
-
 # Kernel settings
 set(KernelArch "arm" CACHE STRING "" FORCE)
 set(KernelArmSel4Arch "arm_hyp" CACHE STRING "" FORCE)
-set(KernelARMPlatform ${PLATFORM} CACHE STRING "" FORCE)
 set(KernelArmHypervisorSupport ON CACHE BOOL "" FORCE)
 set(KernelArmExportPCNTUser ON CACHE BOOL "" FORCE)
 set(KernelArmExportVCNTUser ON CACHE BOOL "" FORCE)
 set(KernelRootCNodeSizeBits 19 CACHE STRING "" FORCE)
 set(KernelMaxNumBootinfoUntypedCaps 230 CACHE STRING "")
 set(KernelIRQReporting OFF CACHE BOOL "" FORCE)
-if(${KernelARMPlatform} STREQUAL "tk1")
-    set(KernelArmSMMU ON CACHE BOOL "" FORCE)
-    set(KernelARMSMMUInterruptEnable ON CACHE BOOL "" FORCE)
-endif()
 
 # capDL settings
 set(CapDLLoaderMaxObjects 90000 CACHE STRING "" FORCE)
@@ -49,9 +40,16 @@ ApplyCommonReleaseVerificationSettings(${RELEASE} FALSE)
 CAmkESAddImportPath(components)
 CAmkESAddImportPath(interfaces)
 
+if(NOT CAMKES_VM_APP)
+    message(FATAL_ERROR "CAMKES_VM_APP is not defined. Pass CAMKES_VM_APP to specify the VM application to build e.g. tk1_vm, odroid_vm")
+endif()
+
+# Make CAMKES_VM_APP available to change in the ccmake interface
+set(CAMKES_VM_APP "${CAMKES_VM_APP}" CACHE STRING "CAmkES VM application to build")
+
+# Add VM application
+add_subdirectory("apps/${CAMKES_VM_APP}")
+
 # VM components
 add_subdirectory(components/Vchan)
 add_subdirectory(components/VM)
-
-# Add VM application
-add_subdirectory(apps/vm)

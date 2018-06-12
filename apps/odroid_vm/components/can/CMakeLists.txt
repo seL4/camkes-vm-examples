@@ -12,11 +12,11 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-project(gpio C)
+project(can C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(gpio
+DeclareCAmkESComponent(can
     SOURCES ${sources}
     INCLUDES include
-    LIBS exynos_include)
+    LIBS app_include)

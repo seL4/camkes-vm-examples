@@ -12,8 +12,6 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-project(camkes-arm-vm C)
-
 # Function appends a given list of CMake config variables as CAmkES CPP flags
 # 'configure_string': The variable to append the CPP flags onto
 # 'CONFIG_VARS': followed by the CMake variables to turn into CPP flags.
@@ -41,38 +39,3 @@ function(AddCamkesCPPFlag configure_string)
     # Update the configure_string value
     set(${configure_string} "${${configure_string}}" PARENT_SCOPE)
 endfunction(AddCamkesCPPFlag)
-
-# Common build definitions
-CAmkESAddImportPath(components)
-CAmkESAddImportPath(interfaces)
-
-# Create our CPP Flags based on ARM VM config variables
-set(cpp_flags "")
-AddCamkesCPPFlag(cpp_flags
-    CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
-
-if("${KernelARMPlatform}" STREQUAL "exynos5410")
-    # Create interface include library
-    add_library(exynos_include INTERFACE)
-    target_include_directories(exynos_include INTERFACE include)
-    # Add VM components
-    add_subdirectory(components/pilot)
-    add_subdirectory(components/uart)
-    add_subdirectory(components/gpio)
-    add_subdirectory(components/pwm)
-    add_subdirectory(components/can)
-    add_subdirectory(components/spi)
-    add_subdirectory(components/clk)
-    add_subdirectory(components/timer)
-    # Add Vchan helloworld component if VmVchan is enabled
-    if(VmVchan)
-        add_subdirectory(components/helloworld)
-    endif()
-    # Declare odroid root server
-    DeclareCAmkESRootserver(vm_odroid.camkes CPP_FLAGS ${cpp_flags})
-elseif("${KernelARMPlatform}" STREQUAL "tk1")
-    # Declare tk1 root server
-    DeclareCAmkESRootserver(vm_tk1.camkes CPP_FLAGS ${cpp_flags})
-else()
-    message(FATAL_ERROR "Invalid ARM platform")
-endif()
