@@ -52,6 +52,9 @@ AddCamkesCPPFlag(cpp_flags
     CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
+    # Create interface include library
+    add_library(exynos_include INTERFACE)
+    target_include_directories(exynos_include INTERFACE include)
     # Add VM components
     add_subdirectory(components/pilot)
     add_subdirectory(components/uart)

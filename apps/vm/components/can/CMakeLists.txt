@@ -18,4 +18,5 @@ file(GLOB sources src/*.c)
 
 DeclareCAmkESComponent(can
     SOURCES ${sources}
-    INCLUDES include ../../include)
+    INCLUDES include
+    LIBS exynos_include)
