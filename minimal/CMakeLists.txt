@@ -16,6 +16,7 @@ project(minimal)
 
 # Include CAmkES VM helper functions
 include("../../vm/camkes_vm_helpers.cmake")
+include("../../vm-linux/vm-linux-helpers.cmake")
 
 # Define kernel config options
 set(KernelX86Sel4Arch ia32 CACHE STRING "" FORCE)

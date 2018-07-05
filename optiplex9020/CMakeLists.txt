@@ -16,6 +16,7 @@ project(optiplex9020)
 
 # Include CAmkES VM helper
 include("../../vm/camkes_vm_helpers.cmake")
+include("../../vm-linux/vm-linux-helpers.cmake")
 
 # Define kernel config options
 set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
