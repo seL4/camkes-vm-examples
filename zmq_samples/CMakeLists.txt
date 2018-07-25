@@ -24,10 +24,15 @@ set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
 
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0)
+DeclareCAmkESVM(Init1)
+DeclareCamkesComponent(buffqueueinit)
 
 # Get Default Linux VM files
 GetDefaultLinuxKernelFile(kernel_file)
-GetDefaultLinuxRootfsFile(bare_rootfs)
+GetDefaultLinuxRootfsFile(rootfs_file)
+
+AddFileToOverlayDir("interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_0 "etc/network" overlay_vm0)
+AddFileToOverlayDir("interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_1 "etc/network" overlay_vm1)
 
 set(SYSROOT "${CMAKE_CURRENT_BINARY_DIR}/sysroot")
 FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-7-32bit-pic")
@@ -56,9 +61,11 @@ ExternalProject_Add(demoapps_external
       -DCMAKE_INSTALL_PREFIX=${SYSROOT}
 )
 
+
 DeclareExternalProjObjectFiles(demoapps_external ${SYSROOT}/bin FILES client server sink source worker pub sub)
 macro(AddZMQBinary binary_name)
-    AddFileToOverlayDir("${binary_name}" ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name} "bin/" overlay)
+    AddFileToOverlayDir("${binary_name}" ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name} "bin/" overlay_vm0)
+    AddFileToOverlayDir("${binary_name}" ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name} "bin/" overlay_vm1)
 endmacro()
 
 AddZMQBinary(client)
@@ -68,16 +75,20 @@ AddZMQBinary(source)
 AddZMQBinary(worker)
 AddZMQBinary(pub)
 AddZMQBinary(sub)
-AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench.sh "etc/init.d" overlay)
+AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench.sh "etc/init.d" overlay_vm0)
 
 # Add the buildroot overlay to our bare rootfs image
-AddOverlayDirToRootfs(overlay ${bare_rootfs} "buildroot" "rootfs_install"
-    output_rootfs_location rootfs_target)
+AddOverlayDirToRootfs(overlay_vm0 ${rootfs_file} "buildroot" "rootfs_install"
+    output_rootfs_location_vm0 rootfs_target_vm0)
+
+AddOverlayDirToRootfs(overlay_vm1 ${rootfs_file} "buildroot" "rootfs_install"
+    output_rootfs_location_vm1 rootfs_target_vm1)
 
 # Decompress Linux Kernel image and add to file server
 DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
 AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
-AddToFileServer("rootfs.cpio" "${output_rootfs_location}" DEPENDS rootfs_target)
+AddToFileServer("vm0_rootfs.cpio" "${output_rootfs_location_vm0}" DEPENDS rootfs_target_vm0)
+AddToFileServer("vm1_rootfs.cpio" "${output_rootfs_location_vm1}" DEPENDS rootfs_target_vm1)
 
 # Initialise CAmkES Root Server with addition CPP includes
 DeclareCAmkESVMRootServer(zmq_samples.camkes)
