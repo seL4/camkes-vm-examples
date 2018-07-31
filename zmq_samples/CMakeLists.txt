@@ -87,7 +87,7 @@ AddZMQBinary(sub)
 
 
 foreach(i RANGE ${NumberVMsLess1})
-    AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench.sh "etc/init.d" overlay_vm${i})
+    AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d" overlay_vm${i})
     # Add the buildroot overlay to our bare rootfs image
     AddOverlayDirToRootfs(overlay_vm${i} ${rootfs_file} "buildroot" "rootfs_install"
         output_rootfs_location_vm${i} rootfs_target_vm${i})
