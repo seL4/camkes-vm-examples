@@ -30,14 +30,14 @@ int main (int argc, char *argv [])
     void *context = zmq_ctx_new ();
     void *subscriber = zmq_socket (context, ZMQ_SUB);
     int rc = zmq_connect (subscriber, bind_to);
-    if (!rc) {
+    if (rc) {
         printf ("error in zmq_connect: %s\n", zmq_strerror (errno));
         return -1;
     }
 
     rc = zmq_setsockopt (subscriber, ZMQ_SUBSCRIBE,
                          NULL, 0);
-    if (!rc) {
+    if (rc) {
         printf ("error in zmq_setsockopt: %s\n", zmq_strerror (errno));
         return -1;
     }
