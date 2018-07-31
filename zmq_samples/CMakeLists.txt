@@ -43,7 +43,7 @@ foreach(i RANGE ${NumberVMsLess1})
 endforeach()
 
 set(SYSROOT "${CMAKE_CURRENT_BINARY_DIR}/sysroot")
-FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-7-32bit-pic")
+FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-32bit-pic")
 
 ExternalProject_Add(zmq_external
     SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/libzmq
