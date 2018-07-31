@@ -26,20 +26,20 @@ struct mapping {
 
 component Init0 {
     VM_INIT_DEF()
-    VM_CONNECTION_COMPONENT_DEF(ether, 1)
+    VM_CONNECTION_COMPONENT_DEF(1)
     attribute mapping vswitch_layout[];
     attribute int mac_address[];
 }
 
 component Init1 {
     VM_INIT_DEF()
-    VM_CONNECTION_COMPONENT_DEF(ether, 0)
+    VM_CONNECTION_COMPONENT_DEF(0)
     attribute mapping vswitch_layout[];
     attribute int mac_address[];
 }
 
-component buffqueueinit {
-    provides BuffQueue q;
+component virtqueueinit {
+    provides VirtQueue q;
 
 }
 
@@ -53,8 +53,8 @@ assembly {
         VM_PER_VM_COMP_DEF(0)
         VM_PER_VM_COMP_DEF(1)
 
-        component buffqueueinit init;
-        connection seL4BuffQueues v_conn(to init.q, call_two(VM_CONNECTION_CONNECTION_EXPAND_VM,0,1));
+        component virtqueueinit init;
+        connection seL4VirtQueues v_conn(to init.q, call_two(VM_CONNECTION_CONNECTION_EXPAND_VM,0,1));
 
     }
 
@@ -84,9 +84,9 @@ assembly {
         vm1.iospace_domain = 0x10;
         vm1_config.pci_devices_iospace = 2;
 
-        call_two(VM_CONNECTION_CONFIG_EXPAND_VM, 0,1)
+        call_two(VM_CONNECTION_CONFIG_EXPAND_VM,0,1)
         init.q_shmem_size = 4 * 1024 * 1024;
-        init.q_topology = [call_two(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM, 0,1)];
+        init.q_topology = [call_two(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM,0,1)];
 
         vm0.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x01];
         vm1.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x02];

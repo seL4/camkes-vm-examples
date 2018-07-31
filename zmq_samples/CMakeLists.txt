@@ -25,7 +25,7 @@ set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0)
 DeclareCAmkESVM(Init1)
-DeclareCamkesComponent(buffqueueinit)
+DeclareCamkesComponent(virtqueueinit)
 
 # Get Default Linux VM files
 GetDefaultLinuxKernelFile(kernel_file)
