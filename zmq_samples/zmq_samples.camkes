@@ -26,35 +26,45 @@ struct mapping {
 
 component Init0 {
     VM_INIT_DEF()
-    VM_CONNECTION_COMPONENT_DEF(1)
+    VM_CONNECTION_COMPONENT_DEF(1,2)
     attribute mapping vswitch_layout[];
     attribute int mac_address[];
 }
 
 component Init1 {
     VM_INIT_DEF()
-    VM_CONNECTION_COMPONENT_DEF(0)
+    VM_CONNECTION_COMPONENT_DEF(0,2)
     attribute mapping vswitch_layout[];
     attribute int mac_address[];
 }
+
+component Init2 {
+    VM_INIT_DEF()
+    VM_CONNECTION_COMPONENT_DEF(0, 1)
+    attribute mapping vswitch_layout[];
+    attribute int mac_address[];
+}
+
 
 component virtqueueinit {
     provides VirtQueue q;
 
 }
 
-#define call_two(f,a,b) \
-    f(a,b) \
-    f(b,a)
+#define call_three(f,a,b,c) \
+    f(a,b,c) \
+    f(b,a,c) \
+    f(c,a,b)
 
 assembly {
     composition {
         VM_COMPOSITION_DEF()
         VM_PER_VM_COMP_DEF(0)
         VM_PER_VM_COMP_DEF(1)
+        VM_PER_VM_COMP_DEF(2)
 
         component virtqueueinit init;
-        connection seL4VirtQueues v_conn(to init.q, call_two(VM_CONNECTION_CONNECTION_EXPAND_VM,0,1));
+        connection seL4VirtQueues v_conn(to init.q, call_three(VM_CONNECTION_CONNECTION_EXPAND_VM,0,1,2));
 
     }
 
@@ -84,15 +94,33 @@ assembly {
         vm1.iospace_domain = 0x10;
         vm1_config.pci_devices_iospace = 2;
 
-        call_two(VM_CONNECTION_CONFIG_EXPAND_VM,0,1)
+        VM_PER_VM_CONFIG_DEF(2)
+        vm2.simple_untyped23_pool = 21;
+        vm2.simple_untyped22_pool = 1;
+        vm2.heap_size = 0x10000;
+        vm2.guest_ram_mb = 128;
+        vm2.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm2.kernel_image = "bzimage";
+        vm2.kernel_relocs = "bzimage";
+        vm2.initrd_image = "vm2_rootfs.cpio";
+        vm2.iospace_domain = 0x11;
+        vm2_config.pci_devices_iospace = 3;
+
+
+        call_three(VM_CONNECTION_CONFIG_EXPAND_VM,0,1,2)
         init.q_shmem_size = 4 * 1024 * 1024;
-        init.q_topology = [call_two(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM,0,1)];
+        init.q_topology = [call_three(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM,0,1,2)];
 
         vm0.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x01];
         vm1.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x02];
+        vm2.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x03];
 
-        vm0.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x02], "send_id": 0, "recv_id":1}];
-        vm1.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x01], "send_id": 0, "recv_id":1}];
+        vm0.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x02], "send_id": 0, "recv_id":1},
+                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x03], "send_id": 2, "recv_id":3}];
+        vm1.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x01], "send_id": 0, "recv_id":1},
+                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x03], "send_id": 2, "recv_id":3}];
+        vm2.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x01], "send_id": 0, "recv_id":1},
+                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x02], "send_id": 2, "recv_id":3}];
 
         vm0_config.init_cons = [
             {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
@@ -100,6 +128,10 @@ assembly {
         vm1_config.init_cons = [
             {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
         ];
+        vm2_config.init_cons = [
+            {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
+        ];
+
 
     }
 }
