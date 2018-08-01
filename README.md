@@ -43,7 +43,7 @@ Then boot images/kernel-x86_64-pc99 and images/capdl-loader-experimental-image-x
 
 ## Configuration
 
-Three example VM applications are provied in this repo. These being `optiplex9020`, `minimal` and `cma34cr_centos`. The following is a short description of each vm application.
+VM example applications are provied in this repo. The following is a short description of each vm application.
 
 ### minimal
 
@@ -77,3 +77,7 @@ The `cma34cr_centos` application is a more complex CAmkES VM configuration demon
 - *Ethernet Driver, UDPSever, Echo, Firewall:* A passthrough ethernet configuration demo. The guest VM is configured to use the Ethernet driver component through a virtio configuration.
 - *Passthrough hardware storage (SATA/USB)*: A hardware configuration to boot the CentOS installation.
 
+### zmq_samples
+
+The `zmq_samples` application demonstrates messaging between VMs using the ZeroMQ messaging library.
+See the README.md in its folder for more information.
