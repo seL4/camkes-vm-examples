@@ -31,7 +31,7 @@ component Init1 {
 
 component Init2 {
     VM_INIT_DEF()
-    VM_CONNECTION_COMPONENT_DEF(0, 1)
+    VM_CONNECTION_COMPONENT_DEF(0,1)
 }
 
 
@@ -40,10 +40,10 @@ component virtqueueinit {
 
 }
 
-#define call_three(f,a,b,c) \
-    f(a,b,c) \
-    f(b,a,c) \
-    f(c,a,b)
+#define topology_def(f) \
+    f(0,1,2) \
+    f(1,0,2) \
+    f(2,0,1)
 
 assembly {
     composition {
@@ -53,7 +53,7 @@ assembly {
         VM_PER_VM_COMP_DEF(2)
 
         component virtqueueinit init;
-        connection seL4VirtQueues v_conn(to init.q, call_three(VM_CONNECTION_CONNECTION_EXPAND_VM,0,1,2));
+        connection seL4VirtQueues v_conn(to init.q, topology_def(VM_CONNECTION_CONNECTION_EXPAND_VM));
 
     }
 
@@ -96,29 +96,27 @@ assembly {
         vm2_config.pci_devices_iospace = 3;
 
 
-        call_three(VM_CONNECTION_CONFIG_EXPAND_VM,0,1,2)
-        init.q_shmem_size = 4 * 1024 * 1024;
-        init.q_topology = [call_three(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM,0,1,2)];
+        topology_def(VM_CONNECTION_CONFIG_EXPAND_VM)
 
-        vm0.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x01];
-        vm1.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x02];
-        vm2.mac_address = [0x02,0x00,0x00,0x00,0xAA,0x03];
+        init.q_topology = [topology_def(VM_CONNECTION_CONFIG_TOPOLOGY_EXPAND_VM)];
 
-        vm0.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x02], "send_id": 0, "recv_id":1},
-                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x03], "send_id": 2, "recv_id":3}];
-        vm1.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x01], "send_id": 0, "recv_id":1},
-                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x03], "send_id": 2, "recv_id":3}];
-        vm2.vswitch_layout = [{"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x01], "send_id": 0, "recv_id":1},
-                              {"mac_addr": [0x02,0x00,0x00,0x00,0xAA,0x02], "send_id": 2, "recv_id":3}];
+        vm0.mac_address = "02:00:00:00:AA:01";
+        vm1.mac_address = "02:00:00:00:AA:02";
+        vm2.mac_address = "02:00:00:00:AA:03";
 
+        vm0.vswitch_layout = VM_CONNECTION_VSWITCH_MACADDR_MAPPINGS("02:00:00:00:AA:02", "02:00:00:00:AA:03");
+        vm1.vswitch_layout = VM_CONNECTION_VSWITCH_MACADDR_MAPPINGS("02:00:00:00:AA:01", "02:00:00:00:AA:03");
+        vm2.vswitch_layout = VM_CONNECTION_VSWITCH_MACADDR_MAPPINGS("02:00:00:00:AA:01", "02:00:00:00:AA:02");
+
+        /* Initialise vmm devices */
         vm0_config.init_cons = [
-            {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
+            VM_CONNECTION_INIT_HANDLER,
         ];
         vm1_config.init_cons = [
-            {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
+            VM_CONNECTION_INIT_HANDLER,
         ];
         vm2_config.init_cons = [
-            {"init":"make_virtio_net_vswitch", "badge":CONNECTION_BADGE, "irq":"virtio_net_notify_vswitch"},
+            VM_CONNECTION_INIT_HANDLER,
         ];
 
 
