@@ -26,6 +26,13 @@ set(KernelMultibootGFXModeWidth 0 CACHE STRING "" FORCE)
 set(KernelMultibootGFXModeDepth 0 CACHE STRING "" FORCE)
 set(KernelMultibootGFXModeHeight 0 CACHE STRING "" FORCE)
 
+# cma34cr platform doesn't support HugePage or PCID
+set(KernelHugePage OFF CACHE BOOL "" FORCE)
+set(KernelSupportPCID OFF CACHE BOOL "" FORCE)
+
+# Ignore EPT violations
+set(LibSel4VMMIgnoreEPTViolation ON CACHE BOOL "" FORCE)
+
 # Define VMM configurations
 set(LibSel4VMMVESAFrameBuffer ON CACHE BOOL "" FORCE)
 
