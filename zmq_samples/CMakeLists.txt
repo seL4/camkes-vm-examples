@@ -18,7 +18,7 @@ project(zmq_samples)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
 
-if(${CAKEML_FILTER})
+if(CAKEML_FILTER)
     include("libs/cakeml_helpers.cmake")
 
     # Number of vms.
@@ -106,9 +106,8 @@ AddZMQBinary(worker)
 AddZMQBinary(pub)
 AddZMQBinary(sub)
 
-
 foreach(i RANGE ${NumberVMsLess1})
-    if(NOT ${CAKEML_FILTER})
+    if(NOT CAKEML_FILTER)
         AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d" overlay_vm${i})
     endif()
     # Add the buildroot overlay to our bare rootfs image
@@ -123,7 +122,7 @@ DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
 AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
 
 # Initialise CAmkES Root Server with addition CPP includes
-if(${CAKEML_FILTER})
+if(CAKEML_FILTER)
     DeclareCAmkESVMRootServer(zmq_cakeml.camkes)
 else()
     DeclareCAmkESVMRootServer(zmq_samples.camkes)
