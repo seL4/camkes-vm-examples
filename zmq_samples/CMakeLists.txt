@@ -18,12 +18,33 @@ project(zmq_samples)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
 
+if(${CAKEML_FILTER})
+    include("libs/cakeml_helpers.cmake")
+
+    # Number of vms.
+    set(NumberVMs 2)
+
+    CakeMLPP(components/cakeml-filter
+        libs/virtqueueScript.sml
+    )
+
+    DeclareCAmkESComponent(CakeMLFilter
+        CAKEML_SOURCES components/cakeml-filter/componentScript.sml
+                       ${CMAKE_CURRENT_BINARY_DIR}/components/cakeml-filter/virtqueueScript.sml
+        CAKEML_INCLUDES ${CAKEMLDIR}/semantics/alt_semantics
+        SOURCES components/cakeml-filter/global_endpoint.c
+        LIBS vswitch
+        CAKEML_HEAP_SIZE 50
+    )
+else()
+    # Number of vms.
+    set(NumberVMs 3)
+endif()
+
 # Define kernel config options
 set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
 set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
 
-# Number of vms.
-set(NumberVMs 3)
 # CMake foreach RANGE loops are 0..num inclusive....
 MATH(EXPR NumberVMsLess1 "${NumberVMs}-1")
 
@@ -87,7 +108,9 @@ AddZMQBinary(sub)
 
 
 foreach(i RANGE ${NumberVMsLess1})
-    AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d" overlay_vm${i})
+    if(NOT ${CAKEML_FILTER})
+        AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d" overlay_vm${i})
+    endif()
     # Add the buildroot overlay to our bare rootfs image
     AddOverlayDirToRootfs(overlay_vm${i} ${rootfs_file} "buildroot" "rootfs_install"
         output_rootfs_location_vm${i} rootfs_target_vm${i})
@@ -100,4 +123,8 @@ DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
 AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
 
 # Initialise CAmkES Root Server with addition CPP includes
-DeclareCAmkESVMRootServer(zmq_samples.camkes)
+if(${CAKEML_FILTER})
+    DeclareCAmkESVMRootServer(zmq_cakeml.camkes)
+else()
+    DeclareCAmkESVMRootServer(zmq_samples.camkes)
+endif()

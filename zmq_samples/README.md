@@ -204,3 +204,21 @@ The underlying mechanisms/interfaces used to implement cross vm communication ar
    to implement cross component communication
  - projects/vm/templates/seL3VirtQueues-from.template.c: Camkes template for a virtqueue connection end.
  - tools/camkes/libsel4camkes: Provides camkes bindings for libvirtqueue virtqueues backed by Camkes connector objects.
+
+## CakeML Filter Variant
+
+A variant of this app that uses a CakeML component in place of the 3rd VM can
+be built by providing an additional option to the build script:
+
+```
+$ ../init-build.sh -DCAMKES_VM_APP=zmq_samples -DCAKEML_FILTER=TRUE -DCAKEMLDIR=/path/to/cakeml
+```
+
+The CakeML component sits between the two VMs and proxies their traffic to each
+other. Presently it doesn't do any filtering.
+
+The following versions of CakeML and HOL are known to work:
+
+* CakeML: 66a35311787bb43f72e8e758209a4745f288cdfe
+* CakeML Binary Compiler: 1bb8663a0aeb377eb22aeb600de4bc536e647744
+* HOL: 7323105f50960bdec1b33c513576e5d1d313b62f
