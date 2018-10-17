@@ -10,16 +10,4 @@
 # @TAG(DATA61_BSD)
 #
 
-cmake_minimum_required(VERSION 3.8.2)
-
-
-# Common build definitions
-CAmkESAddImportPath(components)
-CAmkESAddImportPath(interfaces)
-
-# Add VM application
-add_subdirectory("apps/${CAMKES_VM_APP}")
-
-# VM components
-add_subdirectory(components/Vchan)
-add_subdirectory(components/VM)
+set(KernelARMPlatform "exynos5410" CACHE STRING "" FORCE)

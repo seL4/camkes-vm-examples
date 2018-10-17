@@ -16,10 +16,6 @@ project(camkes-arm-tk1-vm C)
 
 include(../../arm_vm_helpers.cmake)
 
-set(KernelARMPlatform "tk1" CACHE STRING "" FORCE)
-set(KernelArmSMMU ON CACHE BOOL "" FORCE)
-set(KernelARMSMMUInterruptEnable ON CACHE BOOL "" FORCE)
-
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_TK1")
 AddCamkesCPPFlag(cpp_flags

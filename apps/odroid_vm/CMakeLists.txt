@@ -16,8 +16,6 @@ project(camkes-arm-odroid-vm C)
 
 include(../../arm_vm_helpers.cmake)
 
-set(KernelARMPlatform "exynos5410" CACHE STRING "" FORCE)
-
 # Common build definitions
 CAmkESAddImportPath(components)
 CAmkESAddImportPath(interfaces)
