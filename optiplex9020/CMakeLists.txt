@@ -18,10 +18,6 @@ project(optiplex9020)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
 
-# Define kernel config options
-set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
-set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
-
 # Retrieve Init0 extra src files
 file(GLOB init0_extra src/*.c)
 # Declare VM component: Init0

@@ -18,10 +18,6 @@ project(minimal)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
 
-# Define kernel config options
-set(KernelX86Sel4Arch ia32 CACHE STRING "" FORCE)
-set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
-
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0)
 

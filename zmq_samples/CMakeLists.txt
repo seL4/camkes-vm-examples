@@ -41,10 +41,6 @@ else()
     set(NumberVMs 3)
 endif()
 
-# Define kernel config options
-set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
-set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
-
 # CMake foreach RANGE loops are 0..num inclusive....
 MATH(EXPR NumberVMsLess1 "${NumberVMs}-1")
 

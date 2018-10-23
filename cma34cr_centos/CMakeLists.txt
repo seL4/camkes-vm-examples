@@ -18,27 +18,6 @@ project(cma34cr_centos)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../util_libs/liblwip/lwip_helpers.cmake")
 
-# Define kernel config options
-set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
-set(KernelMaxNumNodes 2 CACHE STRING "" FORCE)
-set(KernelMultibootGFXMode linear CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeWidth 0 CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeDepth 0 CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeHeight 0 CACHE STRING "" FORCE)
-
-# cma34cr platform doesn't support HugePage or PCID
-set(KernelHugePage OFF CACHE BOOL "" FORCE)
-set(KernelSupportPCID OFF CACHE BOOL "" FORCE)
-
-# Ignore EPT violations
-set(LibSel4VMMIgnoreEPTViolation ON CACHE BOOL "" FORCE)
-
-# Define VMM configurations
-set(LibSel4VMMVESAFrameBuffer ON CACHE BOOL "" FORCE)
-
-# Enable LWIP
-set(LibLwip ON CACHE BOOL "" FORCE)
-
 # Retrieve Init0 extra src files
 file(GLOB init0_extra src/*.c)
 # Declare VM component: Init0

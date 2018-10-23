@@ -18,20 +18,6 @@ project(cma34cr_ubuntu)
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
 
-# Define kernel config options
-set(KernelX86Sel4Arch x86_64 CACHE STRING "" FORCE)
-set(KernelMaxNumNodes 2 CACHE STRING "" FORCE)
-set(KernelHugePage OFF CACHE BOOL "" FORCE)
-set(KernelSupportPCID OFF CACHE BOOL "" FORCE)
-
-set(KernelMultibootGFXMode linear CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeWidth 0 CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeDepth 0 CACHE STRING "" FORCE)
-set(KernelMultibootGFXModeHeight 0 CACHE STRING "" FORCE)
-
-# Define VMM configurations
-set(LibSel4VMMVESAFrameBuffer ON CACHE BOOL "" FORCE)
-
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0)
 
