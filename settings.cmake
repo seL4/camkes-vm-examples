@@ -22,3 +22,5 @@ include(${VM_SETTINGS_PATH})
 if(NOT CAMKES_VM_APP)
     set(CAMKES_VM_APP "optiplex9020" CACHE INTERNAL "")
 endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/${CAMKES_VM_APP}/app_settings.cmake")
