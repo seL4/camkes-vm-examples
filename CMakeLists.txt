@@ -12,10 +12,6 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-if(NOT CAMKES_VM_APP)
-    set(CAMKES_VM_APP "optiplex9020" CACHE INTERNAL "")
-endif()
-
 find_file(GLOBAL_COMPONENTS_PATH global-components.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/global-components/ CMAKE_FIND_ROOT_PATH_BOTH)
 mark_as_advanced(FORCE GLOBAL_COMPONENTS_PATH)
 if("${GLOBAL_COMPONENTS_PATH}" STREQUAL "GLOBAL_COMPONENTS_PATH-NOTFOUND")

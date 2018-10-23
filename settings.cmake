@@ -18,3 +18,7 @@ if("${VM_SETTINGS_PATH}" STREQUAL "VM_SETTINGS_PATH-NOTFOUND")
     message(FATAL_ERROR "Failed to find camkes_vm_settings.cmake. Consider cmake -DVM_SETTINGS_PATH=/path/to/camkes_vm_settings.cmake")
 endif()
 include(${VM_SETTINGS_PATH})
+
+if(NOT CAMKES_VM_APP)
+    set(CAMKES_VM_APP "optiplex9020" CACHE INTERNAL "")
+endif()
