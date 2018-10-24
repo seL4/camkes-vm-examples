@@ -11,6 +11,7 @@
  */
 
 import <VM/vm.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
 
 #include <configurations/vm.h>
 #include <configurations/connections.h>
@@ -49,13 +50,6 @@ component Init2 {
     VM_CONNECTION_COMPONENT_DEF(2,topology_def)
 }
 
-
-component virtqueueinit {
-    provides VirtQueue q;
-
-}
-
-
 assembly {
     composition {
         VM_COMPOSITION_DEF()
@@ -63,7 +57,7 @@ assembly {
         VM_PER_VM_COMP_DEF(1)
         VM_PER_VM_COMP_DEF(2)
 
-        component virtqueueinit init;
+        component VirtQueueInit init;
         VM_CONNECTION_CONNECT_VMS(init.q, topology_def)
 
     }

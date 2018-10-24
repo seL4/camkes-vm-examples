@@ -11,6 +11,7 @@
  */
 
 import <VM/vm.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
 
 #include <configurations/vm.h>
 #include <configurations/connections.h>
@@ -51,11 +52,6 @@ component Init1 {
     VM_CONNECTION_COMPONENT_DEF(1,topology_def)
 }
 
-component virtqueueinit {
-    provides VirtQueue q;
-
-}
-
 component CakeMLFilter {
     control;
     VM_CONNECTION_COMPONENT_DEF(2,topology_def)
@@ -69,8 +65,8 @@ assembly {
         VM_PER_VM_COMP_DEF(0)
         VM_PER_VM_COMP_DEF(1)
 
-        component virtqueueinit init0;
-        component virtqueueinit init1;
+        component VirtQueueInit init0;
+        component VirtQueueInit init1;
         component CakeMLFilter vm2;
 
         VM_CONNECTION_CONNECT_VMS(init0.q, filter_0_topology_def)
