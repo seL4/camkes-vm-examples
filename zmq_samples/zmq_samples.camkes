@@ -58,13 +58,13 @@ assembly {
         VM_PER_VM_COMP_DEF(2)
 
         component VirtQueueInit init;
-        VM_CONNECTION_CONNECT_VMS(init.q, topology_def)
+        VM_CONNECTION_CONNECT_VMS(init.init, topology_def)
 
     }
 
     configuration {
 
-        VM_CONNECTION_CONFIG(init.q, topology_def)
+        VM_CONNECTION_CONFIG(init.init, topology_def)
 
         /* Initialise vmm devices */
         vm0_config.init_cons = [

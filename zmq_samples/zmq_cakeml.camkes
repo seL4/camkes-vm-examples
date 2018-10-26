@@ -69,8 +69,8 @@ assembly {
         component VirtQueueInit init1;
         component CakeMLFilter vm2;
 
-        VM_CONNECTION_CONNECT_VMS(init0.q, filter_0_topology_def)
-        VM_CONNECTION_CONNECT_VMS(init1.q, filter_1_topology_def)
+        VM_CONNECTION_CONNECT_VMS(init0.init, filter_0_topology_def)
+        VM_CONNECTION_CONNECT_VMS(init1.init, filter_1_topology_def)
 
         connection seL4GlobalAsynch cakeml_filter_global_callback(from vm2.self, to vm2.virtqueue_wait);
     }
@@ -78,8 +78,8 @@ assembly {
     configuration {
 
         // TODO: adapt VM macros to correctly generate connections for this app
-        // VM_CONNECTION_CONFIG(init1.q, filter_0_topology_def)
-        // VM_CONNECTION_CONFIG(init2.q, filter_1_topology_def)
+        // VM_CONNECTION_CONFIG(init1.init, filter_0_topology_def)
+        // VM_CONNECTION_CONFIG(init2.init, filter_1_topology_def)
 
         vm0.ether_2_send_id = 0;
         vm0.ether_2_send_attributes = "02";
@@ -121,8 +121,8 @@ assembly {
         vm2.ether_1_recv_global_endpoint = "vm1";
         vm2.ether_1_recv_badge = CONNECTION_BADGE;
 
-        init0.q_topology = [{ "drv" : "vm0.ether_2_send" , "dev" : "vm2.ether_0_recv"}, { "drv" : "vm2.ether_0_send" , "dev" : "vm0.ether_2_recv"},];
-        init1.q_topology = [{ "drv" : "vm1.ether_2_send" , "dev" : "vm2.ether_1_recv"}, { "drv" : "vm2.ether_1_send" , "dev" : "vm1.ether_2_recv"},];
+        init0.init_topology = [{ "drv" : "vm0.ether_2_send" , "dev" : "vm2.ether_0_recv"}, { "drv" : "vm2.ether_0_send" , "dev" : "vm0.ether_2_recv"},];
+        init1.init_topology = [{ "drv" : "vm1.ether_2_send" , "dev" : "vm2.ether_1_recv"}, { "drv" : "vm2.ether_1_send" , "dev" : "vm1.ether_2_recv"},];
 
         /* Initialise vmm devices */
         vm0_config.init_cons = [
