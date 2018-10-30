@@ -24,3 +24,9 @@ if(NOT CAMKES_VM_APP)
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/${CAMKES_VM_APP}/app_settings.cmake")
+
+if(SIMULATION)
+    ApplyCommonSimulationSettings(${KernelArch})
+    # Force IOMMU back on after CommonSimulationSettings disabled it
+    set(KernelIOMMU ON CACHE BOOL "" FORCE)
+endif()

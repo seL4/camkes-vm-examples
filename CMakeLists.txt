@@ -21,3 +21,7 @@ include(${GLOBAL_COMPONENTS_PATH})
 
 
 add_subdirectory("${CAMKES_VM_APP}")
+
+if(SIMULATION)
+    GenerateSimulateScript()
+endif()
