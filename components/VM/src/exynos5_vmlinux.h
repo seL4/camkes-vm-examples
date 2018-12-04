@@ -25,8 +25,8 @@
 #define LINUX_RAM_SIZE    0x40000000
 #define PLAT_RAM_END      0xc0000000
 #define LINUX_RAM_OFFSET  0
+#define DTB_ADDR          (LINUX_RAM_BASE + 0x0F000000)
 
-int load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name);
 
 void vusb_notify(void);
 

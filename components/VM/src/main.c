@@ -469,6 +469,113 @@ static void restart_event(void *arg) {
     seL4_TCB_WriteRegisters(restart_tcb, true, 0, 1, &context);
 }
 
+
+uint32_t
+install_linux_dtb(vm_t* vm, const char* dtb_name)
+{
+    void* file;
+    unsigned long size;
+    uint32_t dtb_addr;
+
+    /* Retrieve the file data */
+    file = cpio_get_file(_cpio_archive, dtb_name, &size);
+    if (file == NULL) {
+        printf("Error: Linux dtb file \'%s\' not found\n", dtb_name);
+        return 0;
+    }
+    if (image_get_type(file) != IMG_DTB) {
+        printf("Error: \'%s\' is not a device tree\n", dtb_name);
+        return 0;
+    }
+
+    /* Copy the tree to the VM */
+    dtb_addr = DTB_ADDR;
+    if (vm_copyout(vm, file, dtb_addr, size)) {
+        printf("Error: Failed to load device tree \'%s\'\n", dtb_name);
+        return 0;
+    } else {
+        return dtb_addr;
+    }
+
+}
+
+void*
+install_linux_kernel(vm_t* vm, const char* kernel_name)
+{
+    void* file;
+    unsigned long size;
+    uintptr_t entry;
+
+    /* Retrieve the file data */
+    file = cpio_get_file(_cpio_archive, kernel_name, &size);
+    if (file == NULL) {
+        printf("Error: Unable to find kernel image \'%s\'\n", kernel_name);
+        return NULL;
+    }
+
+    /* Determine the load address */
+    switch (image_get_type(file)) {
+    case IMG_BIN:
+        entry = LINUX_RAM_BASE + 0x8000;
+        break;
+    case IMG_ZIMAGE:
+        entry = zImage_get_load_address(file, LINUX_RAM_BASE);
+        break;
+    default:
+        printf("Error: Unknown Linux image format for \'%s\'\n", kernel_name);
+        return NULL;
+    }
+    /* Load the image */
+    if (vm_copyout(vm, file, entry, size)) {
+        printf("Error: Failed to load \'%s\'\n", kernel_name);
+        return NULL;
+    } else {
+        return (void*)entry;
+    }
+}
+
+static int
+load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
+{
+    void* entry;
+    uint32_t dtb;
+    int err;
+
+    pwr_token.linux_bin = kernel_name;
+    pwr_token.device_tree = dtb_name;
+
+    /* Install devices */
+    err = install_linux_devices(vm);
+    if (err) {
+        printf("Error: Failed to install Linux devices\n");
+        return -1;
+    }
+    /* Route IRQs */
+    err = route_irqs(vm, _irq_server);
+    if (err) {
+        return -1;
+    }
+    /* Load kernel */
+    entry = install_linux_kernel(vm, kernel_name);
+    if (!entry) {
+        return -1;
+    }
+    /* Load device tree */
+    dtb = install_linux_dtb(vm, dtb_name);
+    if (!dtb) {
+        return -1;
+    }
+
+    /* Set boot arguments */
+    err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb);
+    if (err) {
+        printf("Error: Failed to set boot arguments\n");
+        return -1;
+    }
+
+    return 0;
+}
+
 int
 main_continued(void)
 {

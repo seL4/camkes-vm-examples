@@ -178,9 +178,8 @@
 #define PLAT_RAM_END      0xffffffff
 /* the offset between actual physcial memory and guest physical memory */
 #define LINUX_RAM_OFFSET  (LINUX_RAM_PADDR_BASE - LINUX_RAM_BASE)
+#define DTB_ADDR          (LINUX_RAM_BASE + 0x01000000)
 
-
-int load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name);
 
 void vusb_notify(void);
 

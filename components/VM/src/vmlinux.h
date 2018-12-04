@@ -12,6 +12,8 @@
 #ifndef VMLINUX_H
 #define VMLINUX_H
 
+#include <sel4utils/irq_server.h>
+
 #if defined(CONFIG_PLAT_TK1)
 #include "tk1_vmlinux.h"
 
@@ -21,6 +23,16 @@
 #else
 #error "Unknown SoC"
 #endif
+#define MACH_TYPE_SPECIAL    ~0
+#define MACH_TYPE            MACH_TYPE_SPECIAL
+
+int install_linux_devices(vm_t* vm);
+int route_irqs(vm_t* vm, irq_server_t irq_server);
+typedef struct {
+    const char* linux_bin;
+    const char* device_tree;
+} pwr_token_t;
+extern pwr_token_t pwr_token;
 
 #endif /* VMLINUX_H */
 

@@ -36,11 +36,8 @@
 extern int start_extra_frame_caps; 
 
 #define ATAGS_ADDR        (LINUX_RAM_BASE + 0x100)
-#define DTB_ADDR          (LINUX_RAM_BASE + 0x0F000000)
 
 #define MACH_TYPE_EXYNOS5410 4151
-#define MACH_TYPE_SPECIAL    ~0
-#define MACH_TYPE            MACH_TYPE_SPECIAL
 
 #ifdef CONFIG_VM_EMMC2_NODMA
 #define FEATURE_MMC_NODMA
@@ -76,10 +73,7 @@ static const int linux_pt_irqs[] = {
 #endif
 };
 
-struct pwr_token {
-    const char* linux_bin;
-    const char* device_tree;
-} pwr_token;
+pwr_token_t pwr_token;
 
 static void* install_linux_kernel(vm_t* vm, const char* kernel_name);
 static uint32_t install_linux_dtb(vm_t* vm, const char* dtb_name);
@@ -303,7 +297,7 @@ configure_clocks(vm_t *vm)
     vm_clock_provide(clock_dev, CLK_SCLKCPLL);
 }
 
-static int
+int
 install_linux_devices(vm_t* vm)
 {
     int err;
@@ -385,7 +379,7 @@ vcombiner_irq_handler(struct irq_data* irq)
     irq_data_ack_irq(irq);
 }
 
-static int
+int
 route_irqs(vm_t* vm, irq_server_t irq_server)
 {
     int i;
@@ -410,111 +404,6 @@ route_irqs(vm_t* vm, irq_server_t irq_server)
         }
         irq_data->token = (void*)virq;
     }
-    return 0;
-}
-
-static uint32_t
-install_linux_dtb(vm_t* vm, const char* dtb_name)
-{
-    void* file;
-    unsigned long size;
-    uint32_t dtb_addr;
-
-    /* Retrieve the file data */
-    file = cpio_get_file(_cpio_archive, dtb_name, &size);
-    if (file == NULL) {
-        printf("Error: Linux dtb file '%s' not found\n", dtb_name);
-        return 0;
-    }
-    if (image_get_type(file) != IMG_DTB) {
-        printf("Error: '%s' is not a device tree\n", dtb_name);
-        return 0;
-    }
-
-    /* Copy the tree to the VM */
-    dtb_addr = DTB_ADDR;
-    if (vm_copyout(vm, file, dtb_addr, size)) {
-        printf("Error: Failed to load device tree '%s'\n", dtb_name);
-        return 0;
-    } else {
-        return dtb_addr;
-    }
-}
-
-static void*
-install_linux_kernel(vm_t* vm, const char* kernel_name)
-{
-    void* file;
-    unsigned long size;
-    uintptr_t entry;
-
-    /* Retrieve the file data */
-    file = cpio_get_file(_cpio_archive, kernel_name, &size);
-    if (file == NULL) {
-        printf("Error: Unable to find kernel image '%s'\n", kernel_name);
-        return NULL;
-    }
-
-    /* Determine the load address */
-    switch (image_get_type(file)) {
-    case IMG_BIN:
-        entry = LINUX_RAM_BASE + 0x8000;
-        break;
-    case IMG_ZIMAGE:
-        entry = zImage_get_load_address(file, LINUX_RAM_BASE);
-        break;
-    default:
-        printf("Error: Unknown Linux image format for '%s'\n", kernel_name);
-        return NULL;
-    }
-
-    /* Load the image */
-    if (vm_copyout(vm, file, entry, size)) {
-        printf("Error: Failed to load '%s'\n", kernel_name);
-        return NULL;
-    } else {
-        return (void*)entry;
-    }
-}
-
-int
-load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
-{
-    void* entry;
-    uint32_t dtb;
-    int err;
-
-    pwr_token.linux_bin = kernel_name;
-    pwr_token.device_tree = dtb_name;
-
-    /* Install devices */
-    err = install_linux_devices(vm);
-    if (err) {
-        printf("Error: Failed to install Linux devices\n");
-        return -1;
-    }
-    /* Route IRQs */
-    err = route_irqs(vm, _irq_server);
-    if (err) {
-        return -1;
-    }
-    /* Load kernel */
-    entry = install_linux_kernel(vm, kernel_name);
-    if (!entry) {
-        return -1;
-    }
-    /* Load device tree */
-    dtb = install_linux_dtb(vm, dtb_name);
-    if (!dtb) {
-        return -1;
-    }
-    /* Set boot arguments */
-    err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb);
-    if (err) {
-        printf("Error: Failed to set boot arguments\n");
-        return -1;
-    }
-
     return 0;
 }
 
