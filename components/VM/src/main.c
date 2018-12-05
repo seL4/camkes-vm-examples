@@ -31,6 +31,12 @@
 #include <sel4platsupport/io.h>
 
 #include <sel4arm-vmm/vm.h>
+#include <sel4arm-vmm/devices.h>
+#include <sel4arm-vmm/devices/vgic.h>
+#include <sel4arm-vmm/devices/vram.h>
+#include <sel4arm-vmm/devices/vusb.h>
+#include <sel4arm-vmm/images.h>
+
 #include <sel4arm-vmm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
@@ -41,7 +47,6 @@
 #include <camkes/tls.h>
 
 #include "vmlinux.h"
-#include "cmks_vchan_vm.h"
 #include "fsclient.h"
 extern void *fs_buf;
 int start_extra_frame_caps;
@@ -690,10 +695,6 @@ main_continued(void)
         seL4_DebugHalt();
         return -1;
     }
-
-#ifdef CONFIG_VM_VCHAN
-    vm_vchan_setup(&vm);
-#endif //CONFIG_VM_VCHAN
 
     /* Power on */
     printf("Starting VM\n\n");

@@ -218,27 +218,6 @@ vusb_notify(void)
 
 #endif /* FEATURE_VUSB */
 
-#ifdef CONFIG_VM_VCHAN
-/* VCHAN */
-
-static int
-vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
-    uint32_t data = fault_get_data(fault);
-    vchan_entry_point(vm, data);
-    // fflush(stdout);
-    advance_fault(fault);
-    return 0;
-}
-
-struct device vchan_dev = {
-        .devid = DEV_CUSTOM,
-        .name = "vchan-driver",
-        .pstart = 0x2040000,
-        .size = 0x1000,
-        .handle_page_fault = &vchan_device_fault_handler,
-        .priv = NULL,
-    };
-#endif //CONFIG_VM_VCHAN
 
 void
 configure_clocks(vm_t *vm)
@@ -281,11 +260,6 @@ plat_install_linux_devices(vm_t* vm)
     /* Device for signalling to the VM */
     err = vm_add_device(vm, &pwmsig_dev);
     assert(!err);
-
-#ifdef CONFIG_VM_VCHAN
-    err = vm_add_device(vm, &vchan_dev);
-    assert(!err);
-#endif //CONFIG_VM_VCHAN
 
     /* Install pass through devices */
     for (i = 0; i < ARRAY_SIZE(linux_pt_devices); i++) {

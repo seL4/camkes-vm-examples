@@ -73,6 +73,10 @@ if(Tk1DeviceFwd)
     list(APPEND vm_src src/modules/plat/tk1/device_fwd.c)
 endif()
 
+if(VmVchan)
+    list(APPEND vm_src src/modules/vchan.c)
+endif()
+
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}

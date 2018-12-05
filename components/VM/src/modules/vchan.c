@@ -10,19 +10,20 @@
  * @TAG(DATA61_GPL)
  */
 #include <autoconf.h>
+#include "../vmlinux.h"
 
-#ifdef CONFIG_VM_VCHAN
 #include <sel4vchan/vmm_manager.h>
 #include <sel4vchan/vchan_copy.h>
 #include <sel4vchan/vchan_sharemem.h>
 #include <sel4vchan/libvchan.h>
 #include <sel4vchan/vchan_component.h>
 
+#include <sel4arm-vmm/images.h>
+#include <sel4arm-vmm/plat/devices.h>
+
 #include <sel4arm-vmm/vchan_vm_component.h>
 
-#include <VM.h>
-
-#include "cmks_vchan_vm.h"
+#include <camkes.h>
 
 #define VM_VCHAN_OUTPUT_LVL 1
 
@@ -81,7 +82,7 @@ static camkes_vchan_con_t vchan_camkes_component = {
 };
 
 /* Set up relevent runtime systems for vchan */
-void vm_vchan_setup(vm_t *vm) {
+static void vm_vchan_setup(vm_t *vm) {
     vm->lock = &vm_lock_lock;
     vm->unlock = &vm_lock_unlock;
 
@@ -358,7 +359,7 @@ static int driver_connect(void *data, uint64_t cmd) {
     Entry point for vchan calls in the hypervisor
         Determine and perform a given command
 */
-void vchan_entry_point(vm_t *vm, uint32_t data) {
+static void vchan_entry_point(vm_t *vm, uint32_t data) {
     char args_buffer[256];
     run_vmm = vm;
     int cmd;
@@ -384,4 +385,32 @@ void vchan_entry_point(vm_t *vm, uint32_t data) {
     vm_copyout(vm, &args_buffer, data, sizeof(vmcall_args_t));
     DVMVCHAN(4, "entry: returning from call with |%d|\n", cmd);
 }
-#endif //CONFIG_VM_VCHAN
+
+
+static int
+vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
+    uint32_t data = fault_get_data(fault);
+    vchan_entry_point(vm, data);
+    // fflush(stdout);
+    advance_fault(fault);
+    return 0;
+}
+
+struct device vchan_dev = {
+        .devid = DEV_CUSTOM,
+        .name = "vchan-driver",
+        .pstart = 0x2040000,
+        .size = 0x1000,
+        .handle_page_fault = &vchan_device_fault_handler,
+        .priv = NULL,
+    };
+
+static void vchan_init_module(vm_t *vm, void *cookie) {
+	int err = vm_add_device(vm, &vchan_dev);
+    assert(!err);
+
+    vm_vchan_setup(&vm);
+
+}
+
+DEFINE_MODULE(vchan, NULL, vchan_init_module)
