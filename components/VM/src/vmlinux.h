@@ -34,5 +34,6 @@ typedef struct {
 } pwr_token_t;
 extern pwr_token_t pwr_token;
 
+irq_handler_fn get_custom_irq_handler(irq_t irq) WEAK;
 #endif /* VMLINUX_H */
 

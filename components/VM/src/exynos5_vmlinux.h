@@ -27,6 +27,12 @@
 #define LINUX_RAM_OFFSET  0
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x0F000000)
 
+static const int linux_pt_irqs[] = {
+    27, 85, 107, 109,
+#ifndef FEATURE_VUSB
+    103
+#endif
+};
 
 void vusb_notify(void);
 

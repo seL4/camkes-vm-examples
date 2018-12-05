@@ -445,6 +445,51 @@ static void restart_event(void *arg) {
 }
 
 
+static void
+do_irq_server_ack(void* token)
+{
+    struct irq_data* irq_data = (struct irq_data*)token;
+    irq_data_ack_irq(irq_data);
+}
+
+static void
+irq_handler(struct irq_data* irq_data)
+{
+    virq_handle_t virq;
+    int err;
+    virq = (virq_handle_t)irq_data->token;
+    err = vm_inject_IRQ(virq);
+    assert(!err);
+}
+
+int
+route_irqs(vm_t* vm, irq_server_t irq_server)
+{
+    int i;
+    for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
+        irq_t irq = linux_pt_irqs[i];
+        struct irq_data* irq_data;
+        virq_handle_t virq;
+        irq_handler_fn handler = NULL;
+        if (get_custom_irq_handler) {
+            handler = get_custom_irq_handler(irq);
+        }
+        if (handler == NULL) {
+            handler = &irq_handler;
+        }
+        irq_data = irq_server_register_irq(irq_server, irq, handler, NULL);
+        if (!irq_data) {
+            return -1;
+        }
+        virq = vm_virq_new(vm, irq, &do_irq_server_ack, irq_data);
+        if (virq == NULL) {
+            return -1;
+        }
+        irq_data->token = (void*)virq;
+    }
+    return 0;
+}
+
 void*
 install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
 {
