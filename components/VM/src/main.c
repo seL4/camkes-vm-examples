@@ -596,9 +596,6 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
     void* dtb;
     int err;
 
-    pwr_token.linux_bin = kernel_name;
-    pwr_token.device_tree = dtb_name;
-
     /* Install devices */
     err = install_linux_devices(vm);
     if (err) {

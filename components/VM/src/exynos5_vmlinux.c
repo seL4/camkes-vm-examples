@@ -66,8 +66,6 @@ static const struct device *linux_pt_devices[] = {
 #endif
 };
 
-pwr_token_t pwr_token;
-
 extern void* install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type);
 
 static int
@@ -82,42 +80,10 @@ void restart_component(void);
 static int
 vm_reboot_cb(vm_t* vm, void* token)
 {
-#if 0
-    struct pwr_token* pwr_token = (struct pwr_token*)token;
-    uint32_t dtb_addr;
-    void* entry;
-    int err;
-#endif
     restart_component();
-//    printf("Received reboot from linux\n");
-
-//    pwm_vmsig(0);
-//    vm_sem_wait();
 
     return 0;
 
-//    pwm_linux_action(1);
-    return -1;
-#if 0
-    entry = install_linux_kernel(vm, pwr_token->linux_bin);
-    dtb_addr = install_linux_dtb(vm, pwr_token->device_tree);
-    if (entry == NULL || dtb_addr == 0) {
-        printf("Failed to reload linux\n");
-        return -1;
-    }
-    err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb_addr);
-    if (err) {
-        printf("Failed to set boot args\n");
-        return -1;
-    }
-    err = vm_start(vm);
-    if (err) {
-        printf("Failed to restart linux\n");
-        return -1;
-    }
-    printf("VM restarted\n");
-    return 0;
-#endif
 }
 
 static int
@@ -299,7 +265,7 @@ plat_install_linux_devices(vm_t* vm)
     assert(!err);
 
     /* Add hooks for specific power management hooks */
-    err = vm_install_vpower(vm, &vm_shutdown_cb, &pwr_token, &vm_reboot_cb, &pwr_token);
+    err = vm_install_vpower(vm, &vm_shutdown_cb, NULL, &vm_reboot_cb, NULL);
     assert(!err);
     /* Install virtual USB */
     err = install_vusb(vm);

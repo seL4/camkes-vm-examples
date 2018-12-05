@@ -57,45 +57,6 @@ static const struct device *linux_ram_devices[] = {
 
 
 
-pwr_token_t pwr_token;
-
-extern void* install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type);
-
-static int
-vm_shutdown_cb(vm_t* vm, void* token)
-{
-    printf("Received shutdown from linux\n");
-    return -1;
-}
-
-static int
-vm_reboot_cb(vm_t* vm, void* token)
-{
-    pwr_token_t* pwr_token = (struct pwr_token*)token;
-    uint32_t dtb_addr;
-    void* entry;
-    int err;
-    printf("Received reboot from linux\n");
-    entry = install_vm_module(vm, pwr_token->linux_bin, IMG_BIN);
-    dtb_addr = install_vm_module(vm, pwr_token->device_tree, IMG_DTB);
-    if (entry == NULL || dtb_addr == 0) {
-        printf("Failed to reload linux\n");
-        return -1;
-    }
-    err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb_addr);
-    if (err) {
-        printf("Failed to set boot args\n");
-        return -1;
-    }
-    err = vm_start(vm);
-    if (err) {
-        printf("Failed to restart linux\n");
-        return -1;
-    }
-    printf("VM restarted\n");
-    return 0;
-}
-
 #ifdef CONFIG_TK1_DEVICE_FWD
 
 struct generic_forward_cfg camkes_uart_d = {
@@ -114,13 +75,6 @@ plat_install_linux_devices(vm_t* vm)
 {
     int err;
     int i;
-
-#if CONFIG_APP_LINUX_SECURE
-    /* Add hooks for specific power management hooks */
-    err = vm_install_vpower(vm, &vm_shutdown_cb, &pwr_token, &vm_reboot_cb, &pwr_token);
-    assert(!err);
-#else
-#endif /* CONFIG_APP_LINUX_SECURE */
 
 #ifdef CONFIG_TK1_DEVICE_FWD
     /* Configure UART forward device */
