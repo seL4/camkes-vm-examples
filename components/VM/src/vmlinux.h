@@ -26,7 +26,7 @@
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
 
-int install_linux_devices(vm_t* vm);
+int plat_install_linux_devices(vm_t* vm);
 int route_irqs(vm_t* vm, irq_server_t irq_server);
 typedef struct {
     const char* linux_bin;

@@ -463,6 +463,24 @@ irq_handler(struct irq_data* irq_data)
 }
 
 int
+install_linux_devices(vm_t* vm)
+{
+    int err;
+    int i;
+    /* Install virtual devices */
+    err = vm_install_vgic(vm);
+    assert(!err);
+    err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
+    assert(!err);
+
+    err = plat_install_linux_devices(vm);
+    assert(!err);
+
+    return 0;
+
+}
+
+int
 route_irqs(vm_t* vm, irq_server_t irq_server)
 {
     int i;

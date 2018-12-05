@@ -209,15 +209,10 @@ struct generic_forward_cfg camkes_clk_car =  {
 
 #endif
 int
-install_linux_devices(vm_t* vm)
+plat_install_linux_devices(vm_t* vm)
 {
     int err;
     int i;
-    /* Install virtual devices */
-    err = vm_install_vgic(vm);
-    assert(!err);
-    err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
-    assert(!err);
 
     /* Install virtual USB */
     err = install_vusb(vm);
