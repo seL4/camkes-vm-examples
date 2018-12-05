@@ -29,11 +29,6 @@
 #include <cpio/cpio.h>
 
 
-#define ATAGS_ADDR        (LINUX_RAM_BASE + 0x100)
-
-#define PAGE_SIZE_BITS 12
-
-
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,
     &dev_usb3,

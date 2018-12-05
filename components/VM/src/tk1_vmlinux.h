@@ -14,11 +14,6 @@
 
 #include <sel4arm-vmm/vm.h>
 
-#define VUSB_ADDRESS         0x33330000
-#define VUSB_IRQ             198
-#define VUSB_NINDEX          5
-#define VUSB_NBADGE          0x123
-
 #define INTERRUPT_VTIMER                27
 #define INTERRUPT_TMR1                  32
 #define INTERRUPT_TMR2                  33
@@ -334,9 +329,6 @@ ARDPAUX                        ,
 /* the offset between actual physcial memory and guest physical memory */
 #define LINUX_RAM_OFFSET  (LINUX_RAM_PADDR_BASE - LINUX_RAM_BASE)
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x01000000)
-
-
-void vusb_notify(void);
 
 #endif /* VMLINUX_H */
 

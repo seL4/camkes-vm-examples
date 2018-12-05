@@ -502,7 +502,7 @@ install_linux_devices(vm_t* vm)
 
 }
 
-int
+static int
 route_irqs(vm_t* vm, irq_server_t irq_server)
 {
     int i;
@@ -719,8 +719,8 @@ main_continued(void)
             } else {
                 printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
             }
-        } else if (sender_badge == VUSB_NBADGE) {
 #ifdef FEATURE_VUSB
+        } else if (sender_badge == VUSB_NBADGE) {
             vusb_notify();
 #endif
         } else {
