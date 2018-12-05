@@ -19,8 +19,6 @@
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
 
-int plat_install_linux_devices(vm_t* vm);
-
 irq_handler_fn get_custom_irq_handler(irq_t irq) WEAK;
 
 typedef struct vmm_module {

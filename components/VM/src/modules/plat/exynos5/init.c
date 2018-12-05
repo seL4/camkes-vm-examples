@@ -31,7 +31,6 @@
 
 #include <camkes.h>
 
-#define ATAGS_ADDR        (LINUX_RAM_BASE + 0x100)
 
 #define MACH_TYPE_EXYNOS5410 4151
 
@@ -43,10 +42,6 @@
 #define FEATURE_VUSB
 #endif
 
-extern char _cpio_archive[];
-
-extern vka_t _vka;
-extern vspace_t _vspace;
 extern irq_server_t _irq_server;
 extern seL4_CPtr _fault_endpoint;
 
@@ -61,8 +56,6 @@ static const struct device *linux_pt_devices[] = {
     &dev_usb2_ctrl
 #endif
 };
-
-extern void* install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type);
 
 static int
 vm_shutdown_cb(vm_t* vm, void* token)
