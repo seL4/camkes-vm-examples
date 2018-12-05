@@ -21,5 +21,30 @@ set(cpp_flags "-DKERNELARMPLATFORM_TK1")
 AddCamkesCPPFlag(cpp_flags
     CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
+
+# Different device tree if compiling with Tk1Insecure
+if(Tk1Insecure)
+    set(device_tree_src "linux-tk1-nonsecured.dts")
+else()
+    set(device_tree_src "linux-tk1-secure.dts")
+endif()
+
+if(VmTk1InitrdRootfs)
+    set(linux_binary_name "linux-tk1-initrd")
+else()
+    set(linux_binary_name "linux-tk1-debian")
+endif()
+add_custom_command(OUTPUT linux/linux-dtb
+    COMMAND bash -c "which dtc && dtc -I dts -O dtb ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
+    VERBATIM)
+# Create custom target for setting the dtb
+add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
+
+# Add Linux VM images into file server
+AddToFileServer("linux" "${CMAKE_CURRENT_LIST_DIR}/../../linux/${linux_binary_name}")
+AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+DefineCAmkESVMFileServer()
+
+
 # Declare tk1 root server
 DeclareCAmkESRootserver(vm_tk1.camkes CPP_FLAGS ${cpp_flags})

@@ -19,6 +19,13 @@ if("${GLOBAL_COMPONENTS_PATH}" STREQUAL "GLOBAL_COMPONENTS_PATH-NOTFOUND")
 endif()
 include(${GLOBAL_COMPONENTS_PATH})
 
+find_file(CAMKES_VM_HELPERS_PATH camkes_vm_helpers.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/camkes-vm/ CMAKE_FIND_ROOT_PATH_BOTH)
+mark_as_advanced(FORCE CAMKES_VM_HELPERS_PATH)
+if("${CAMKES_VM_HELPERS_PATH}" STREQUAL "CAMKES_VM_HELPERS_PATH-NOTFOUND")
+    message(FATAL_ERROR "Failed to find camkes_vm_helpers.cmake. Consider cmake -DCAMKES_VM_HELPERS_PATH=/path/to/camkes_vm_helpers.cmake")
+endif()
+include(${CAMKES_VM_HELPERS_PATH})
+
 # Common build definitions
 CAmkESAddImportPath(components)
 CAmkESAddImportPath(interfaces)

@@ -65,58 +65,6 @@ config_option(Tk1Insecure TK1_INSECURE
 
 add_config_library(arm_vm "${configure_string}")
 
-set(linux_binary_name "linux")
-set(device_tree_src "")
-
-if("${KernelARMPlatform}" STREQUAL "exynos5410")
-    # Building exynos5410
-    # Different device tree if compiling with VmVUSB
-    if(VmVUSB)
-        set(device_tree_src "linux-secure-vusb-dtb")
-    else()
-        set(device_tree_src "linux-secure-dtb")
-    endif()
-    # Sed the device tree updating the rootfs name
-    add_custom_command(OUTPUT linux/linux-dtb
-        COMMAND bash -c "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
-        VERBATIM)
-    # Create custom target for setting the dtb
-    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
-elseif("${KernelARMPlatform}" STREQUAL "tk1")
-    # Building for TK1
-    # Different device tree if compiling with Tk1Insecure
-    if(Tk1Insecure)
-        set(device_tree_src "linux-tk1-nonsecured.dts")
-    else()
-        set(device_tree_src "linux-tk1-secure.dts")
-    endif()
-
-    if(VmTk1InitrdRootfs)
-        set(linux_binary_name "linux-tk1-initrd")
-    else()
-        set(linux_binary_name "linux-tk1-debian")
-    endif()
-    add_custom_command(OUTPUT linux/linux-dtb
-        COMMAND bash -c "which dtc && dtc -I dts -O dtb ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
-        VERBATIM)
-    # Create custom target for setting the dtb
-    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
-else()
-    message(FATAL_ERROR "Using an unsupported platform - ${KernelARMPlatform}")
-endif()
-
-find_file(CAMKES_VM_HELPERS_PATH camkes_vm_helpers.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/camkes-vm/ CMAKE_FIND_ROOT_PATH_BOTH)
-mark_as_advanced(FORCE CAMKES_VM_HELPERS_PATH)
-if("${CAMKES_VM_HELPERS_PATH}" STREQUAL "CAMKES_VM_HELPERS_PATH-NOTFOUND")
-    message(FATAL_ERROR "Failed to find camkes_vm_helpers.cmake. Consider cmake -DCAMKES_VM_HELPERS_PATH=/path/to/camkes_vm_helpers.cmake")
-endif()
-include(${CAMKES_VM_HELPERS_PATH})
-
-# Add Linux VM images into file server
-AddToFileServer("linux" "${CMAKE_CURRENT_LIST_DIR}/../../linux/${linux_binary_name}")
-AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
-DefineCAmkESVMFileServer()
-
 file(GLOB vm_src src/*.c)
 
 # Declare the CAmkES VM component

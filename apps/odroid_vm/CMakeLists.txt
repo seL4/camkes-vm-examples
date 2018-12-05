@@ -42,5 +42,28 @@ add_subdirectory(components/timer)
 if(VmVchan)
     add_subdirectory(components/helloworld)
 endif()
+
+
+set(linux_binary_name "${CMAKE_CURRENT_LIST_DIR}/../../linux/linux")
+
+# Different device tree if compiling with VmVUSB
+if(VmVUSB)
+    set(device_tree_src "linux-secure-vusb-dtb")
+else()
+    set(device_tree_src "linux-secure-dtb")
+endif()
+# Sed the device tree updating the rootfs name
+add_custom_command(OUTPUT linux/linux-dtb
+    COMMAND bash -c "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
+    VERBATIM)
+# Create custom target for setting the dtb
+add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
+
+# Add Linux VM images into file server
+AddToFileServer("linux" "${linux_binary_name}")
+AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+DefineCAmkESVMFileServer()
+
+
 # Declare odroid root server
 DeclareCAmkESRootserver(vm_odroid.camkes CPP_FLAGS ${cpp_flags})
