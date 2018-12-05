@@ -9,14 +9,26 @@
  *
  * @TAG(DATA61_BSD)
  */
+import <std_connector.camkes>;
+import <global-connectors.camkes>;
 
+import <FileServerInterface.camkes>;
+
+import <FileServer/FileServer.camkes>;
 import "VM.camkes";
 
 assembly {
     composition {
         component VM vm;
+        component FileServer fserv;
+
+        connection seL4RPCDataport fs(from vm.fs, to fserv.fs_ctrl);
     }
     configuration {
+        fserv.heap_size = 165536;
+        vm.fs_attributes = "0";
+        vm.fs_shmem_size = 0x1000;
+
         vm.asid_pool = true;
 
         vm.simple = true;

@@ -30,19 +30,20 @@
 #include <sel4platsupport/platsupport.h>
 #include <sel4platsupport/io.h>
 
-#include <cpio/cpio.h>
-
 #include <sel4arm-vmm/vm.h>
 #include <sel4arm-vmm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
+
+#include <elf/elf.h>
 
 #include <camkes.h>
 #include <camkes/tls.h>
 
 #include "vmlinux.h"
 #include "cmks_vchan_vm.h"
-
+#include "fsclient.h"
+extern void *fs_buf;
 int start_extra_frame_caps;
 
 int VM_PRIO = 100;
@@ -71,33 +72,7 @@ irq_server_t _irq_server;
 
 struct ps_io_ops _io_ops;
 
-extern char _cpio_archive[];
-
 static jmp_buf restart_jmp_buf;
-
-static void
-print_cpio_info(void)
-{
-    struct cpio_info info;
-    const char* name;
-    unsigned long size;
-    int i;
-
-    cpio_info(_cpio_archive, &info);
-
-    printf("CPIO: %d files found.\n", info.file_count);
-    assert(info.file_count > 0);
-    for (i = 0; i < info.file_count; i++) {
-        void * addr;
-        char buf[info.max_path_sz + 1];
-        buf[info.max_path_sz] = '\0';
-        addr = cpio_get_entry(_cpio_archive, i, &name, &size);
-        assert(addr);
-        strncpy(buf, name, info.max_path_sz);
-        printf("%d) %-20s  0x%08x, %8ld bytes\n", i, buf, (uint32_t)addr, size);
-    }
-    printf("\n");
-}
 
 void camkes_make_simple(simple_t *simple);
 
@@ -470,75 +445,75 @@ static void restart_event(void *arg) {
 }
 
 
-uint32_t
-install_linux_dtb(vm_t* vm, const char* dtb_name)
-{
-    void* file;
-    unsigned long size;
-    uint32_t dtb_addr;
-
-    /* Retrieve the file data */
-    file = cpio_get_file(_cpio_archive, dtb_name, &size);
-    if (file == NULL) {
-        printf("Error: Linux dtb file \'%s\' not found\n", dtb_name);
-        return 0;
-    }
-    if (image_get_type(file) != IMG_DTB) {
-        printf("Error: \'%s\' is not a device tree\n", dtb_name);
-        return 0;
-    }
-
-    /* Copy the tree to the VM */
-    dtb_addr = DTB_ADDR;
-    if (vm_copyout(vm, file, dtb_addr, size)) {
-        printf("Error: Failed to load device tree \'%s\'\n", dtb_name);
-        return 0;
-    } else {
-        return dtb_addr;
-    }
-
-}
-
 void*
-install_linux_kernel(vm_t* vm, const char* kernel_name)
+install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
 {
-    void* file;
+    FILE *file;
     unsigned long size;
-    uintptr_t entry;
-
-    /* Retrieve the file data */
-    file = cpio_get_file(_cpio_archive, kernel_name, &size);
+    uintptr_t load_addr;
+    struct Elf32_Header maybe_elf = {0};
+    file = fopen(kernel_name, "r");
     if (file == NULL) {
-        printf("Error: Unable to find kernel image \'%s\'\n", kernel_name);
+        ZF_LOGE("Error: Unable to find kernel image \'%s\'", kernel_name);
+        return NULL;
+    }
+
+    size_t len = fread(&maybe_elf, sizeof(maybe_elf), 1, file);
+    if (len != 1) {
+        ZF_LOGE("Could not read len. File is likely corrupt");
+        fclose(file);
         return NULL;
     }
 
     /* Determine the load address */
-    switch (image_get_type(file)) {
+    enum img_type ret_file_type = image_get_type(&maybe_elf);
+    if (file_type != ret_file_type) {
+        ZF_LOGE("file: %s is an invalid file type: %d", kernel_name, ret_file_type);
+        fclose(file);
+        return NULL;
+    }
+    switch (ret_file_type) {
     case IMG_BIN:
-        entry = LINUX_RAM_BASE + 0x8000;
+        load_addr = LINUX_RAM_BASE + 0x8000;
         break;
     case IMG_ZIMAGE:
-        entry = zImage_get_load_address(file, LINUX_RAM_BASE);
+        load_addr = zImage_get_load_address(file, LINUX_RAM_BASE);
+        break;
+    case IMG_DTB:
+        load_addr = DTB_ADDR;
         break;
     default:
-        printf("Error: Unknown Linux image format for \'%s\'\n", kernel_name);
+        ZF_LOGE("Error: Unknown Linux image format for \'%s\'", kernel_name);
+        fclose(file);
         return NULL;
     }
+
+    int error = fseek(file, 0, SEEK_SET);
+    if(error) {
+        ZF_LOGE("Could not fseek");
+        fclose(file);
+        return NULL;
+    }
+
+    char buf[PAGE_SIZE_4K] = {0};
+    for (size_t offset = 0; len != 0; offset += len) {
     /* Load the image */
-    if (vm_copyout(vm, file, entry, size)) {
-        printf("Error: Failed to load \'%s\'\n", kernel_name);
-        return NULL;
-    } else {
-        return (void*)entry;
+        len = fread(buf, 1, sizeof(buf), file);
+        if (vm_copyout(vm, buf, load_addr + offset, len)) {
+            ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
+            fclose(file);
+            return NULL;
+        }
     }
+    fclose(file);
+    return (void*)load_addr;
 }
 
 static int
 load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
 {
     void* entry;
-    uint32_t dtb;
+    void* dtb;
     int err;
 
     pwr_token.linux_bin = kernel_name;
@@ -556,18 +531,18 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
         return -1;
     }
     /* Load kernel */
-    entry = install_linux_kernel(vm, kernel_name);
+    entry = install_vm_module(vm, kernel_name, IMG_BIN);
     if (!entry) {
         return -1;
     }
     /* Load device tree */
-    dtb = install_linux_dtb(vm, dtb_name);
+    dtb = install_vm_module(vm, dtb_name, IMG_DTB);
     if (!dtb) {
         return -1;
     }
 
     /* Set boot arguments */
-    err = vm_set_bootargs(vm, entry, MACH_TYPE, dtb);
+    err = vm_set_bootargs(vm, entry, MACH_TYPE, (uint32_t) dtb);
     if (err) {
         printf("Error: Failed to set boot arguments\n");
         return -1;
@@ -593,10 +568,12 @@ main_continued(void)
     restart_tcb = camkes_get_tls()->tcb_cap;
     restart_event_reg_callback(restart_event, NULL);
 
+    /* install custom open/close/read implementations to redirect I/O from the VMM to
+     * our file server */
+    install_fileserver(FILE_SERVER_INTERFACE(fs));
+
     err = vmm_init();
     assert(!err);
-
-    print_cpio_info();
 
     /* Create the VM */
     err = vm_create(VM_NAME, VM_PRIO, _fault_endpoint, VM_BADGE,

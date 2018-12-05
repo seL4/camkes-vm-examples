@@ -105,16 +105,17 @@ else()
     message(FATAL_ERROR "Using an unsupported platform - ${KernelARMPlatform}")
 endif()
 
-# Custom command/target to copy the appropriate linux binary to the cmake build directory
-add_custom_command(OUTPUT linux/linux
-    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_LIST_DIR}/../../linux/${linux_binary_name}" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux"
-    VERBATIM)
-add_custom_target(copy_linux DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux")
+find_file(CAMKES_VM_HELPERS_PATH camkes_vm_helpers.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/camkes-vm/ CMAKE_FIND_ROOT_PATH_BOTH)
+mark_as_advanced(FORCE CAMKES_VM_HELPERS_PATH)
+if("${CAMKES_VM_HELPERS_PATH}" STREQUAL "CAMKES_VM_HELPERS_PATH-NOTFOUND")
+    message(FATAL_ERROR "Failed to find camkes_vm_helpers.cmake. Consider cmake -DCAMKES_VM_HELPERS_PATH=/path/to/camkes_vm_helpers.cmake")
+endif()
+include(${CAMKES_VM_HELPERS_PATH})
 
-# Create the CPIO archive with the necessary linux binary and dtb
-MakeCPIO(archive.o "${CMAKE_CURRENT_BINARY_DIR}/linux/linux;${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS copy_linux set_dtb)
-add_library(archive_cpio STATIC EXCLUDE_FROM_ALL archive.o)
-set_property(TARGET archive_cpio PROPERTY LINKER_LANGUAGE C)
+# Add Linux VM images into file server
+AddToFileServer("linux" "${CMAKE_CURRENT_LIST_DIR}/../../linux/${linux_binary_name}")
+AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+DefineCAmkESVMFileServer()
 
 file(GLOB vm_src src/*.c)
 
@@ -122,7 +123,7 @@ file(GLOB vm_src src/*.c)
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
     INCLUDES src
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma Configuration archive_cpio)
+    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4vmm sel4arm-vmm sel4dma FileServer-client Configuration)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")

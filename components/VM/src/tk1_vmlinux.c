@@ -221,8 +221,7 @@ ARDPAUX                        ,
 
 pwr_token_t pwr_token;
 
-extern void* install_linux_kernel(vm_t* vm, const char* kernel_name);
-extern uint32_t install_linux_dtb(vm_t* vm, const char* dtb_name);
+extern void* install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type);
 
 static int
 vm_shutdown_cb(vm_t* vm, void* token)
@@ -239,8 +238,8 @@ vm_reboot_cb(vm_t* vm, void* token)
     void* entry;
     int err;
     printf("Received reboot from linux\n");
-    entry = install_linux_kernel(vm, pwr_token->linux_bin);
-    dtb_addr = install_linux_dtb(vm, pwr_token->device_tree);
+    entry = install_vm_module(vm, pwr_token->linux_bin, IMG_BIN);
+    dtb_addr = install_vm_module(vm, pwr_token->device_tree, IMG_DTB);
     if (entry == NULL || dtb_addr == 0) {
         printf("Failed to reload linux\n");
         return -1;

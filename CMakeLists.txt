@@ -12,6 +12,12 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
+find_file(GLOBAL_COMPONENTS_PATH global-components.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/global-components/ CMAKE_FIND_ROOT_PATH_BOTH)
+mark_as_advanced(FORCE GLOBAL_COMPONENTS_PATH)
+if("${GLOBAL_COMPONENTS_PATH}" STREQUAL "GLOBAL_COMPONENTS_PATH-NOTFOUND")
+    message(FATAL_ERROR "Failed to find global-components.cmake. Consider cmake -DGLOBAL_COMPONENTS_PATH=/path/to/global-components.cmake")
+endif()
+include(${GLOBAL_COMPONENTS_PATH})
 
 # Common build definitions
 CAmkESAddImportPath(components)

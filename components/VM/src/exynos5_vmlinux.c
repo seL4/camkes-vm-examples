@@ -75,8 +75,7 @@ static const int linux_pt_irqs[] = {
 
 pwr_token_t pwr_token;
 
-static void* install_linux_kernel(vm_t* vm, const char* kernel_name);
-static uint32_t install_linux_dtb(vm_t* vm, const char* dtb_name);
+extern void* install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type);
 
 static int
 vm_shutdown_cb(vm_t* vm, void* token)
