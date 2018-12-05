@@ -33,8 +33,6 @@
 
 #include <camkes.h>
 
-extern int start_extra_frame_caps; 
-
 #define ATAGS_ADDR        (LINUX_RAM_BASE + 0x100)
 
 #define MACH_TYPE_EXYNOS5410 4151
@@ -292,15 +290,6 @@ plat_install_linux_devices(vm_t* vm)
     /* Install pass through devices */
     for (i = 0; i < ARRAY_SIZE(linux_pt_devices); i++) {
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
-    }
-
-    /* hack to give access to other components */
-    #define FRAME_SIZE 4096
-    int offset = 0;
-    for (i = 0; i < num_extra_frame_caps; i++) {
-	err = vm_map_frame(vm, start_extra_frame_caps + i, extra_frame_map_address + offset, 12, 1, seL4_AllRights);
-        assert(!err);
-	offset += FRAME_SIZE;
     }
 
     return 0;

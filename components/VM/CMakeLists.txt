@@ -69,7 +69,7 @@ file(GLOB vm_src src/*.c)
 
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
-    SOURCES ${vm_src}
+    SOURCES ${vm_src} src/modules/map_frame_hack.c
     INCLUDES src
     LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4vmm sel4arm-vmm sel4dma FileServer-client Configuration)
 

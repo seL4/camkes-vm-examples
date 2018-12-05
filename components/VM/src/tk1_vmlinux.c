@@ -34,7 +34,6 @@
 
 #define PAGE_SIZE_BITS 12
 
-extern int start_extra_frame_caps;
 
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,
@@ -103,15 +102,6 @@ plat_install_linux_devices(vm_t* vm)
         assert(!err);
     }
 
-    /* hack to give access to other components
-       see https://github.com/smaccm/vm_hack/blob/master/details.md for details */
-    int offset = 0;
-    for (i = 0; i < num_extra_frame_caps; i++) {
-        err = vm_map_frame(vm, start_extra_frame_caps + i,
-            extra_frame_map_address + offset, PAGE_SIZE_BITS, 1, seL4_AllRights);
-        assert(!err);
-        offset += PAGE_SIZE;
-    }
 
     return 0;
 }
