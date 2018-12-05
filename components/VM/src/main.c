@@ -485,9 +485,6 @@ install_linux_devices(vm_t* vm)
     err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
     assert(!err);
 
-    err = plat_install_linux_devices(vm);
-    assert(!err);
-
     int max_vmm_modules = (int) (__stop__vmm_module - __start__vmm_module);
     vmm_module_t *test_types[max_vmm_modules];
     int num_vmm_modules = 0;

@@ -11,9 +11,7 @@
  */
 #include <autoconf.h>
 
-#ifdef CONFIG_PLAT_EXYNOS5410
-
-#include "vmlinux.h"
+#include "../../../vmlinux.h"
 
 #include <string.h>
 
@@ -232,8 +230,8 @@ configure_clocks(vm_t *vm)
     vm_clock_provide(clock_dev, CLK_SCLKCPLL);
 }
 
-int
-plat_install_linux_devices(vm_t* vm)
+static void
+plat_init_module(vm_t* vm, void *cookie)
 {
     int err;
     int i;
@@ -266,7 +264,6 @@ plat_install_linux_devices(vm_t* vm)
         err = vm_install_passthrough_device(vm, linux_pt_devices[i]);
     }
 
-    return 0;
 }
 
 
@@ -289,4 +286,4 @@ irq_handler_fn get_custom_irq_handler(irq_t irq) {
     return NULL;
 }
 
-#endif
+DEFINE_MODULE(plat, NULL, plat_init_module)

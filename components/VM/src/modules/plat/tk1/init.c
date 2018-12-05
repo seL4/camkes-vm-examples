@@ -11,9 +11,7 @@
  */
 #include <autoconf.h>
 
-#ifdef CONFIG_PLAT_TK1
-
-#include "vmlinux.h"
+#include "../../../vmlinux.h"
 
 #include <string.h>
 
@@ -50,8 +48,8 @@ static const struct device *linux_ram_devices[] = {
 
 
 
-int
-plat_install_linux_devices(vm_t* vm)
+static void
+plat_init_module(vm_t* vm, void *cookie)
 {
     int err;
     int i;
@@ -73,11 +71,6 @@ plat_install_linux_devices(vm_t* vm)
         err = vm_install_ram_only_device(vm, linux_ram_devices[i]);
         assert(!err);
     }
-
-
-    return 0;
 }
 
-
-
-#endif
+DEFINE_MODULE(plat, NULL, plat_init_module)

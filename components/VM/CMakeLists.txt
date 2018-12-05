@@ -77,6 +77,8 @@ if(VmVchan)
     list(APPEND vm_src src/modules/vchan.c)
 endif()
 
+list(APPEND vm_src src/modules/plat/${KernelPlatform}/init.c)
+
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
