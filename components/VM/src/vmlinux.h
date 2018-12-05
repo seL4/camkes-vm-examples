@@ -35,5 +35,22 @@ typedef struct {
 extern pwr_token_t pwr_token;
 
 irq_handler_fn get_custom_irq_handler(irq_t irq) WEAK;
+
+typedef struct vmm_module {
+    const char *name;
+    void *cookie;
+    // Function called for setup.
+    void (*init_module)(vm_t* vm, void* cookie);
+} ALIGN(32) vmm_module_t;
+
+/* Declare a module.
+ * For now, we put the modules in a separate elf section. */
+#define DEFINE_MODULE(_name, _cookie, _init_module) \
+    __attribute__((used)) __attribute__((section("_vmm_module"))) vmm_module_t VMM_MODULE_ ##_name = { \
+    .name = #_name, \
+    .cookie = _cookie, \
+    .init_module = _init_module, \
+};
+
 #endif /* VMLINUX_H */
 
