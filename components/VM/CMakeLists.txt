@@ -67,9 +67,15 @@ add_config_library(arm_vm "${configure_string}")
 
 file(GLOB vm_src src/*.c)
 
+list(APPEND vm_src src/modules/map_frame_hack.c)
+
+if(Tk1DeviceFwd)
+    list(APPEND vm_src src/modules/plat/tk1/device_fwd.c)
+endif()
+
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
-    SOURCES ${vm_src} src/modules/map_frame_hack.c
+    SOURCES ${vm_src}
     INCLUDES src
     LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4vmm sel4arm-vmm sel4dma FileServer-client Configuration)
 
