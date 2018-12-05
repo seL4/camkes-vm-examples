@@ -14,7 +14,7 @@
 #include <sel4arm-vmm/vm.h>
 #include <sel4arm-vmm/plat/devices.h>
 
-#include "../../../vmlinux.h"
+#include <vmlinux.h>
 #include <sel4arm-vmm/devices/generic_forward.h>
 
 struct generic_forward_cfg camkes_uart_d = {

@@ -82,7 +82,7 @@ list(APPEND vm_src src/modules/plat/${KernelPlatform}/init.c)
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
-    INCLUDES src
+    INCLUDES include plat_include/${KernelPlatform}
     LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4vmm sel4arm-vmm sel4dma FileServer-client Configuration)
 
 # Append the USB driver library if building for exynos

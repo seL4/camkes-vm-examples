@@ -11,7 +11,7 @@
  */
 #include <autoconf.h>
 
-#include "../../../vmlinux.h"
+#include <vmlinux.h>
 
 #include <string.h>
 

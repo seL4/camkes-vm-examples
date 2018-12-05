@@ -46,7 +46,7 @@
 #include <camkes.h>
 #include <camkes/tls.h>
 
-#include "vmlinux.h"
+#include <vmlinux.h>
 #include "fsclient.h"
 extern void *fs_buf;
 int start_extra_frame_caps;

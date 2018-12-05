@@ -12,7 +12,7 @@
 
 #include <camkes.h>
 #include <sel4arm-vmm/vm.h>
-#include "../vmlinux.h"
+#include <vmlinux.h>
 extern int start_extra_frame_caps;
 
 static void map_frame_hack_init_module(vm_t *vm, void *cookie) {

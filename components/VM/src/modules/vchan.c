@@ -10,7 +10,7 @@
  * @TAG(DATA61_GPL)
  */
 #include <autoconf.h>
-#include "../vmlinux.h"
+#include <vmlinux.h>
 
 #include <sel4vchan/vmm_manager.h>
 #include <sel4vchan/vchan_copy.h>

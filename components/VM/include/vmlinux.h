@@ -14,15 +14,8 @@
 
 #include <sel4utils/irq_server.h>
 
-#if defined(CONFIG_PLAT_TK1)
-#include "tk1_vmlinux.h"
+#include <plat/vmlinux.h>
 
-#elif defined(CONFIG_PLAT_EXYNOS54XX)
-#include "exynos5_vmlinux.h"
-
-#else
-#error "Unknown SoC"
-#endif
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
 
