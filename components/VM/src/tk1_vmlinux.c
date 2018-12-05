@@ -25,7 +25,6 @@
 #include <sel4arm-vmm/plat/devices.h>
 #include <sel4arm-vmm/devices/vgic.h>
 #include <sel4arm-vmm/devices/vram.h>
-#include <sel4arm-vmm/devices/vusb.h>
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 
@@ -36,14 +35,6 @@
 #define PAGE_SIZE_BITS 12
 
 extern int start_extra_frame_caps;
-
-extern char _cpio_archive[];
-
-extern vka_t _vka;
-extern vspace_t _vspace;
-extern irq_server_t _irq_server;
-extern seL4_CPtr _fault_endpoint;
-
 
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,
@@ -105,96 +96,6 @@ vm_reboot_cb(vm_t* vm, void* token)
     return 0;
 }
 
-#if defined FEATURE_VUSB
-
-static vusb_device_t* _vusb;
-static usb_host_t _hcd;
-
-static void
-usb_irq_handler(struct irq_data* irq_data)
-{
-    usb_host_t* hcd = (usb_host_t*)irq_data->token;
-    usb_hcd_handle_irq(hcd);
-    irq_data_ack_irq(irq_data);
-}
-
-static int
-install_vusb(vm_t* vm)
-{
-    irq_server_t irq_server;
-    ps_io_ops_t* io_ops;
-    vusb_device_t* vusb;
-    usb_host_t* hcd;
-    struct irq_data* irq_data;
-    seL4_CPtr vmm_ep;
-    int err;
-    irq_server = _irq_server;
-    io_ops = vm->io_ops;
-    hcd = &_hcd;
-    vmm_ep = _fault_endpoint;
-
-    /* Initialise the physical host controller */
-    err = usb_host_init(USB_HOST_DEFAULT, io_ops, hcd);
-    assert(!err);
-    if (err) {
-        return -1;
-    }
-
-    /* Route physical IRQs */
-    irq_data = irq_server_register_irq(irq_server, 103, usb_irq_handler, hcd);
-    if (!irq_data) {
-        return -1;
-    }
-    /* Install the virtual device */
-    vusb = vm_install_vusb(vm, hcd, VUSB_ADDRESS, VUSB_IRQ, vmm_ep, VUSB_NINDEX,
-                           VUSB_NBADGE);
-    assert(vusb != NULL);
-    if (vusb == NULL) {
-        return -1;
-    }
-    _vusb = vusb;
-
-    return 0;
-}
-
-void
-vusb_notify(void)
-{
-    vm_vusb_notify(_vusb);
-}
-
-#else /* FEATURE_VUSB */
-
-#include <platsupport/gpio.h>
-
-#define NRESET_GPIO              XEINT12
-#define HUBCONNECT_GPIO          XEINT6
-#define NINT_GPIO                XEINT7
-
-static int
-install_vusb(vm_t* vm)
-{
-    /* TODO for TK1 */
-    return 0;
-}
-
-void
-vusb_notify(void)
-{
-}
-
-#endif /* FEATURE_VUSB */
-
-static void
-configure_gpio(vm_t *vm)
-{
-#ifdef CONFIG_APP_LINUX_SECURE
-    /* Don't provide any access to GPIO/MUX */
-#else /* CONFIG_APP_LINUX_SECURE */
-    /* TODO for TK1 */
-#endif /* CONFIG_APP_LINUX_SECURE */
-}
-
 #ifdef CONFIG_TK1_DEVICE_FWD
 
 struct generic_forward_cfg camkes_uart_d = {
@@ -214,10 +115,6 @@ plat_install_linux_devices(vm_t* vm)
     int err;
     int i;
 
-    /* Install virtual USB */
-    err = install_vusb(vm);
-    assert(!err);
-
 #if CONFIG_APP_LINUX_SECURE
     /* Add hooks for specific power management hooks */
     err = vm_install_vpower(vm, &vm_shutdown_cb, &pwr_token, &vm_reboot_cb, &pwr_token);
@@ -225,7 +122,6 @@ plat_install_linux_devices(vm_t* vm)
 #else
 #endif /* CONFIG_APP_LINUX_SECURE */
 
-    configure_gpio(vm);
 #ifdef CONFIG_TK1_DEVICE_FWD
     /* Configure UART forward device */
     err = vm_install_generic_forward_device(vm, &dev_vconsole, camkes_uart_d);

@@ -722,7 +722,9 @@ main_continued(void)
                 printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
             }
         } else if (sender_badge == VUSB_NBADGE) {
+#ifdef FEATURE_VUSB
             vusb_notify();
+#endif
         } else {
             assert(sender_badge == VM_BADGE);
             err = vm_event(&vm, tag);
