@@ -15,6 +15,9 @@
 #include <assert.h>
 #include <string.h>
 #include <setjmp.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include <allocman/allocman.h>
 #include <allocman/bootstrap.h>
@@ -530,20 +533,20 @@ route_irqs(vm_t* vm, irq_server_t irq_server)
 void*
 install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
 {
-    FILE *file;
+    int fd;
     unsigned long size;
     uintptr_t load_addr;
     struct Elf32_Header maybe_elf = {0};
-    file = fopen(kernel_name, "r");
-    if (file == NULL) {
+    fd = open(kernel_name, 0);
+    if (fd == -1) {
         ZF_LOGE("Error: Unable to find kernel image \'%s\'", kernel_name);
         return NULL;
     }
 
-    size_t len = fread(&maybe_elf, sizeof(maybe_elf), 1, file);
-    if (len != 1) {
+    size_t len = read(fd, &maybe_elf, sizeof(maybe_elf));
+    if (len != sizeof(maybe_elf)) {
         ZF_LOGE("Could not read len. File is likely corrupt");
-        fclose(file);
+        close(fd);
         return NULL;
     }
 
@@ -551,7 +554,7 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
     enum img_type ret_file_type = image_get_type(&maybe_elf);
     if (file_type != ret_file_type) {
         ZF_LOGE("file: %s is an invalid file type: %d", kernel_name, ret_file_type);
-        fclose(file);
+        close(fd);
         return NULL;
     }
     switch (ret_file_type) {
@@ -559,35 +562,35 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
         load_addr = LINUX_RAM_BASE + 0x8000;
         break;
     case IMG_ZIMAGE:
-        load_addr = zImage_get_load_address(file, LINUX_RAM_BASE);
+        load_addr = zImage_get_load_address(&maybe_elf, LINUX_RAM_BASE);
         break;
     case IMG_DTB:
         load_addr = DTB_ADDR;
         break;
     default:
         ZF_LOGE("Error: Unknown Linux image format for \'%s\'", kernel_name);
-        fclose(file);
+        close(fd);
         return NULL;
     }
 
-    int error = fseek(file, 0, SEEK_SET);
+    int error = lseek(fd, 0, SEEK_SET);
     if(error) {
         ZF_LOGE("Could not fseek");
-        fclose(file);
+        close(fd);
         return NULL;
     }
 
     char buf[PAGE_SIZE_4K] = {0};
     for (size_t offset = 0; len != 0; offset += len) {
     /* Load the image */
-        len = fread(buf, 1, sizeof(buf), file);
+        len = read(fd, buf, sizeof(buf));
         if (vm_copyout(vm, buf, load_addr + offset, len)) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
-            fclose(file);
+            close(fd);
             return NULL;
         }
     }
-    fclose(file);
+    close(fd);
     return (void*)load_addr;
 }
 
