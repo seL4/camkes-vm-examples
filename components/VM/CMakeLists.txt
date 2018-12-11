@@ -77,7 +77,12 @@ if(VmVchan)
     list(APPEND vm_src src/modules/vchan.c)
 endif()
 
-list(APPEND vm_src src/modules/plat/${KernelPlatform}/init.c)
+# A module that is expected to exist for each platform but not required.
+# It should provide basic device intialisation required for every vm configuratoin
+set(platform_module src/modules/plat/${KernelPlatform}/init.c)
+if(EXISTS ${platform_module})
+    list(APPEND vm_src ${platform_module})
+endif()
 
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
