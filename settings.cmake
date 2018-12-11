@@ -12,7 +12,11 @@
 
 # Kernel settings
 set(KernelArch "arm" CACHE STRING "" FORCE)
-set(KernelArmSel4Arch "arm_hyp" CACHE STRING "" FORCE)
+if(AARCH64)
+	set(KernelArmSel4Arch "aarch64" CACHE STRING "" FORCE)
+else()
+	set(KernelArmSel4Arch "arm_hyp" CACHE STRING "" FORCE)
+endif()
 set(KernelArmHypervisorSupport ON CACHE BOOL "" FORCE)
 set(KernelArmExportPCNTUser ON CACHE BOOL "" FORCE)
 set(KernelArmExportVCNTUser ON CACHE BOOL "" FORCE)

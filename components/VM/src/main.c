@@ -536,7 +536,7 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
     int fd;
     unsigned long size;
     uintptr_t load_addr;
-    struct Elf32_Header maybe_elf = {0};
+    struct Elf64_Header maybe_elf = {0};
     fd = open(kernel_name, 0);
     if (fd == -1) {
         ZF_LOGE("Error: Unable to find kernel image \'%s\'", kernel_name);
