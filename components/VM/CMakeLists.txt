@@ -83,7 +83,7 @@ list(APPEND vm_src src/modules/plat/${KernelPlatform}/init.c)
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
     INCLUDES include plat_include/${KernelPlatform}
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4vmm sel4arm-vmm sel4dma FileServer-client Configuration)
+    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
