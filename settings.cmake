@@ -23,10 +23,6 @@ set(KernelIRQReporting OFF CACHE BOOL "" FORCE)
 # capDL settings
 set(CapDLLoaderMaxObjects 90000 CACHE STRING "" FORCE)
 
-# Elf Loader settings
-set(ElfloaderMode "hypervisor" CACHE STRING "" FORCE)
-set(ElfloaderMonitorHook ON CACHE STRING "" FORCE)
-
 # CAmkES Settings
 set(CAmkESCPP ON CACHE BOOL "" FORCE)
 
@@ -43,3 +39,5 @@ set(CAMKES_VM_APP "${CAMKES_VM_APP}" CACHE STRING "CAmkES VM application to buil
 
 # Add VM application
 include("${CMAKE_CURRENT_LIST_DIR}/apps/${CAMKES_VM_APP}/settings.cmake")
+
+ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelArmSel4Arch})
