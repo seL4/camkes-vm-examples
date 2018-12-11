@@ -559,7 +559,12 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
     }
     switch (ret_file_type) {
     case IMG_BIN:
-        load_addr = LINUX_RAM_BASE + 0x8000;
+        if (config_set(CONFIG_PLAT_TX1)) {
+            /* This is likely an aarch64/aarch32 linux difference */
+            load_addr = LINUX_RAM_BASE + 0x80000;
+        } else {
+            load_addr = LINUX_RAM_BASE + 0x8000;
+        }
         break;
     case IMG_ZIMAGE:
         load_addr = zImage_get_load_address(&maybe_elf, LINUX_RAM_BASE);

@@ -10,6 +10,15 @@
 # @TAG(DATA61_BSD)
 #
 
-set(KernelARMPlatform "tk1" CACHE STRING "" FORCE)
-set(KernelArmSMMU ON CACHE BOOL "" FORCE)
-set(KernelARMSMMUInterruptEnable ON CACHE BOOL "" FORCE)
+set(supported "tk1;tx1")
+if (NOT "${PLATFORM}" IN_LIST supported)
+    message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
+         Supported: ${supported}")
+endif()
+set(KernelARMPlatform "${PLATFORM}" CACHE STRING "" FORCE)
+if (${KernelARMPlatform} STREQUAL "tk1")
+    set(KernelArmSMMU ON CACHE BOOL "" FORCE)
+    set(KernelARMSMMUInterruptEnable ON CACHE BOOL "" FORCE)
+endif()
+
+set(LibUSB OFF CACHE BOOL "" FORCE)
