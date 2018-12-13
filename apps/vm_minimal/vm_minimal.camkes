@@ -13,6 +13,7 @@
 import <std_connector.camkes>;
 
 import <VM/vm_common.camkes>;
+import <devices.camkes>;
 
 assembly {
     composition {

@@ -55,6 +55,7 @@ AddCamkesCPPFlag(cpp_flags
 
 DefineCAmkESVMFileServer()
 
+CAmkESAddImportPath(${KernelARMPlatform})
 
 # Declare root server
 DeclareCAmkESRootserver(vm_minimal.camkes CPP_FLAGS ${cpp_flags})

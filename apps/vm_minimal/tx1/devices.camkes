@@ -1,0 +1,226 @@
+/*
+ * Copyright 2018, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+assembly {
+	composition {}
+	configuration {
+
+        vm.untyped_mmios = [
+                    "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
+                    "0x70006000:12", // UARTA
+                    "0x60004000:12", // ICTLR (Interrupt controller, this shouldn't be available??
+                    "0x60006000:12", // nvidia,tegra210-car
+                    "0x7000e000:12", // nvidia,tegra210-rtc
+                    "0x70000000:12", // tegra_init_fuse
+                    "0x7000f000:12", // tegra_init_fuse
+                    "0x6000d000:12", // gpio
+                    "0x70019000:12", // memory-controller
+                    "0x70003000:12", // pinmux
+
+                    ];
+        vm.irqs =  [27, // INTERRUPT_VTIMER
+                    31, // INTERRUPT_PPI_15
+                    32, // INTERRUPT_TMR1
+                    33, // INTERRUPT_TMR2
+                    34, // INTERRUPT_RTC
+                    35, // INTERRUPT_CEC
+                    36, // INTERRUPT_SHR_SEM_INBOX_FULL
+                    37, // INTERRUPT_SHR_SEM_INBOX_EMPTY
+                    38, // INTERRUPT_SHR_SEM_OUTBOX_FULL
+                    39, // INTERRUPT_SHR_SEM_OUTBOX_EMPTY
+                    40, // INTERRUPT_NVJPEG
+                    41, // INTERRUPT_NVDEC
+                    42, // INTERRUPT_QUAD_SPI
+                    43, // INTERRUPT_DPAUX_INT1
+                //  44, // RESERVED
+                    45, // INTERRUPT_SATA_RX_STAT
+                    46, // INTERRUPT_SDMMC1
+                    47, // INTERRUPT_SDMMC2
+                    48, // INTERRUPT_VGPIO_INT
+                    49, // INTERRUPT_VII12C_INT
+                //  50, // RESERVED
+                    51, // INTERRUPT_SDMMC3
+                    52, // INTERRUPT_USB
+                    53, // INTERRUPT_USB2
+                //  54, // RESERVED
+                    55, // INTERRUPT_SATA_CTL
+                    56, // INTERRUPT_PMC_INT
+                    57, // INTERRUPT_FC_INT
+                    58, // INTERRUPT_APB_DMA_CPU
+                //  59, // RESERVED
+                    60, // INTERRUPT_ARB_SEM_GNT_COP
+                    61, // INTERRUPT_ARB_SEM_GNT_CPU
+                //  62, // RESERVED
+                    63, // INTERRUPT_SDMMC4
+                    64, // INTERRUPT_GPIO1
+                    65, // INTERRUPT_GPIO2
+                    66, // INTERRUPT_GPIO3
+                    67, // INTERRUPT_GPIO4
+                    68, // INTERRUPT_UARTA
+                    69, // INTERRUPT_UARTB
+                    70, // INTERRUPT_I2C
+                    71, // INTERRUPT_USB3_HOST_INT
+                    72, // INTERRUPT_USB3_HOST_SMI
+                    73, // INTERRUPT_TMR3
+                    74, // INTERRUPT_TMR4
+                    75, // INTERRUPT_USB3_HOST_PME
+                    76, // INTERRUPT_USB3_DEV_HOST
+                    77, // INTERRUPT_ACTMON
+                    78, // INTERRUPT_UARTC
+                //  79, // RESERVED
+                    80, // INTERRUPT_THERMAL
+                    81, // INTERRUPT_XUSB_PADCTL
+                    82, // INTERRUPT_TSEC
+                    83, // INTERRUPT_EDP
+                //  84, // RESERVED
+                    85, // INTERRUPT_I2C5
+                //  86, // RESERVED
+                    87, // INTERRUPT_GPIO5
+                    88, // INTERRUPT_USB3_DEV_SMI
+                    89, // INTERRUPT_USB3_DEV_PME
+                    90, // INTERRUPT_SE
+                    91, // INTERRUPT_SPI1
+                    92, // INTERRUPT_APB_DMA_COP
+                //  93, // RESERVED
+                    94, // INTERRUPT_CLDVFS
+                    95, // INTERRUPT_I2C6
+                    96, // INTERRUPT_HOST1X_SYNCPT_COP
+                    97, // INTERRUPT_HOST1X_SYNCPT_CPU
+                    98, // INTERRUPT_HOST1X_GEN_COP
+                    99, // INTERRUPT_HOST1X_GEN_CPU
+                    100, // INTERRUPT_NVENC
+                    101, // INTERRUPT_VI
+                    102, // INTERRUPT_ISPB
+                    103, // INTERRUPT_ISP
+                    104, // INTERRUPT_VIC
+                    105, // INTERRUPT_DISPLAY
+                    106, // INTERRUPT_DISPLAYB
+                    107, // INTERRUPT_SOR1
+                    108, // INTERRUPT_SOR
+                    109, // INTERRUPT_MC
+                    110, // INTERRUPT_EMC
+                //  111, // RESERVED
+                    112, // INTERRUPT_TSECB
+                    113, // INTERRUPT_HDA
+                    114, // INTERRUPT_SPI2
+                    115, // INTERRUPT_SPI3
+                    116, // INTERRUPT_I2C2
+                //  117, // RESERVED
+                    118, // INTERRUPT_PMU_EXT
+                    119, // INTERRUPT_GPIO6
+                //  120, // RESERVED
+                    121, // INTERRUPT_GPIO7
+                    122, // INTERRUPT_UARTD
+                //  123, // RESERVED
+                    124, // INTERRUPT_I2C3
+                    125, // INTERRUPT_SPI4
+                //  126, // RESERVED
+                //  127, // RESERVED
+                    128, // INTERRUPT_DTV
+                //  129, // RESERVED
+                    130, // INTERRUPT_PCIE_INT
+                    131, // INTERRUPT_PCIE_MSI
+                //  132, // RESERVED
+                    133, // INTERRUPT_AVP_CACHE
+                    134, // INTERRUPT_APE_INT1
+                    135, // INTERRUPT_APE_INT0
+                    136, // INTERRUPT_APB_DMA_CH0
+                    137, // INTERRUPT_APB_DMA_CH1
+                    138, // INTERRUPT_APB_DMA_CH2
+                    139, // INTERRUPT_APB_DMA_CH3
+                    140, // INTERRUPT_APB_DMA_CH4
+                    141, // INTERRUPT_APB_DMA_CH5
+                    142, // INTERRUPT_APB_DMA_CH6
+                    143, // INTERRUPT_APB_DMA_CH7
+                    144, // INTERRUPT_APB_DMA_CH8
+                    145, // INTERRUPT_APB_DMA_CH9
+                    146, // INTERRUPT_APB_DMA_CH10
+                    147, // INTERRUPT_APB_DMA_CH11
+                    148, // INTERRUPT_APB_DMA_CH12
+                    149, // INTERRUPT_APB_DMA_CH13
+                    150, // INTERRUPT_APB_DMA_CH14
+                    151, // INTERRUPT_APB_DMA_CH15
+                    152, // INTERRUPT_I2C4
+                    153, // INTERRUPT_TMR5
+                //  154, // RESERVED
+                    155, // INTERRUPT_WDT_CPU
+                    156, // INTERRUPT_WDT_AVP
+                    157, // INTERRUPT_GPIO8
+                    158, // INTERRUPT_CAR
+                //  159, // RESERVED
+                    160, // INTERRUPT_APB_DMA_CH16
+                    161, // INTERRUPT_APB_DMA_CH17
+                    162, // INTERRUPT_APB_DMA_CH18
+                    163, // INTERRUPT_APB_DMA_CH19
+                    164, // INTERRUPT_APB_DMA_CH20
+                    165, // INTERRUPT_APB_DMA_CH21
+                    166, // INTERRUPT_APB_DMA_CH22
+                    167, // INTERRUPT_APB_DMA_CH23
+                    168, // INTERRUPT_APB_DMA_CH24
+                    169, // INTERRUPT_APB_DMA_CH25
+                    170, // INTERRUPT_APB_DMA_CH26
+                    171, // INTERRUPT_APB_DMA_CH27
+                    172, // INTERRUPT_APB_DMA_CH28
+                    173, // INTERRUPT_APB_DMA_CH29
+                    174, // INTERRUPT_APB_DMA_CH30
+                    175, // INTERRUPT_APB_DMA_CH31
+                    176, // INTERRUPT_CPU0_PMU_INTR
+                    177, // INTERRUPT_CPU1_PMU_INTR
+                    178, // INTERRUPT_CPU2_PMU_INTR
+                    179, // INTERRUPT_CPU3_PMU_INTR
+                    180, // INTERRUPT_SDMMC1_SYS
+                    181, // INTERRUPT_SDMMC2_SYS
+                    182, // INTERRUPT_SDMMC3_SYS
+                    183, // INTERRUPT_SDMMC4_SYS
+                    184, // INTERRUPT_TMR6
+                    185, // INTERRUPT_TMR7
+                    186, // INTERRUPT_TMR8
+                    187, // INTERRUPT_TMR9
+                    188, // INTERRUPT_TMR0
+                    189, // INTERRUPT_GPU
+                    190, // INTERRUPT_GPU_NONSTALL
+                    191, // DPAUX
+                    192, // INTERRUPT_MPCORE_AXIERRIRQ
+                    193, // INTERRUPT_MPCORE_INTERRIRQ
+                    194, // INTERRUPT_EVENT_GPIO_A
+                    195, // INTERRUPT_EVENT_GPIO_B
+                    196, // INTERRUPT_EVENT_GPIO_C
+                //  197, // RESERVED
+                //  198, // RESERVED
+                //  199, // RESERVED
+                    200, // INTERRUPT_FLOW_RSN_CPU
+                    201, // INTERRUPT_FLOW_RSM_COP
+                    202, // INTERRUPT_TMR_SHARED
+                    203, // INTERRUPT_MPCORE_CTIIRQ0
+                    204, // INTERRUPT_MPCORE_CTIIRQ1
+                    205, // INTERRUPT_MPCORE_CTIIRQ2
+                    206, // INTERRUPT_MPCORE_CTIIRQ3
+                    207, // INTERRUPT_MSELECT_ERROR
+                    208, // INTERRUPT_TMR10
+                    209, // INTERRUPT_TMR11
+                    210, // INTERRUPT_TMR12
+                    211, // INTERRUPT_TMR13
+                //  212, // RESERVED
+                //  213, // RESERVED
+                //  214, // RESERVED
+                //  215, // RESERVED
+                //  216, // RESERVED
+                //  217, // RESERVED
+                //  218, // RESERVED
+                //  219, // RESERVED
+                //  220, // RESERVED
+                //  221, // RESERVED
+                //  222, // RESERVED
+                //  223, // RESERVED
+                    ];
+	}
+}
