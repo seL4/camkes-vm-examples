@@ -35,7 +35,7 @@ set(RELEASE OFF CACHE BOOL "Performance optimized build")
 ApplyCommonReleaseVerificationSettings(${RELEASE} FALSE)
 
 if(NOT CAMKES_VM_APP)
-    message(FATAL_ERROR "CAMKES_VM_APP is not defined. Pass CAMKES_VM_APP to specify the VM application to build e.g. tk1_vm, odroid_vm")
+    message(FATAL_ERROR "CAMKES_VM_APP is not defined. Pass CAMKES_VM_APP to specify the VM application to build e.g. vm_minimal, odroid_vm")
 endif()
 
 # Make CAMKES_VM_APP available to change in the ccmake interface

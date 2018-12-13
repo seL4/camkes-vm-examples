@@ -56,5 +56,5 @@ AddCamkesCPPFlag(cpp_flags
 DefineCAmkESVMFileServer()
 
 
-# Declare tk1 root server
-DeclareCAmkESRootserver(vm_tk1.camkes CPP_FLAGS ${cpp_flags})
+# Declare root server
+DeclareCAmkESRootserver(vm_minimal.camkes CPP_FLAGS ${cpp_flags})
