@@ -79,11 +79,14 @@ endif()
 
 # A module that is expected to exist for each platform but not required.
 # It should provide basic device intialisation required for every vm configuratoin
-set(platform_module src/modules/plat/${KernelPlatform}/init.c)
+set(platform_module ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/${KernelPlatform}/init.c)
 if(EXISTS ${platform_module})
     list(APPEND vm_src ${platform_module})
 endif()
 
+if(KernelPlatformExynos5410)
+    list(APPEND vm_src ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/exynos5410/init.c)
+endif()
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
