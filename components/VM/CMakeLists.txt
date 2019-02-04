@@ -86,11 +86,16 @@ endif()
 
 if(KernelPlatformExynos5410)
     list(APPEND vm_src ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/exynos5410/init.c)
+    set(vm_plat_include "plat_include/exynos5410")
+elseif(KernelPlatformExynos5422)
+    set(vm_plat_include "plat_include/exynos5422")
+else()
+    set(vm_plat_include "plat_include/${KernelPlatform}")
 endif()
 # Declare the CAmkES VM component
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
-    INCLUDES include plat_include/${KernelPlatform}
+    INCLUDES include ${vm_plat_include}
     LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration)
 
 # Append the USB driver library if building for exynos

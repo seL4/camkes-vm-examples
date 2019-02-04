@@ -9,8 +9,7 @@
  *
  * @TAG(DATA61_BSD)
  */
-#ifndef VMLINUX_EXYNOS5_H
-#define VMLINUX_EXYNOS5_H
+#pragma once
 
 #include <sel4arm-vmm/vm.h>
 
@@ -35,6 +34,3 @@ static const int linux_pt_irqs[] = {
 };
 
 void vusb_notify(void);
-
-#endif /* VMLINUX_H */
-
