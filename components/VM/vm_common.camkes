@@ -33,7 +33,7 @@ assembly {
 
         vm.simple = true;
         vm.cnode_size_bits = 23;
-        vm.simple_untyped24_pool = 10;
+        vm.simple_untyped24_pool = 12;
 
         vm.base_prio = 100;
 
