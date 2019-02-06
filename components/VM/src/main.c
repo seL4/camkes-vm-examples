@@ -687,10 +687,10 @@ main_continued(void)
     }
 #endif /* CONFIG_ARM_SMMU */
 
-#ifdef CONFIG_PLAT_EXYNOS5410
+#ifdef CONFIG_PLAT_EXYNOS5
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
-#endif /* CONFIG_PLAT_EXYNOS5410 */
+#endif /* CONFIG_PLAT_EXYNOS5 */
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);
