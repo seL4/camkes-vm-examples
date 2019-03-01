@@ -38,7 +38,10 @@
 #include <sel4arm-vmm/devices/vgic.h>
 #include <sel4arm-vmm/devices/vram.h>
 #include <sel4arm-vmm/devices/vusb.h>
+#include <sel4arm-vmm/devices/vpci.h>
 #include <sel4arm-vmm/images.h>
+
+#include <sel4pci/pci_helper.h>
 
 #include <sel4arm-vmm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
@@ -716,6 +719,9 @@ main_continued(void)
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
 #endif /* CONFIG_PLAT_EXYNOS5 */
+
+    err = vm_install_vpci(&vm);
+    assert(!err);
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);

@@ -84,6 +84,9 @@ if(EXISTS ${platform_module})
     list(APPEND vm_src ${platform_module})
 endif()
 
+file(GLOB vm_virtio_src src/modules/virtio_net/*.c src/modules/virtio_net/*.h)
+list(APPEND vm_src ${vm_virtio_src})
+
 if(KernelPlatformExynos5410)
     list(APPEND vm_src ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/exynos5410/init.c)
     set(vm_plat_include "plat_include/exynos5410")
@@ -96,7 +99,7 @@ endif()
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
     INCLUDES include ${vm_plat_include}
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration)
+    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4ioports sel4vmm-drivers)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
