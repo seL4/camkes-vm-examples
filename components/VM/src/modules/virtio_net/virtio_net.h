@@ -17,9 +17,6 @@
 
 #include <sel4pci/virtio_emul.h>
 
-#define IRQ_SPI_OFFSET              32
-
 #define VIRTIO_NET_IOPORT_SIZE      0x400
 #define VIRTIO_NET_IOPORT_START     0x6200
-#define VIRTIO_NET_INTERRUPT_LINE   92 + IRQ_SPI_OFFSET
 #define VIRTIO_NET_INTERRUPT_PIN    1

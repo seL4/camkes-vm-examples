@@ -30,6 +30,8 @@
 #include <sel4arm-vmm/devices.h>
 #include <sel4arm-vmm/devices/vpci.h>
 
+#include <plat/virtio_net.h>
+
 #include "virtio_net.h"
 #include "virtio_net_vpci.h"
 #include "virtio_net_arping.h"
@@ -99,9 +101,9 @@ void make_virtio_net(vm_t *vm, void* cookie) {
     assert(!err);
     virtio_emul_vm.vm = vm;
     virtio_net = common_make_virtio_net(&virtio_emul_vm, &vm->pci, &vm->io_port, VIRTIO_NET_IOPORT_START, VIRTIO_NET_IOPORT_SIZE,
-            VIRTIO_NET_INTERRUPT_PIN, VIRTIO_NET_INTERRUPT_LINE ,backend);
+            VIRTIO_NET_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE ,backend);
     assert(virtio_net);
-    virtio_net_irq_handle = vm_virq_new(vm, VIRTIO_NET_INTERRUPT_LINE, &virtio_net_ack, NULL);
+    virtio_net_irq_handle = vm_virq_new(vm, VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
 }
 
 DEFINE_MODULE(virtio_net, NULL, make_virtio_net)
