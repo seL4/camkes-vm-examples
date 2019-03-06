@@ -40,6 +40,9 @@ static virq_handle_t virtio_net_irq_handle;
 
 volatile Buf*__attribute__((weak)) ethdriver_buf;
 
+/* Maximum transmission unit for Ethernet interface */
+#define MTU 1500
+
 int __attribute__((weak)) ethdriver_tx(int len) {
     ZF_LOGF("should not be here");
     return 0;
@@ -65,10 +68,14 @@ static void emul_raw_handle_irq(struct eth_driver *driver, int irq) {
 
 static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *phys, unsigned int *len, void *cookie) {
     size_t tot_len = 0;
-    char ethbuffer[1500];
+    char ethbuffer[MTU];
     for (int i = 0; i < num; i++) {
         memcpy((void *)ethbuffer + tot_len, (void *)phys[i], len[i]);
         tot_len += len[i];
+        if (tot_len > MTU) {
+            ZF_LOGE("TX data exceeds MTU (%d) - Any remaining data will be lost", MTU);
+            break;
+        }
     }
 
     arping_reply(ethbuffer, virtio_net);
@@ -78,7 +85,7 @@ static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *p
 
 static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mtu) {
     ethdriver_mac(&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
-    *mtu = 1500;
+    *mtu = MTU;
 }
 
 static void virtio_net_ack(void* token) {}
