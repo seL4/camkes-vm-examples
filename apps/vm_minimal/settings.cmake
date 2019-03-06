@@ -22,3 +22,6 @@ if (${KernelARMPlatform} STREQUAL "tk1")
 endif()
 
 set(LibUSB OFF CACHE BOOL "" FORCE)
+if(${KernelARMPlatform} STREQUAL "exynos5422")
+    set(VmVirtioNet ON CACHE BOOL "" FORCE)
+endif()

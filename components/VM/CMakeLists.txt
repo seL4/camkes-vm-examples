@@ -35,6 +35,11 @@ config_option(VmVchan VM_VCHAN
     DEPENDS "KernelPlatformExynos5410"
     DEFAULT OFF)
 
+config_option(VmVirtioNet VM_VIRTIO_NET
+    "Enable virtio net module"
+    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
+    DEFAULT OFF)
+
 config_choice(VmRootfs VM_ROOTFS
     "Root file system selection \
     Selects the root device and partition which should be used for the root filesystem. \
@@ -84,8 +89,11 @@ if(EXISTS ${platform_module})
     list(APPEND vm_src ${platform_module})
 endif()
 
-file(GLOB vm_virtio_src src/modules/virtio_net/*.c src/modules/virtio_net/*.h)
-list(APPEND vm_src ${vm_virtio_src})
+# Append virtio net sources if the virtio net config is enabled
+if(VmVirtioNet)
+    file(GLOB vm_virtio_src src/modules/virtio_net/*.c)
+    list(APPEND vm_src ${vm_virtio_src})
+endif()
 
 if(KernelPlatformExynos5410)
     list(APPEND vm_src ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/exynos5410/init.c)
