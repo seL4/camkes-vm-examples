@@ -12,6 +12,6 @@
 
 #pragma once
 
-#include <sel4vmm-drivers/virtio/virtio_net.h>
+#include <sel4vmm-core/drivers/virtio_net/virtio_net.h>
 
 void arping_reply(char *eth_buffer, virtio_net_t *virtio_net);
