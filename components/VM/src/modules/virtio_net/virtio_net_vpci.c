@@ -59,7 +59,7 @@ pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
 const struct device dev_vpci_virtio_io_dist = {
     .devid = DEV_CUSTOM,
     .name = "vpci.virtio_io",
-    .pstart = PCI_IO_REGION_ADDR + PCI_CFG_IO_REGION_SIZE,
+    .pstart = PCI_IO_REGION_ADDR + PCI_IO_REGION_SIZE,
     .size = VIRTIO_NET_IOPORT_SIZE,
     .handle_page_fault = &pci_virtio_io_fault_handler,
     .priv = NULL,
