@@ -14,7 +14,7 @@ camkes-arm-vm
 
 This repo is for running virtualised Linux on seL4 for arm platforms.
 
-Currently the exynos5 and tk1 machines are supported.
+Currently the exynos5, tk1 and tx2 machines are supported.
 
 ## tk1 configuration
 
