@@ -26,7 +26,7 @@
 #include <camkes.h>
 #include <camkes/dataport.h>
 
-#include <sel4vmm-core/drivers/virtio_net/virtio_net.h>
+#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
 #include <sel4arm-vmm/devices.h>
 #include <sel4arm-vmm/devices/vpci.h>
 

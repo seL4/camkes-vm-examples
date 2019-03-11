@@ -107,7 +107,7 @@ endif()
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
     INCLUDES include ${vm_plat_include}
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4vmm-core)
+    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4vmmcore)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
