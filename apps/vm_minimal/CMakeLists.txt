@@ -60,6 +60,13 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
         "0x4d700000" dtb_gen_target output_dtb_location)
     AddToFileServer("linux-dtb" "${output_dtb_location}"
         DEPENDS dtb_gen_target)
+
+elseif ("${KernelARMPlatform}" STREQUAL "tx2")
+    set(cpp_flags "-DKERNELARMPLATFORM_TX2")
+
+    AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx2/linux")
+    AddToFileServer("linux-dtb" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx2/linux-dtb")
+
 endif()
 
 AddCamkesCPPFlag(cpp_flags
