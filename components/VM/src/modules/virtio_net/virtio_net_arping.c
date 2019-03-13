@@ -25,9 +25,10 @@
 #define ARP_REPLY 0x02
 #define HW_TYPE 1
 
-void arping_reply(char *eth_buffer, virtio_net_t *virtio_net) {
+void arping_reply(char *eth_buffer, virtio_net_t *virtio_net)
+{
 
-    if(eth_buffer == NULL) {
+    if (eth_buffer == NULL) {
         return;
     }
     struct ethhdr *rcv_req = (struct ethhdr *) eth_buffer;

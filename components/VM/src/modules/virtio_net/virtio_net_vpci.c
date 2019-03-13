@@ -17,7 +17,8 @@
 
 #include "virtio_net.h"
 
-static int width_to_size(enum fault_width fw) {
+static int width_to_size(enum fault_width fw)
+{
 
     if (fw == WIDTH_BYTE) {
         return 1;
@@ -35,19 +36,19 @@ static int width_to_size(enum fault_width fw) {
 static int
 pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
 {
-    uint16_t virtio_port = VIRTIO_NET_IOPORT_START + (fault_get_address(fault) & (VIRTIO_NET_IOPORT_SIZE -1));
+    uint16_t virtio_port = VIRTIO_NET_IOPORT_START + (fault_get_address(fault) & (VIRTIO_NET_IOPORT_SIZE - 1));
     unsigned int value = 0;
     seL4_Word fault_data = 0;
 
     bool is_in = false;
-    if(fault_is_read(fault)) {
+    if (fault_is_read(fault)) {
         is_in = true;
     } else {
         value = fault_get_data(fault);
     }
     emulate_io_handler(&vm->io_port, virtio_port, is_in, width_to_size(fault_get_width(fault)), (void *)&value);
 
-    if(is_in) {
+    if (is_in) {
         memcpy(&fault_data, (void *)&value, width_to_size(fault_get_width(fault)));
         /* Shift data to compensate for alignment.
          * We align the data at the correct offset in the word */
@@ -67,9 +68,10 @@ const struct device dev_vpci_virtio_io = {
     .priv = NULL,
 };
 
-int install_virtio_net_device(vm_t* vm) {
+int install_virtio_net_device(vm_t* vm)
+{
     int err = vm_add_device(vm, &dev_vpci_virtio_io);
-    if(err) {
+    if (err) {
         ZF_LOGE("Failed to install Virtio PCI IOPort device");
     }
     return err;
