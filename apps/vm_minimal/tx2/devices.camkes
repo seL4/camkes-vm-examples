@@ -1,0 +1,107 @@
+/*
+ * Copyright 2019, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+assembly {
+	composition {}
+	configuration {
+        vm.untyped_mmios = [
+            "0x100000:16", // Chip ID ROM.
+            "0x2200000:17", // GPIO controller
+            "0x2430000:16", // Pinmux controller
+            "0x2440000:14", // mc_sid.
+            "0x2c00000:19", // mc.
+            "0x3010000:16", // Timer@3010000
+            "0x3020000:17", // Timer@3020000
+            "0x3040000:18", // Timer@3040000 (TMR2)
+            "0x3820000:12", // More EFuse
+            "0x3886000:12", // GICV Iface.
+            "0x3100000:12", // UARTA
+            "0x3110000:12", // UARTB
+            "0x3130000:12", // UARTD
+            "0x3140000:12", // UARTE
+            "0x3150000:12", // UARTF
+            "0x39c0000:12", // Tachometer
+            "0x3C00000:12", // tegra-hsp@3C00000
+            "0x3c80000:17", // Mailboxes
+            "0x5000000:24", // clock@5000000 (Clock and Reset ctrlr)
+            "0x8010000:12", // Coresight Funnel (Major)
+            "0x8030000:12", // Coresight ETF
+            "0x8050000:12", // Coresight ETR
+            "0x8060000:12", // Coresight TPIU
+            "0x8070000:12", // Coresight STM Debug APG
+            "0x8820000:12", // Coresight Funnel (Minor)
+            "0x8a1c000:12", // BPMP CPU0 Coresight ETM
+            "0x9010000:12", // CCPLEX Collator funnel
+            "0x9840000:12", // ARM A57 Core CPU0 Coresight ETM
+            "0x9940000:12", // ARM A57 Core CPU1 Coresight ETM
+                            // (shouldn't be needed)
+            "0x9a40000:12", // ARM A57 Core CPU2 Coresight ETM
+                            // (shouldn't be needed)
+            "0x9b40000:12", // ARM A57 Core CPU3 Coresight ETM
+                            // (shouldn't be needed)
+            "0xB150000:16", // tegra-hsp@B150000
+            "0xC150000:16", // tegra-hsp@B150000
+            "0xc160000:17", // AON HSP SM_0_1
+            "0xc180000:18", // AON_HSP_SM_4_5
+            "0xc2f0000:13", // GPIO controller
+            "0xC300000:14", // pinmux controller
+            "0xC360000:12", // pmc@c360000
+            "0xC370000:12", // pmc@c370000 Always on domain
+            "0x3004e000:13", // More mailboxes
+
+            /* The purpose of this untyped region is to force the untyped
+             * allocator to treat this memory region as reserved so that when we
+             * try to ensure that the VMM is placed into this region in RAM, it
+             * will definitely be available for placement.
+             *
+             * This address pertains to guest-vm@f1000000 in the overlay DTS
+             */
+            "0xF1000000:27" // VM RAM DMA region
+        ];
+        vm.irqs = [
+            31, // Legacy nIRQ
+            27, // TX2_IRQ_PPI_VTIMER,
+            144, // TX2_UARTA,
+            145, // TX2_UARTB,
+            146, // TX2_UARTC,
+            147, // TX2_UARTD,
+            148, // TX2_UARTE,
+            149, // TX2_UARTF,
+            150, // TX2_UARTG,
+            77, // TX2_GPIO0_0,
+            78, // TX2_GPIO0_1,
+            79, // TX2_GPIO0_2,
+            80, // TX2_GPIO1_0,
+            81, // TX2_GPIO1_1,
+            82, // TX2_GPIO1_2,
+            83, // TX2_GPIO2_0,
+            84, // TX2_GPIO2_1,
+            85, // TX2_GPIO2_2,
+            86, // TX2_GPIO3_0,
+            87, // TX2_GPIO3_1,
+            88, // TX2_GPIO3_2,
+            89, // TX2_GPIO4_0,
+            90, // TX2_GPIO4_1,
+            91, // TX2_GPIO4_2,
+            32, // TX2_TOP_TKE_SHARED0,
+            33, // TX2_TOP_TKE_SHARED1,
+            34, // TX2_TOP_TKE_SHARED2,
+            35, // TX2_TOP_TKE_SHARED3,
+            36, // TX2_TOP_TKE_SHARED4,
+            37, // TX2_TOP_TKE_SHARED5,
+            38, // TX2_TOP_TKE_SHARED6,
+            39, // TX2_TOP_TKE_SHARED7,
+            40, // TX2_TOP_TKE_SHARED8,
+            41 // TX2_TOP_TKE_SHARED9,
+        ];
+	}
+}
