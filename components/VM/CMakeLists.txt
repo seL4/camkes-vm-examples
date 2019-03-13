@@ -37,7 +37,7 @@ config_option(VmVchan VM_VCHAN
 
 config_option(VmVirtioNet VM_VIRTIO_NET
     "Enable virtio net module"
-    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
+    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;LibSel4ArmVMMVPCISupport"
     DEFAULT OFF)
 
 config_choice(VmRootfs VM_ROOTFS

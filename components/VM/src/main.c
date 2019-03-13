@@ -511,6 +511,10 @@ install_linux_devices(vm_t* vm)
     int err;
     int i;
     /* Install virtual devices */
+    if (config_set(CONFIG_LIB_SEL4_ARM_VMM_VPCI_SUPPORT)) {
+        err = vm_install_vpci(vm);
+        assert(!err);
+    }
     err = vm_install_vgic(vm);
     assert(!err);
     err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
@@ -719,9 +723,6 @@ main_continued(void)
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
 #endif /* CONFIG_PLAT_EXYNOS5 */
-
-    err = vm_install_vpci(&vm);
-    assert(!err);
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);
