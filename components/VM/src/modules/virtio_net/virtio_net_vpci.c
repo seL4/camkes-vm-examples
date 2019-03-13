@@ -56,7 +56,7 @@ pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
     return advance_fault(fault);
 }
 
-const struct device dev_vpci_virtio_io_dist = {
+const struct device dev_vpci_virtio_io = {
     .devid = DEV_CUSTOM,
     .name = "vpci.virtio_io",
     .pstart = PCI_IO_REGION_ADDR + PCI_IO_REGION_SIZE,
@@ -66,7 +66,7 @@ const struct device dev_vpci_virtio_io_dist = {
 };
 
 int install_virtio_net_device(vm_t* vm) {
-    int err = vm_add_device(vm, &dev_vpci_virtio_io_dist);
+    int err = vm_add_device(vm, &dev_vpci_virtio_io);
     if(err) {
         ZF_LOGE("Failed to install Virtio PCI IOPort device");
     }
