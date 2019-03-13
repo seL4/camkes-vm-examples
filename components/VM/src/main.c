@@ -583,7 +583,7 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
     }
     switch (ret_file_type) {
     case IMG_BIN:
-        if (config_set(CONFIG_PLAT_TX1)) {
+        if (config_set(CONFIG_PLAT_TX1) || config_set(CONFIG_PLAT_TX2)) {
             /* This is likely an aarch64/aarch32 linux difference */
             load_addr = LINUX_RAM_BASE + 0x80000;
         } else {
@@ -720,10 +720,10 @@ int main_continued(void)
     }
 #endif /* CONFIG_ARM_SMMU */
 
-#ifdef CONFIG_PLAT_EXYNOS5
+#if defined(CONFIG_PLAT_EXYNOS5) || defined(CONFIG_PLAT_TX2)
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
-#endif /* CONFIG_PLAT_EXYNOS5 */
+#endif /* CONFIG_PLAT_EXYNOS5410 || CONFIG_PLAT_TX2 */
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);
