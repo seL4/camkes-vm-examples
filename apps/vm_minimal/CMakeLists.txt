@@ -53,7 +53,7 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
 
     AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux")
     AddToFileServer("linux-dtb" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb")
-
+    AddToFileServer("linux-initrd" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
 endif()
 
 AddCamkesCPPFlag(cpp_flags
