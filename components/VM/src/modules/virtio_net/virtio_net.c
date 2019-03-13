@@ -40,28 +40,12 @@ static virtio_net_t *virtio_net = NULL;
 static virtio_emul_vm_t virtio_emul_vm;
 static virq_handle_t virtio_net_irq_handle;
 
-volatile Buf*__attribute__((weak)) ethdriver_buf;
-
 /* Maximum transmission unit for Ethernet interface */
 #define MTU 1500
 
-int __attribute__((weak)) ethdriver_tx(int len) {
-    ZF_LOGF("should not be here");
-    return 0;
-}
-
-int __attribute__((weak)) ethdriver_rx(int *len) {
-    ZF_LOGF("should not be here");
-    return 0;
-}
 
 void ethdriver_mac(uint8_t *b1, uint8_t *b2, uint8_t *b3, uint8_t *b4, uint8_t *b5, uint8_t *b6) {
     *b1 = 6; *b2 = 0; *b3 = 0; *b4 = 11; *b5 = 12; *b6 = 13;
-}
-
-int __attribute__((weak)) eth_rx_ready_reg_callback(void (*proc)(void*),void *blah) {
-    ZF_LOGF("should not be here");
-    return 0;
 }
 
 static void emul_raw_handle_irq(struct eth_driver *driver, int irq) {
