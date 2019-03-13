@@ -61,6 +61,7 @@ int VM_PRIO = 100;
 #define VM_BADGE            (1U << 0)
 #define VM_LINUX_NAME       "linux"
 #define VM_LINUX_DTB_NAME   "linux-dtb"
+#define VM_LINUX_INITRD_NAME "linux-initrd"
 #define VM_NAME             "Linux"
 
 #define IRQSERVER_PRIO      (VM_PRIO + 1)
@@ -606,6 +607,9 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
     case IMG_DTB:
         load_addr = DTB_ADDR;
         break;
+    case IMG_INITRD:
+        load_addr = INITRD_ADDR;
+        break;
     default:
         ZF_LOGE("Error: Unknown Linux image format for \'%s\'", kernel_name);
         close(fd);
@@ -634,7 +638,7 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
 }
 
 static int
-load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
+load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name, const char* initrd_name)
 {
     void* entry;
     void* dtb;
@@ -660,6 +664,12 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name)
     dtb = install_vm_module(vm, dtb_name, IMG_DTB);
     if (!dtb) {
         return -1;
+    }
+
+    /* Attempt to load initrd if provided */
+    void *initrd = install_vm_module(vm, initrd_name, IMG_INITRD);
+    if (!initrd) {
+        ZF_LOGE("No external initrd provided (will continue booting)");
     }
 
     /* Set boot arguments */
@@ -728,7 +738,7 @@ main_continued(void)
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);
-    err = load_linux(&vm, VM_LINUX_NAME, VM_LINUX_DTB_NAME);
+    err = load_linux(&vm, VM_LINUX_NAME, VM_LINUX_DTB_NAME, VM_LINUX_INITRD_NAME);
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();

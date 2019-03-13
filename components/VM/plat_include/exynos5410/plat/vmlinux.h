@@ -25,6 +25,8 @@
 #define PLAT_RAM_END      0xc0000000
 #define LINUX_RAM_OFFSET  0
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x0F000000)
+#define INITRD_MAX_SIZE   0x1900000 //25 MB
+#define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x4D700000
 
 static const int linux_pt_irqs[] = {
     27, 85, 107, 109,
