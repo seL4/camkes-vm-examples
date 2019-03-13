@@ -49,8 +49,10 @@ pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
 
     if(is_in) {
         memcpy(&fault_data, (void *)&value, width_to_size(fault_get_width(fault)));
-        seL4_Word s = (fault_get_address(fault) & 0x3) * 8;
-        fault_set_data(fault, fault_data << s);
+        /* Shift data to compensate for alignment.
+         * We align the data at the correct offset in the word */
+        seL4_Word shift = (fault_get_address(fault) & 0x3) * 8;
+        fault_set_data(fault, fault_data << shift);
     }
 
     return advance_fault(fault);
