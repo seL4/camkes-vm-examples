@@ -43,9 +43,16 @@ static virq_handle_t virtio_net_irq_handle;
 /* Maximum transmission unit for Ethernet interface */
 #define MTU 1500
 
+#define MAC_ADDR_B1 6
+#define MAC_ADDR_B2 0
+#define MAC_ADDR_B3 0
+#define MAC_ADDR_B4 11
+#define MAC_ADDR_B5 12
+#define MAC_ADDR_B6 13
 
 void ethdriver_mac(uint8_t *b1, uint8_t *b2, uint8_t *b3, uint8_t *b4, uint8_t *b5, uint8_t *b6) {
-    *b1 = 6; *b2 = 0; *b3 = 0; *b4 = 11; *b5 = 12; *b6 = 13;
+    *b1 = MAC_ADDR_B1; *b2 = MAC_ADDR_B2; *b3 = MAC_ADDR_B3;
+    *b4 = MAC_ADDR_B4; *b5 = MAC_ADDR_B5; *b6 = MAC_ADDR_B6;
 }
 
 static void emul_raw_handle_irq(struct eth_driver *driver, int irq) {
