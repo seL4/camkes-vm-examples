@@ -62,17 +62,22 @@ static void emul_raw_handle_irq(struct eth_driver *driver, int irq) {
 static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *phys, unsigned int *len, void *cookie) {
     size_t tot_len = 0;
     char ethbuffer[MTU];
+    bool complete = true;
+
     for (int i = 0; i < num; i++) {
-        memcpy((void *)ethbuffer + tot_len, (void *)phys[i], len[i]);
+        if (tot_len + len[i] > MTU) {
+            ZF_LOGE("TX data exceeds MTU (%d) - truncating remaining data", MTU);
+        }
+        memcpy((void *)ethbuffer + tot_len, (void *)phys[i], MIN(len[i], MTU - tot_len));
         tot_len += len[i];
         if (tot_len > MTU) {
-            ZF_LOGE("TX data exceeds MTU (%d) - Any remaining data will be lost", MTU);
+            complete = false;
             break;
         }
     }
 
     arping_reply(ethbuffer, virtio_net);
-    return ETHIF_TX_COMPLETE;
+    return complete ? ETHIF_TX_COMPLETE: ETHIF_TX_FAILED;
 }
 
 
