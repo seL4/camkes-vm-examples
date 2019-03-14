@@ -39,7 +39,6 @@ component gpiobase {
     dataport Buf gpio1base;
     dataport Buf gpio2base;
     dataport Buf irqcbase;
-    dataport Buf clk_tree;
     emits IRQGroup26 irq_grp26_int;
     emits IRQGroup28 irq_grp28_int;
     emits IRQGroup31 irq_grp31_int;
@@ -102,12 +101,16 @@ assembly {
         connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
         connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
         connection seL4HardwareMMIO gpio_mem3(from gpio_obj.irqcbase, to gpiobase_obj.irqcbase);
-        connection seL4HardwareMMIO gpio_clk(from gpio_obj.clk_tree, to gpiobase_obj.clk_tree);
+        connection seL4HardwareMMIO gpio_clk(from gpio_obj.clk_tree, to clkbase_obj.cmu_top_clk);
 
         connection seL4HardwareMMIO clk_cmu_cpu_mem(from clk_obj.cmu_cpu_clk, to clkbase_obj.cmu_cpu_clk);
         connection seL4HardwareMMIO clk_cmu_top_mem(from clk_obj.cmu_top_clk, to clkbase_obj.cmu_top_clk);
         connection seL4HardwareMMIO clk_cmu_core_mem(from clk_obj.cmu_core_clk, to clkbase_obj.cmu_core_clk);
 
+        connection seL4HardwareMMIO vm_cmu_cpu_mem(from vm.cmu_cpu, to clkbase_obj.cmu_cpu_clk);
+        connection seL4HardwareMMIO vm_cmu_top_mem(from vm.cmu_top, to clkbase_obj.cmu_top_clk);
+        connection seL4HardwareMMIO vm_cmu_core_mem(from vm.cmu_core, to clkbase_obj.cmu_core_clk);
+        connection seL4HardwareMMIO vm_gpio_right_mem(from vm.gpio_right, to gpiobase_obj.gpio1base);
         /* Interrupts */
         connection seL4HardwareInterrupt spi1_irq(from spibase_obj.spi1_int, to spi_obj.spi1_int);
         connection seL4HardwareInterrupt gpio_grp28_irq(from gpiobase_obj.irq_grp28_int, to gpio_obj.irq_grp28_int);
@@ -181,9 +184,6 @@ assembly {
         gpiobase_obj.gpio1base_paddr = 0x13400000;
         gpiobase_obj.gpio1base_size = 0x1000;
 
-        gpiobase_obj.clk_tree_paddr = 0x10020000;
-        gpiobase_obj.clk_tree_size = 0x1000;
-
         gpiobase_obj.irqcbase_paddr = 0x10440000;
         gpiobase_obj.irqcbase_size = 0x1000;
 
@@ -235,10 +235,6 @@ assembly {
                     "0x12200000:12", // MSH0
                     "0x12220000:12", // MSH2
                     "0x40000000:29"]; // RAM
-        vm.mmios = ["0x10010000:0x1000:12", // CMU_CPU
-                    "0x10020000:0x1000:12", // CMU_TOP
-                    "0x13400000:0x1000:12", // GPIO_RIGHT
-                    "0x10014000:0x1000:12"]; // CMU_CORE
         vm.irqs =  [27, // VTCNT (arch timer)
                     85, // UART2
                     107, // SDMMC0

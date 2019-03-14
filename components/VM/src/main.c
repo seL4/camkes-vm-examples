@@ -220,9 +220,34 @@ error:
     return NULL;
 }
 
+
+/* Force the _dataport_frames  section to be created even if no modules are defined. */
+static USED SECTION("_dataport_frames") struct {} dummy_dataport_frame;
+extern dataport_frame_t __start__dataport_frames[];
+extern dataport_frame_t __stop__dataport_frames[];
+
+static void *find_dataport_frame(uintptr_t paddr, uintptr_t size)
+{
+    for (dataport_frame_t *frame = __start__dataport_frames;
+         frame < __stop__dataport_frames; frame++) {
+         if (frame->paddr == paddr) {
+             if (frame->size == size) {
+                return (void *) frame->vaddr;
+             } else {
+                 ZF_LOGF("ERROR: found mapping for %p, wrong size %zu, expected %zu", (void *) paddr, frame->size, size);
+             }
+         }
+    }
+    return NULL;
+}
+
 static void *
 vm_map_paddr(void *cookie, uintptr_t paddr, size_t size, int cached, ps_mem_flags_t flags)
 {
+    void *vaddr = find_dataport_frame(paddr, size);
+    if (vaddr) {
+        return vaddr;
+    }
     vm_io_cookie_t* io_mapper = (vm_io_cookie_t*)cookie;
 
     int frame_size_index = 0;

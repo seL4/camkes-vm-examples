@@ -30,6 +30,10 @@ component VM {
 
 #ifdef KERNELARMPLATFORM_EXYNOS5410
     uses pwm_inf pwm;
+    dataport Buf cmu_cpu;
+    dataport Buf cmu_top;
+    dataport Buf gpio_right;
+    dataport Buf cmu_core;
 #endif
     maybe consumes restart restart_event;
     has semaphore vm_sem;
