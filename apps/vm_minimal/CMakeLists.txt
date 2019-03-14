@@ -52,8 +52,14 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 
     AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux")
-    AddToFileServer("linux-dtb" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb")
-    AddToFileServer("linux-initrd" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
+    # Generate overlayed rootfs
+    set(rootfs_file "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
+    AddToFileServer("linux-initrd" ${rootfs_file})
+    # Updated dtb based on initrd
+    UpdateDtbFromInitrd("${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb" ${rootfs_file}
+        "0x4d700000" dtb_gen_target output_dtb_location)
+    AddToFileServer("linux-dtb" "${output_dtb_location}"
+        DEPENDS dtb_gen_target)
 endif()
 
 AddCamkesCPPFlag(cpp_flags
