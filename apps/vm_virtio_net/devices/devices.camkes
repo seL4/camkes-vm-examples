@@ -1,0 +1,181 @@
+/*
+ * Copyright 2019, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+assembly {
+	composition {}
+	configuration {
+        vm.untyped_mmios = [
+                    "0x02073000:12", // FIRMWARE
+                    "0x03810000:12", // AUDSS CLOCK CONTROLLER
+                    "0x03830000:12", // I2S IIS
+                    "0x03860000:12", // PINCTRL GPZ
+                    "0x03880000:12", // ADMA
+                    "0x10000000:12", // CHIP_ID
+                    "0x10010000:12", // CMU_CPU
+                    "0x10014000:12", // CMU_CORE
+                    "0x10018000:12", // CMU_ACP
+                    "0x1001c000:12", // CMU_ISP
+                    "0x10020000:12", // CMU_TOP
+                    "0x10030000:12", // CMU_COREX
+                    "0x10038000:12", // CMU_MEM
+                    "0x10040000:12", // POWER0
+                    "0x10041000:12", // POWER1
+                    "0x10042000:12", // POWER2
+                    "0x10043000:12", // POWER3
+                    "0x10044000:12", // POWER4
+                    "0x10050000:12", // SYSREG
+                    "0x10060000:12", // TMU
+                    "0x10064000:12", // TMU
+                    "0x10068000:12", // TMU
+                    "0x1006c000:12", // TMU
+                    "0x100a0000:12", // TMU
+                    "0x101d0000:12", // WATCHDOG
+                    "0x101e0000:12", // RTC
+                    "0x10440000:12", // INTERRUPT-CONTROLLER
+                    "0x10486000:12", // VCPU
+                    "0x10800000:12", // MDMA
+                    "0x10a60000:12", // SYSMMU 2D
+                    "0x10a70000:12", // SYSMMU G2D WR
+                    "0x10d20000:12", // CCI
+                    "0x10d25000:12", // CCI
+                    "0x10ca1000:12", // NOCP
+                    "0x11200000:12", // SYSMMU MFC0
+                    "0x11210000:12", // SYSMMU MFC1
+                    "0x11d40000:12", // SYSMMU ROTATOR
+                    "0x11f10000:12", // SYSMMU JPEG
+                    "0x11f20000:12", // SYSMMU JPEG2
+                    "0x12000000:16", // USB3-0
+                    "0x12100000:12", // USB PHY0
+                    "0x12110000:12", // USB EHCI
+                    "0x12120000:12", // USB_OHCI
+                    "0x12130000:12", // USB CTRL
+                    "0x121a0000:12", // PDMA0
+                    "0x121b0000:12", // PDMA1
+                    "0x12200000:12", // MSH0-0
+                    "0x12201000:12", // MSH0-1
+                    "0x12220000:12", // MSH2
+                    "0x12400000:16", // USB3-1
+                    "0x12500000:12", // USB PHY1
+                    "0x12880000:12", // SYSMMU R MSCL0
+                    "0x12890000:12", // SYSMMU R MSCL1
+                    "0x128a0000:12", // SYSMMU R MSCL2
+                    "0x128c0000:12", // SYSMMU W MSCL0
+                    "0x128d0000:12", // SYSMMU W MSCL1
+                    "0x128e0000:12", // SYSMMU W MSCL2
+                    "0x12c00000:12", // UART0
+                    "0x12c10000:12", // UART1
+                    "0x12c20000:12", // UART2
+                    "0x12c30000:12", // UART3
+                    "0x12c60000:12", // I2C0
+                    "0x12c70000:12", // I2C1
+                    "0x12c80000:12", // 12C2
+                    "0x12c90000:12", // I2C3
+                    "0x12ca0000:12", // I2C4
+                    "0x12cb0000:12", // I2C5
+                    "0x12cc0000:12", // I2C6
+                    "0x12cd0000:12", // I2C7
+                    "0x12d10000:12", // ADC
+                    "0x12dd0000:12", // PWM
+                    "0x13400000:12", // GPIO RIGHT
+                    "0x13410000:12", // GPIO TOP
+                    "0x13e00000:12", // VIDEO SCALER0
+                    "0x13e10000:12", // VIDEO SCALER1
+                    "0x13e80000:12", // SYSMMU GSCALER0
+                    "0x13e90000:12", // SYSMMU GSCALER1
+                    "0x14010000:12", // PINCTRL3
+                    "0x14640000:12", // SYSMMU FIMD1
+                    "0x14650000:12", // SYSMMU TV
+                    "0x14680000:12", // SYSMMU FIMD1 M1
+                    "0x40000000:28"]; // RAM //:29
+
+        vm.irqs =  [27, // VTCNT (arch timer)
+                    32, // INTERRUPT CONTROLLER
+                    33, // INTERRUPT CONTROLLER
+                    34, // INTERRUPT CONTROLLER
+                    35, // INTERRUPT CONTROLLER
+                    36, // INTERRUPT CONTROLLER
+                    37, // INTERRUPT CONTROLLER
+                    38, // INTERRUPT CONTROLLER
+                    39, // INTERRUPT CONTROLLER
+                    40, // INTERRUPT CONTROLLER
+                    41, // INTERRUPT CONTROLLER
+                    42, // INTERRUPT CONTROLLER
+                    43, // INTERRUPT CONTROLLER
+                    44, // INTERRUPT CONTROLLER
+                    45, // INTERRUPT CONTROLLER
+                    46, // INTERRUPT CONTROLLER
+                    47, // INTERRUPT CONTROLLER
+                    48, // INTERRUPT CONTROLLER
+                    49, // INTERRUPT CONTROLLER
+                    50, // INTERRUPT CONTROLLER
+                    51, // INTERRUPT CONTROLLER
+                    52, // INTERRUPT CONTROLLER
+                    53, // INTERRUPT CONTROLLER
+                    54, // INTERRUPT CONTROLLER
+                    55, // INTERRUPT CONTROLLER
+                    56, // INTERRUPT CONTROLLER
+                    57, // INTERRUPT CONTROLLER
+                    58, // INTERRUPT CONTROLLER
+                    59, // INTERRUPT CONTROLLER
+                    60, // INTERRUPT CONTROLLER
+                    61, // INTERRUPT CONTROLLER
+                    62, // INTERRUPT CONTROLLER
+                    63, // INTERRUPT CONTROLLER
+                    64, // PINCTRL WAKEUP
+                    65, // MDMA
+                    66, // PDMA
+                    67, // PDMA
+                    68, // PWM
+                    69, // PWM
+                    70, // PWM
+                    71, // PWM
+                    72, // PWM
+                    74, // WATCHDOG
+                    75, // RTC
+                    76, // RTC
+                    77, // GPIO RIGHT
+                    78, // GPIO LEFT
+                    79, // PINCTRL GPZ
+                    82, // PINCTRL3
+                    83, // UART0
+                    84, // UART1
+                    85, // UART2
+                    86, // UART3
+                    88, // I2C0
+                    89, // I2C1
+                    90, // I2C2
+                    91, // I2C3
+                    92, // I2C4
+                    93, // I2C5
+                    94, // I2C6
+                    95, // I2C7
+                    106, // G3D MMU
+                    107, // SDMMC0
+                    109, // SDMMC2
+                    110, // GPIO TOP
+                    116, // ROTATOR
+                    117, // VIDEO SCALER
+                    118, // VIDEO SCALER
+                    138, // ADC
+                    142, // ADMA
+                    144, // SSS
+                    146, // CEC
+                    192, // KFC CPU0
+                    193, // KFC CPU1
+                    194, // KFC CPU2
+                    195, // KFC CPU3
+                    201, // SYSMMU JPEG2X
+                    218, // SYSMMU R MSCL1
+                    220, // SYSMMU R MSCL2
+                    103]; //USB
+	}
+}
