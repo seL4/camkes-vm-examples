@@ -511,7 +511,7 @@ install_linux_devices(vm_t* vm)
     int err;
     int i;
     /* Install virtual devices */
-    if (config_set(CONFIG_LIB_SEL4_ARM_VMM_VPCI_SUPPORT)) {
+    if (config_set(CONFIG_VM_PCI_SUPPORT)) {
         err = vm_install_vpci(vm);
         assert(!err);
     }

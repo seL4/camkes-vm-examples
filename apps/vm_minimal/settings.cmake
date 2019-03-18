@@ -23,7 +23,6 @@ endif()
 
 set(LibUSB OFF CACHE BOOL "" FORCE)
 if(${KernelARMPlatform} STREQUAL "exynos5422")
-    set(LibSel4ArmVMMVPCISupport ON CACHE BOOL "" FORCE)
-    set(LibSel4ArmVMMIOPortsSupport ON CACHE BOOL "" FORCE)
+    set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioNet ON CACHE BOOL "" FORCE)
 endif()

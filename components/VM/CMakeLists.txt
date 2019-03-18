@@ -35,9 +35,14 @@ config_option(VmVchan VM_VCHAN
     DEPENDS "KernelPlatformExynos5410"
     DEFAULT OFF)
 
+config_option(VmPCISupport VM_PCI_SUPPORT
+    "Enable virtual pci device support"
+    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
+    DEFAULT OFF)
+
 config_option(VmVirtioNet VM_VIRTIO_NET
     "Enable virtio net module"
-    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;LibSel4ArmVMMVPCISupport;LibSel4ArmVMMIOPortsSupport"
+    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
     DEFAULT OFF)
 
 config_choice(VmRootfs VM_ROOTFS
