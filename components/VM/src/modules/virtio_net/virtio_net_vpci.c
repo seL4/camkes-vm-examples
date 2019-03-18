@@ -46,7 +46,7 @@ pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
     } else {
         value = fault_get_data(fault);
     }
-    emulate_io_handler(&vm->io_port, virtio_port, is_in, width_to_size(fault_get_width(fault)), (void *)&value);
+    emulate_io_handler(vm->io_port, virtio_port, is_in, width_to_size(fault_get_width(fault)), (void *)&value);
 
     if (is_in) {
         memcpy(&fault_data, (void *)&value, width_to_size(fault_get_width(fault)));

@@ -105,7 +105,7 @@ void make_virtio_net(vm_t *vm, void* cookie)
     int err = install_virtio_net_device(vm);
     assert(!err);
     virtio_emul_vm.vm = vm;
-    virtio_net = common_make_virtio_net(&virtio_emul_vm, &vm->pci, &vm->io_port, VIRTIO_NET_IOPORT_START, VIRTIO_NET_IOPORT_SIZE,
+    virtio_net = common_make_virtio_net(&virtio_emul_vm, vm->pci, vm->io_port, VIRTIO_NET_IOPORT_START, VIRTIO_NET_IOPORT_SIZE,
                                         VIRTIO_NET_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend);
     assert(virtio_net);
     virtio_net_irq_handle = vm_virq_new(vm, VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
