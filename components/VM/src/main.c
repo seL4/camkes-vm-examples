@@ -512,6 +512,8 @@ install_linux_devices(vm_t* vm)
     int i;
     /* Install virtual devices */
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
+        /* Initialise IOPorts */
+        vmm_io_port_init(&vm->io_port);
         err = vm_install_vpci(vm);
         assert(!err);
     }
