@@ -42,7 +42,7 @@ AddCamkesCPPFlag(cpp_flags
 
 DefineCAmkESVMFileServer()
 
-CAmkESAddImportPath(devices)
+CAmkESAddImportPath(exynos5422)
 
 # Declare root server
 DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags})
