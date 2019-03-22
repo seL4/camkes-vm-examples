@@ -387,9 +387,9 @@ static const int linux_pt_irqs[] = {
 
 /* the offset between actual physcial memory and guest physical memory */
 // #define LINUX_RAM_OFFSET  (LINUX_RAM_PADDR_BASE - LINUX_RAM_BASE)
-#define DTB_ADDR          (LINUX_RAM_BASE + 0x01000000)
+#define DTB_ADDR          (LINUX_RAM_BASE + 0x02000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
-#define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x4D700000
+#define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
 
 #endif /* VMLINUX_H */
 
