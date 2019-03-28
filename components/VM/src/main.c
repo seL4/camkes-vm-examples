@@ -667,9 +667,11 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name, const char* 
     }
 
     /* Attempt to load initrd if provided */
-    void *initrd = install_vm_module(vm, initrd_name, IMG_INITRD);
-    if (!initrd) {
-        ZF_LOGE("No external initrd provided (will continue booting)");
+    if (config_set(CONFIG_VM_INITRD_FILE)) {
+        void *initrd = install_vm_module(vm, initrd_name, IMG_INITRD);
+        if (!initrd) {
+            ZF_LOGE("No external initrd provided (will continue booting)");
+        }
     }
 
     /* Set boot arguments */

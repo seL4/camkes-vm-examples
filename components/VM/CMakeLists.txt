@@ -73,6 +73,10 @@ config_option(Tk1Insecure TK1_INSECURE
     DEPENDS "KernelPlatformTK1"
     DEFAULT OFF)
 
+config_option(VmInitRdFile VM_INITRD_FILE
+    "Enables the option for the VM to open and load a seperate initrd file"
+    DEFAULT OFF)
+
 add_config_library(arm_vm "${configure_string}")
 
 file(GLOB vm_src src/*.c)
