@@ -11,12 +11,12 @@
 #
 
 set(supported "tk1;tx1;exynos5422")
-if (NOT "${PLATFORM}" IN_LIST supported)
+if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
 endif()
 set(KernelARMPlatform "${PLATFORM}" CACHE STRING "" FORCE)
-if (${KernelARMPlatform} STREQUAL "tk1")
+if(${KernelARMPlatform} STREQUAL "tk1")
     set(KernelArmSMMU ON CACHE BOOL "" FORCE)
     set(KernelARMSMMUInterruptEnable ON CACHE BOOL "" FORCE)
 endif()

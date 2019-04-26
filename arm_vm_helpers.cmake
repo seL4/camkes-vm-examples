@@ -20,14 +20,10 @@ cmake_minimum_required(VERSION 3.8.2)
 # e.g VMVCHAN=0. Intended to be used with CMake variables that contain boolean
 # values.
 function(AddCamkesCPPFlag configure_string)
-    cmake_parse_arguments(PARSE_ARGV 1 ADD_CPP
-         ""
-         ""
-         "CONFIG_VARS"
-    )
+    cmake_parse_arguments(PARSE_ARGV 1 ADD_CPP "" "" "CONFIG_VARS")
     foreach(configure_var IN LISTS ADD_CPP_CONFIG_VARS)
         # Convert the configuration variable name into uppercase
-        string(TOUPPER  ${configure_var} config_var_name)
+        string(TOUPPER ${configure_var} config_var_name)
         if(${${configure_var}})
             # If ON value, set the flag to "=1"
             list(APPEND ${configure_string} "-D${config_var_name}=1")
