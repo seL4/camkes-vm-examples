@@ -27,8 +27,19 @@ function(CakeMLPP dest_dir)
         get_filename_component(filename ${source_file} NAME)
         set(dest_file ${dest_dir}/${filename})
         configure_file(${source_file} ${dest_file} @ONLY)
-        set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${source_file}")
-        string(REGEX REPLACE "Script.sml" "" theory_name ${filename})
+        set_property(
+            DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            APPEND
+            PROPERTY CMAKE_CONFIGURE_DEPENDS "${source_file}"
+        )
+        string(
+            REGEX
+            REPLACE
+                "Script.sml"
+                ""
+                theory_name
+                ${filename}
+        )
         set(DEPENDENCY_PATH ${theory_name})
     endforeach()
 endfunction()

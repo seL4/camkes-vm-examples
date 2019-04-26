@@ -12,10 +12,17 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-find_file(VM_SETTINGS_PATH camkes_vm_settings.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/vm/ CMAKE_FIND_ROOT_PATH_BOTH)
+find_file(
+    VM_SETTINGS_PATH camkes_vm_settings.cmake
+    PATHS ${CMAKE_SOURCE_DIR}/projects/vm/
+    CMAKE_FIND_ROOT_PATH_BOTH
+)
 mark_as_advanced(FORCE VM_SETTINGS_PATH)
 if("${VM_SETTINGS_PATH}" STREQUAL "VM_SETTINGS_PATH-NOTFOUND")
-    message(FATAL_ERROR "Failed to find camkes_vm_settings.cmake. Consider cmake -DVM_SETTINGS_PATH=/path/to/camkes_vm_settings.cmake")
+    message(
+        FATAL_ERROR
+            "Failed to find camkes_vm_settings.cmake. Consider cmake -DVM_SETTINGS_PATH=/path/to/camkes_vm_settings.cmake"
+    )
 endif()
 include(${VM_SETTINGS_PATH})
 
