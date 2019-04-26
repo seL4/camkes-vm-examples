@@ -10,6 +10,8 @@
 # @TAG(DATA61_BSD)
 #
 
+include(${CMAKE_CURRENT_LIST_DIR}/easy-settings.cmake)
+
 # Kernel settings
 set(KernelArch "arm" CACHE STRING "" FORCE)
 if(AARCH64)
@@ -31,7 +33,6 @@ set(CapDLLoaderMaxObjects 90000 CACHE STRING "" FORCE)
 set(CAmkESCPP ON CACHE BOOL "" FORCE)
 
 # Release settings
-set(RELEASE OFF CACHE BOOL "Performance optimized build")
 ApplyCommonReleaseVerificationSettings(${RELEASE} FALSE)
 
 if(NOT CAMKES_VM_APP)
@@ -40,9 +41,6 @@ if(NOT CAMKES_VM_APP)
             "CAMKES_VM_APP is not defined. Pass CAMKES_VM_APP to specify the VM application to build e.g. vm_minimal, odroid_vm"
     )
 endif()
-
-# Make CAMKES_VM_APP available to change in the ccmake interface
-set(CAMKES_VM_APP "${CAMKES_VM_APP}" CACHE STRING "CAmkES VM application to build")
 
 # Add VM application
 include("${CMAKE_CURRENT_LIST_DIR}/apps/${CAMKES_VM_APP}/settings.cmake")
