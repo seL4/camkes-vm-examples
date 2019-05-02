@@ -51,6 +51,7 @@
 
 #include <camkes.h>
 #include <camkes/tls.h>
+#include <camkes/dataport.h>
 
 #include <vmlinux.h>
 #include "fsclient.h"
@@ -223,12 +224,6 @@ error:
     }
     return NULL;
 }
-
-
-/* Force the _dataport_frames  section to be created even if no modules are defined. */
-static USED SECTION("_dataport_frames") struct {} dummy_dataport_frame;
-extern dataport_frame_t __start__dataport_frames[];
-extern dataport_frame_t __stop__dataport_frames[];
 
 static void *find_dataport_frame(uintptr_t paddr, uintptr_t size)
 {
