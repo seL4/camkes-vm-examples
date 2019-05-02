@@ -89,14 +89,13 @@ static jmp_buf restart_jmp_buf;
 
 void camkes_make_simple(simple_t *simple);
 
-static int
-_dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor* dma_desc)
+static int _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor *dma_desc)
 {
     static uint32_t _vaddr = DMA_VSTART;
     struct seL4_ARM_Page_GetAddress getaddr_ret;
     seL4_CPtr frame;
     seL4_CPtr pd;
-    vka_t* vka;
+    vka_t *vka;
     int err;
 
     pd = simple_get_pd(&_simple);
@@ -142,7 +141,7 @@ _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor* dma_desc)
     dma_desc->paddr = getaddr_ret.paddr;
     dma_desc->cached = 0;
     dma_desc->size_bits = 12;
-    dma_desc->alloc_cookie = (void*)frame;
+    dma_desc->alloc_cookie = (void *)frame;
     dma_desc->cookie = NULL;
     /* Advance the virtual address marker */
     _vaddr += BIT(12);
@@ -155,8 +154,8 @@ typedef struct vm_io_cookie {
     vspace_t vspace;
 } vm_io_cookie_t;
 
-static void *
-vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t size, int page_size_bits, int cached)
+static void *vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t size, int page_size_bits,
+                                         int cached)
 {
 
     vka_t *vka = &io_mapper->vka;
@@ -190,11 +189,12 @@ vm_map_paddr_with_page_size(vm_io_cookie_t *io_mapper, uintptr_t paddr, size_t s
         cspacepath_t path;
         vka_cspace_make_path(vka, frames[i], &path);
 
-        error = vka_utspace_alloc_at(vka, &path, kobject_get_type(KOBJECT_FRAME, page_size_bits), page_size_bits, start + (i * page_size), &cookies[i]);
+        error = vka_utspace_alloc_at(vka, &path, kobject_get_type(KOBJECT_FRAME, page_size_bits), page_size_bits,
+                                     start + (i * page_size), &cookies[i]);
 
         if (error) {
             cookies[i] = -1;
-            error = simple_get_frame_cap(simple, (void*)start + (i * page_size), page_size_bits, &path);
+            error = simple_get_frame_cap(simple, (void *)start + (i * page_size), page_size_bits, &path);
             if (error) {
                 /* free this slot, and then do general cleanup of the rest of the slots.
                  * this avoids a needless seL4_CNode_Delete of this slot, as there is no
@@ -229,25 +229,24 @@ static void *find_dataport_frame(uintptr_t paddr, uintptr_t size)
 {
     for (dataport_frame_t *frame = __start__dataport_frames;
          frame < __stop__dataport_frames; frame++) {
-         if (frame->paddr == paddr) {
-             if (frame->size == size) {
+        if (frame->paddr == paddr) {
+            if (frame->size == size) {
                 return (void *) frame->vaddr;
-             } else {
-                 ZF_LOGF("ERROR: found mapping for %p, wrong size %zu, expected %zu", (void *) paddr, frame->size, size);
-             }
-         }
+            } else {
+                ZF_LOGF("ERROR: found mapping for %p, wrong size %zu, expected %zu", (void *) paddr, frame->size, size);
+            }
+        }
     }
     return NULL;
 }
 
-static void *
-vm_map_paddr(void *cookie, uintptr_t paddr, size_t size, int cached, ps_mem_flags_t flags)
+static void *vm_map_paddr(void *cookie, uintptr_t paddr, size_t size, int cached, ps_mem_flags_t flags)
 {
     void *vaddr = find_dataport_frame(paddr, size);
     if (vaddr) {
         return vaddr;
     }
-    vm_io_cookie_t* io_mapper = (vm_io_cookie_t*)cookie;
+    vm_io_cookie_t *io_mapper = (vm_io_cookie_t *)cookie;
 
     int frame_size_index = 0;
     /* find the largest reasonable frame size */
@@ -269,17 +268,15 @@ vm_map_paddr(void *cookie, uintptr_t paddr, size_t size, int cached, ps_mem_flag
     return NULL;
 }
 
-static void
-vm_unmap_vaddr(void *cookie, void *vaddr, size_t size)
+static void vm_unmap_vaddr(void *cookie, void *vaddr, size_t size)
 {
     ZF_LOGF("Not unmapping vaddr %p", vaddr);
 }
 
-static int
-vm_new_io_mapper(simple_t simple, vspace_t vspace, vka_t vka, ps_io_mapper_t *io_mapper)
+static int vm_new_io_mapper(simple_t simple, vspace_t vspace, vka_t vka, ps_io_mapper_t *io_mapper)
 {
     vm_io_cookie_t *cookie;
-    cookie = (vm_io_cookie_t*)malloc(sizeof(*cookie));
+    cookie = (vm_io_cookie_t *)malloc(sizeof(*cookie));
     if (!cookie) {
         ZF_LOGE("Failed to allocate %zu bytes", sizeof(*cookie));
         return -1;
@@ -297,13 +294,12 @@ vm_new_io_mapper(simple_t simple, vspace_t vspace, vka_t vka, ps_io_mapper_t *io
     return 0;
 }
 
-static int
-vmm_init(void)
+static int vmm_init(void)
 {
     vka_object_t fault_ep_obj;
-    vka_t* vka;
-    simple_t* simple;
-    vspace_t* vspace;
+    vka_t *vka;
+    simple_t *simple;
+    vspace_t *vspace;
     int err;
 
     vka = &_vka;
@@ -322,12 +318,12 @@ vmm_init(void)
 
     /* Initialize allocator */
     allocman = bootstrap_use_current_1level(
-            simple_get_cnode(simple),
-            simple_get_cnode_size_bits(simple),
-            simple_last_valid_cap(simple) + 1 + num_extra_frame_caps,
-            BIT(simple_get_cnode_size_bits(simple)),
-            sizeof(allocator_mempool), allocator_mempool
-    );
+                   simple_get_cnode(simple),
+                   simple_get_cnode_size_bits(simple),
+                   simple_last_valid_cap(simple) + 1 + num_extra_frame_caps,
+                   BIT(simple_get_cnode_size_bits(simple)),
+                   sizeof(allocator_mempool), allocator_mempool
+               );
     assert(allocman);
 
     allocman_make_vka(vka, allocman);
@@ -341,7 +337,7 @@ vmm_init(void)
         vka_cspace_make_path(vka, cap, &path);
         int utType = device ? ALLOCMAN_UT_DEV : ALLOCMAN_UT_KERNEL;
         if (utType == ALLOCMAN_UT_DEV &&
-            paddr >= LINUX_RAM_PADDR_BASE && paddr <= (LINUX_RAM_PADDR_BASE + (LINUX_RAM_SIZE-1))) {
+            paddr >= LINUX_RAM_PADDR_BASE && paddr <= (LINUX_RAM_PADDR_BASE + (LINUX_RAM_SIZE - 1))) {
             utType = ALLOCMAN_UT_DEV_MEM;
         }
         err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
@@ -350,7 +346,7 @@ vmm_init(void)
 
     /* Initialize the vspace */
     err = sel4utils_bootstrap_vspace(vspace, &_alloc_data,
-            simple_get_init_cap(simple, seL4_CapInitThreadPD), vka, NULL, NULL, existing_frames);
+                                     simple_get_init_cap(simple, seL4_CapInitThreadPD), vka, NULL, NULL, existing_frames);
     assert(!err);
 
     /* Initialise device support */
@@ -383,8 +379,7 @@ vmm_init(void)
     return 0;
 }
 
-static void
-map_unity_ram(vm_t* vm)
+static void map_unity_ram(vm_t *vm)
 {
     /* Dimensions of physical memory that we'll use. Note that we do not map the entirety of RAM.
      */
@@ -396,7 +391,8 @@ map_unity_ram(vm_t* vm)
     uintptr_t start;
     reservation_t res;
     unsigned int bits = seL4_PageBits;
-    res = vspace_reserve_range_at(&vm->vm_vspace, (void*)(paddr_start - LINUX_RAM_OFFSET), paddr_end - paddr_start, seL4_AllRights, 1);
+    res = vspace_reserve_range_at(&vm->vm_vspace, (void *)(paddr_start - LINUX_RAM_OFFSET), paddr_end - paddr_start,
+                                  seL4_AllRights, 1);
     assert(res.res);
     for (start = paddr_start; start < paddr_end; start += BIT(bits)) {
         cspacepath_t frame;
@@ -410,13 +406,14 @@ map_unity_ram(vm_t* vm)
             break;
         }
         uintptr_t addr = start - LINUX_RAM_OFFSET;
-        err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void*)addr, 1, bits, res);
+        err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void *)addr, 1, bits, res);
         assert(!err);
     }
 }
 
 
-void restart_component(void) {
+void restart_component(void)
+{
     longjmp(restart_jmp_buf, 1);
 }
 
@@ -428,7 +425,8 @@ extern char morecore_area[];
 extern char morecore_size[];
 extern uintptr_t morecore_top;
 
-void reset_resources(void) {
+void reset_resources(void)
+{
     simple_t simple;
     camkes_make_simple(&simple);
     int i;
@@ -468,7 +466,8 @@ void reset_resources(void) {
 
 static seL4_CPtr restart_tcb;
 
-static void restart_event(void *arg) {
+static void restart_event(void *arg)
+{
     restart_event_reg_callback(restart_event, NULL);
     seL4_UserContext context = {
         .pc = (seL4_Word)restart_component,
@@ -477,15 +476,13 @@ static void restart_event(void *arg) {
 }
 
 
-static void
-do_irq_server_ack(void* token)
+static void do_irq_server_ack(void *token)
 {
-    struct irq_data* irq_data = (struct irq_data*)token;
+    struct irq_data *irq_data = (struct irq_data *)token;
     irq_data_ack_irq(irq_data);
 }
 
-static void
-irq_handler(struct irq_data* irq_data)
+static void irq_handler(struct irq_data *irq_data)
 {
     virq_handle_t virq;
     int err;
@@ -501,8 +498,7 @@ extern vmm_module_t __start__vmm_module[];
 extern vmm_module_t __stop__vmm_module[];
 
 
-int
-install_linux_devices(vm_t* vm)
+int install_linux_devices(vm_t *vm)
 {
     int err;
     int i;
@@ -518,7 +514,7 @@ install_linux_devices(vm_t* vm)
     err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
     assert(!err);
 
-    int max_vmm_modules = (int) (__stop__vmm_module - __start__vmm_module);
+    int max_vmm_modules = (int)(__stop__vmm_module - __start__vmm_module);
     vmm_module_t *test_types[max_vmm_modules];
     int num_vmm_modules = 0;
     for (vmm_module_t *i = __start__vmm_module; i < __stop__vmm_module; i++) {
@@ -532,13 +528,12 @@ install_linux_devices(vm_t* vm)
 
 }
 
-static int
-route_irqs(vm_t* vm, irq_server_t irq_server)
+static int route_irqs(vm_t *vm, irq_server_t irq_server)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
         irq_t irq = linux_pt_irqs[i];
-        struct irq_data* irq_data;
+        struct irq_data *irq_data;
         virq_handle_t virq;
         irq_handler_fn handler = NULL;
         if (get_custom_irq_handler) {
@@ -555,13 +550,12 @@ route_irqs(vm_t* vm, irq_server_t irq_server)
         if (virq == NULL) {
             return -1;
         }
-        irq_data->token = (void*)virq;
+        irq_data->token = (void *)virq;
     }
     return 0;
 }
 
-void*
-install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
+void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_type)
 {
     int fd;
     unsigned long size;
@@ -612,7 +606,7 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
     }
 
     int error = lseek(fd, 0, SEEK_SET);
-    if(error) {
+    if (error) {
         ZF_LOGE("Could not fseek");
         close(fd);
         return NULL;
@@ -620,7 +614,7 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
 
     char buf[PAGE_SIZE_4K] = {0};
     for (size_t offset = 0; len != 0; offset += len) {
-    /* Load the image */
+        /* Load the image */
         len = read(fd, buf, sizeof(buf));
         if (vm_copyout(vm, buf, load_addr + offset, len)) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
@@ -629,14 +623,13 @@ install_vm_module(vm_t* vm, const char* kernel_name, enum img_type file_type)
         }
     }
     close(fd);
-    return (void*)load_addr;
+    return (void *)load_addr;
 }
 
-static int
-load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name, const char* initrd_name)
+static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
-    void* entry;
-    void* dtb;
+    void *entry;
+    void *dtb;
     int err;
 
     /* Install devices */
@@ -679,8 +672,7 @@ load_linux(vm_t* vm, const char* kernel_name, const char* dtb_name, const char* 
     return 0;
 }
 
-int
-main_continued(void)
+int main_continued(void)
 {
     vm_t vm;
     int err;
@@ -787,11 +779,11 @@ main_continued(void)
 /* base_prio is an optional attribute of the VM component. */
 extern const int __attribute__((weak)) base_prio;
 
-int 
-run(void) {
+int run(void)
+{
     /* if the base_prio attribute is set, use it */
     if (&base_prio != NULL) {
-       VM_PRIO = base_prio;
+        VM_PRIO = base_prio;
     }
     return main_continued();
 }
