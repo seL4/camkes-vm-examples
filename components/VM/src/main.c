@@ -844,13 +844,19 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    err = vm_create(VM_NAME, VM_PRIO, _fault_endpoint, VM_BADGE,
-                    &_vka, &_simple, &_vspace, &_io_ops, &vm);
-    if (err) {
-        printf("Failed to create VM\n");
-        seL4_DebugHalt();
-        return -1;
-    }
+    vm_plat_callbacks_t callbacks = (vm_plat_callbacks_t) {
+        .do_async = NULL,
+        .get_async_event_notification = NULL,
+    };
+    vm_init_arm_t vm_arch_params;
+    vm_arch_params.vmm_endpoint = _fault_endpoint;
+    vm_arch_params.vm_badge = VM_BADGE;
+    err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, callbacks, VM_PRIO,
+            &_io_ops, VM_NAME, (void *)&vm_arch_params);
+    assert(!err);
+    vm_vcpu_t *vcpu_0;
+    err = vm_create_vcpu(&vm, NULL, &vcpu_0, 0);
+    assert(!err);
 
 #ifdef CONFIG_ARM_SMMU
     /* install any iospaces */
