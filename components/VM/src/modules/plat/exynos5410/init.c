@@ -18,12 +18,13 @@
 
 #include <vka/capops.h>
 
-#include <sel4arm-vmm/vm.h>
-#include <sel4arm-vmm/images.h>
-#include <sel4arm-vmm/plat/devices.h>
-#include <sel4arm-vmm/devices/vgic.h>
-#include <sel4arm-vmm/devices/vram.h>
-#include <sel4arm-vmm/devices/vusb.h>
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/vm.h>
+#include <sel4vm/images.h>
+#include <sel4vm/plat/devices.h>
+#include <sel4vm/devices/vgic.h>
+#include <sel4vm/devices/vram.h>
+#include <sel4vm/devices/vusb.h>
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 #include <utils/util.h>

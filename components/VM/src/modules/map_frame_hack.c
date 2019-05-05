@@ -11,7 +11,8 @@
  */
 
 #include <camkes.h>
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/vm.h>
 #include <vmlinux.h>
 extern int start_extra_frame_caps;
 

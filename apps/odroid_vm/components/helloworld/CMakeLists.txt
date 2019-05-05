@@ -26,7 +26,7 @@ DeclareCAmkESComponent(
     sel4allocman
     sel4simple
     sel4simple-default
-    sel4arm-vmm
+    sel4vm
     sel4dma
     sel4vchan
 )

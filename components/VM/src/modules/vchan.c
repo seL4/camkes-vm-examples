@@ -19,10 +19,11 @@
 #include <sel4vchan/libvchan.h>
 #include <sel4vchan/vchan_component.h>
 
-#include <sel4arm-vmm/images.h>
-#include <sel4arm-vmm/plat/devices.h>
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/images.h>
+#include <sel4vm/plat/devices.h>
 
-#include <sel4arm-vmm/vchan_vm_component.h>
+#include <sel4vm/vchan_vm_component.h>
 
 #include <camkes.h>
 

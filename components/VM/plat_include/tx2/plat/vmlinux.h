@@ -12,7 +12,7 @@
 #pragma once
 
 #include <assert.h>
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/vm.h>
 
 /* This is the starting input pin on the GIC where the LIC IRQs are connected.
  * The LIC IRQs are connected to the next 288 starting from this pin.

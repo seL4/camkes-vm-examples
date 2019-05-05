@@ -11,11 +11,13 @@
  */
 
 #include <camkes.h>
-#include <sel4arm-vmm/vm.h>
-#include <sel4arm-vmm/plat/devices.h>
+#include <sel4vm/vm.h>
+#include <sel4vm/plat/devices.h>
 
 #include <vmlinux.h>
-#include <sel4arm-vmm/devices/generic_forward.h>
+
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/devices/generic_forward.h>
 
 struct generic_forward_cfg camkes_uart_d = {
   .read_fn = uartfwd_read,

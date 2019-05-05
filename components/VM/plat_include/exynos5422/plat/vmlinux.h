@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/vm.h>
 
 #define LINUX_RAM_BASE    0x40000000
 #define LINUX_RAM_PADDR_BASE LINUX_RAM_BASE

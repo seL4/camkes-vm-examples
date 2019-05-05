@@ -11,8 +11,11 @@
  */
 
 #include <sel4vmmcore/drivers/virtio.h>
-#include <sel4arm-vmm/devices.h>
-#include <sel4arm-vmm/devices/vpci.h>
+#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/devices.h>
+#include <sel4vm/devices/vpci.h>
 
 #include <virtio/virtio.h>
 

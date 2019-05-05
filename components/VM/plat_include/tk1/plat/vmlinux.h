@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/vm.h>
 
 #define INTERRUPT_VTIMER                27
 #define INTERRUPT_TMR1                  32

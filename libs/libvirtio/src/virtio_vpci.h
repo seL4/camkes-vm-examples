@@ -12,6 +12,6 @@
 
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/guest_vm.h>
 
 int install_virtio_vpci_device(vm_t *vm);

@@ -183,7 +183,7 @@ DeclareCAmkESComponent(
     sel4simple
     sel4simple-default
     cpio
-    sel4arm-vmm
+    sel4vm
     sel4dma
     FileServer-client
     sel4pci

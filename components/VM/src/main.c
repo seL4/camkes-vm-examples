@@ -36,18 +36,21 @@
 #include <sel4platsupport/platsupport.h>
 #include <sel4platsupport/io.h>
 
-#include <sel4arm-vmm/vm.h>
-#include <sel4arm-vmm/devices.h>
-#include <sel4arm-vmm/devices/vgic.h>
-#include <sel4arm-vmm/devices/vram.h>
-#include <sel4arm-vmm/devices/vusb.h>
-#include <sel4arm-vmm/devices/vpci.h>
-#include <sel4arm-vmm/images.h>
+#include <sel4vm/guest_vm.h>
+#include <sel4vm/boot.h>
+
+#include <sel4vm/vm.h>
+#include <sel4vm/devices.h>
+#include <sel4vm/devices/vgic.h>
+#include <sel4vm/devices/vram.h>
+#include <sel4vm/devices/vusb.h>
+#include <sel4vm/devices/vpci.h>
+#include <sel4vm/images.h>
 #include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
 
 #include <sel4pci/pci_helper.h>
 
-#include <sel4arm-vmm/guest_vspace.h>
+#include <sel4vm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
 

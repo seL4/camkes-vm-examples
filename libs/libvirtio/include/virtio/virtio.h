@@ -12,8 +12,8 @@
 
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
-#include <sel4arm-vmm/devices.h>
+#include <sel4vm/vm.h>
+#include <sel4vm/devices.h>
 
 #define VIRTIO_IOPORT_SIZE      0x400
 #define VIRTIO_IOPORT_START     0x6200

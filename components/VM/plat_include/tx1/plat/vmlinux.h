@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/vm.h>
 
 enum IRQConstants {
     INTERRUPT_VTIMER                = 27,

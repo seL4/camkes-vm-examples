@@ -11,7 +11,7 @@
  */
 #pragma once
 
-#include <sel4arm-vmm/vm.h>
+#include <sel4vm/vm.h>
 
 #define VUSB_ADDRESS         0x33330000
 #define VUSB_IRQ             198
