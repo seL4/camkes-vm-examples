@@ -78,7 +78,7 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar)
     virtio_emul_vm->vm = vm;
 
     backend.console_data = (void *)console_cookie;
-    virtio_con = common_make_virtio_con(virtio_emul_vm, vm->pci, vm->io_port, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
+    virtio_con = common_make_virtio_con(virtio_emul_vm, vm->arch.pci, vm->arch.io_port, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_CON_PLAT_INTERRUPT_LINE, backend);
     console_cookie->virtio_con = virtio_con;
     console_cookie->virtio_con_irq_handle = vm_virq_new(vm, VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);

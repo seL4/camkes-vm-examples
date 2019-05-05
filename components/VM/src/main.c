@@ -479,7 +479,7 @@ static void map_unity_ram(vm_t *vm)
     uintptr_t start;
     reservation_t res;
     unsigned int bits = seL4_PageBits;
-    res = vspace_reserve_range_at(&vm->vm_vspace, (void *)(paddr_start - linux_ram_offset), paddr_end - paddr_start,
+    res = vspace_reserve_range_at(&vm->mem.vm_vspace, (void*)(paddr_start - linux_ram_offset), paddr_end - paddr_start,
                                   seL4_AllRights, 1);
     assert(res.res);
     for (start = paddr_start; start < paddr_end; start += BIT(bits)) {
@@ -494,7 +494,7 @@ static void map_unity_ram(vm_t *vm)
             break;
         }
         uintptr_t addr = start - linux_ram_offset;
-        err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void *)addr, 1, bits, res);
+        err = vspace_map_pages_at_vaddr(&vm->mem.vm_vspace, &frame.capPtr, &bits, (void*)addr, 1, bits, res);
         assert(!err);
     }
 }
@@ -607,8 +607,6 @@ int install_linux_devices(vm_t *vm)
     int i;
     /* Install virtual devices */
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
-        /* Initialise IOPorts */
-        vmm_io_port_init(&vm->io_port);
         err = vm_install_vpci(vm);
         assert(!err);
     }
@@ -863,7 +861,7 @@ int main_continued(void)
     }
     for (int i = 0; i < iospace_caps; i++) {
         seL4_CPtr iospace = simple_get_nth_iospace_cap(&_simple, i);
-        err = vmm_guest_vspace_add_iospace(&_vspace, &vm.vm_vspace, iospace);
+        err = vmm_guest_vspace_add_iospace(&_vspace, &vm.mem.vm_vspace, iospace);
         if (err) {
             ZF_LOGF("Failed to add iospace");
         }

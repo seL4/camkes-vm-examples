@@ -84,10 +84,9 @@ static camkes_vchan_con_t vchan_camkes_component = {
 };
 
 /* Set up relevent runtime systems for vchan */
-static void vm_vchan_setup(vm_t *vm)
-{
-    vm->lock = &vm_lock_lock;
-    vm->unlock = &vm_lock_unlock;
+static void vm_vchan_setup(vm_t *vm) {
+    vm->arch.lock = &vm_lock_lock;
+    vm->arch.unlock = &vm_lock_unlock;
 
     vchan_irq_handle = vm_virq_new(vm, VCHAN_EVENT_IRQ, &vchan_ack, NULL);
     reg_new_vchan_con(vm, &vchan_camkes_component);
