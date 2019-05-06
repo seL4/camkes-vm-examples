@@ -14,6 +14,7 @@ cmake_minimum_required(VERSION 3.8.2)
 
 project(zmq_samples)
 
+include(ExternalProject)
 # Include CAmkES VM helper functions
 include("../../vm/camkes_vm_helpers.cmake")
 include("../../vm-linux/vm-linux-helpers.cmake")
