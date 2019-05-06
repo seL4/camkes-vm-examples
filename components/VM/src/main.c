@@ -697,6 +697,39 @@ static int guest_write_address(uintptr_t paddr, void *vaddr, size_t size, size_t
     return 0;
 }
 
+static int maybe_create_frame_at(vm_t *vm, uintptr_t addr) {
+    /* We check if we have previously mapped a frame and return if so */
+    seL4_CPtr cap;
+    cspacepath_t cap_path;
+    int bits;
+    int err;
+
+    cap = vspace_get_cap(&vm->mem.vm_vspace, (void *)addr);
+    if (cap == seL4_CapNull) {
+        /* Frame doesn't exit - create frame */
+        reservation_t res;
+        vka_object_t frame;
+        bits = 12;
+        /* Create a frame */
+        err = vka_alloc_frame(vm->vka, bits, &frame);
+        assert(!err);
+        if (err) {
+            return -1;
+        }
+        /* Map the frame to the dest vspace */
+        res = vspace_reserve_range_at(&vm->mem.vm_vspace, (void *)addr, BIT(bits), seL4_AllRights, 1);
+        if (!res.res) {
+            return -1;
+        }
+        err = vspace_map_pages_at_vaddr(&vm->mem.vm_vspace, &frame.cptr, NULL, (void *)addr, 1, bits, res);
+        vspace_free_reservation(&vm->mem.vm_vspace, res);
+        if (err) {
+            return -1;
+        }
+    }
+    return 0;
+}
+
 void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_type)
 {
     int fd;
@@ -758,6 +791,14 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
     for (size_t offset = 0; len != 0; offset += len) {
         /* Load the image */
         len = read(fd, buf, sizeof(buf));
+
+        error = maybe_create_frame_at(vm, load_addr + offset);
+        if (error) {
+            ZF_LOGE("Error: Failed to create frame for loading \'%s\'", kernel_name);
+            close(fd);
+            return NULL;
+        }
+
         error = vm_guest_vspace_touch(&vm->mem.vm_vspace, load_addr + offset, len, guest_write_address, (void *)buf);
         if (error) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
