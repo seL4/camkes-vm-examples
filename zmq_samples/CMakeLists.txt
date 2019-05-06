@@ -25,17 +25,21 @@ if(CAKEML_FILTER)
     # Number of vms.
     set(NumberVMs 2)
 
-    CakeMLPP(components/cakeml-filter
-        libs/virtqueueScript.sml
-    )
+    CakeMLPP(components/cakeml-filter libs/virtqueueScript.sml)
 
-    DeclareCAmkESComponent(CakeMLFilter
-        CAKEML_SOURCES components/cakeml-filter/componentScript.sml
-                       ${CMAKE_CURRENT_BINARY_DIR}/components/cakeml-filter/virtqueueScript.sml
-        CAKEML_INCLUDES ${CAKEMLDIR}/semantics/alt_semantics
-        SOURCES components/cakeml-filter/global_endpoint.c
-        LIBS vswitch
-        CAKEML_HEAP_SIZE 50
+    DeclareCAmkESComponent(
+        CakeMLFilter
+        CAKEML_SOURCES
+        components/cakeml-filter/componentScript.sml
+        ${CMAKE_CURRENT_BINARY_DIR}/components/cakeml-filter/virtqueueScript.sml
+        CAKEML_INCLUDES
+        ${CAKEMLDIR}/semantics/alt_semantics
+        SOURCES
+        components/cakeml-filter/global_endpoint.c
+        LIBS
+        vswitch
+        CAKEML_HEAP_SIZE
+        50
     )
 else()
     # Number of vms.
@@ -57,41 +61,70 @@ GetDefaultLinuxKernelFile(kernel_file)
 GetDefaultLinuxRootfsFile(rootfs_file)
 
 foreach(i RANGE ${NumberVMsLess1})
-    AddFileToOverlayDir("interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_${i} "etc/network" overlay_vm${i})
+    AddFileToOverlayDir(
+        "interfaces"
+        ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_${i}
+        "etc/network"
+        overlay_vm${i}
+    )
 endforeach()
 
 set(SYSROOT "${CMAKE_CURRENT_BINARY_DIR}/sysroot")
 FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-32bit-pic")
 
-ExternalProject_Add(zmq_external
-    SOURCE_DIR ${CMAKE_SOURCE_DIR}/tools/libzmq
-    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/zmq_external
-    BUILD_ALWAYS ON
+ExternalProject_Add(
+    zmq_external
+    SOURCE_DIR
+    ${CMAKE_SOURCE_DIR}/tools/libzmq
+    BINARY_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/zmq_external
+    BUILD_ALWAYS
+    ON
     EXCLUDE_FROM_ALL
     CMAKE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
-      -DCMAKE_INSTALL_PREFIX=${SYSROOT}
-      -DPOLLER=epoll
-      -DWITH_PERF_TOOL=ON
-      -DBUILD_TESTS=OFF
+    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
+    -DCMAKE_INSTALL_PREFIX=${SYSROOT}
+    -DPOLLER=epoll
+    -DWITH_PERF_TOOL=ON
+    -DBUILD_TESTS=OFF
 )
 
-ExternalProject_Add(demoapps_external
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/user
-    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/user
-    DEPENDS zmq_external
-    BUILD_ALWAYS ON
+ExternalProject_Add(
+    demoapps_external
+    SOURCE_DIR
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/user
+    BINARY_DIR
+    ${CMAKE_CURRENT_BINARY_DIR}/src/user
+    DEPENDS
+    zmq_external
+    BUILD_ALWAYS
+    ON
     EXCLUDE_FROM_ALL
     CMAKE_ARGS
-      -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
-      -DCMAKE_INSTALL_PREFIX=${SYSROOT}
+    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
+    -DCMAKE_INSTALL_PREFIX=${SYSROOT}
 )
 
-
-DeclareExternalProjObjectFiles(demoapps_external ${SYSROOT}/bin FILES client server sink source worker pub sub)
+DeclareExternalProjObjectFiles(
+    demoapps_external
+    ${SYSROOT}/bin
+    FILES
+    client
+    server
+    sink
+    source
+    worker
+    pub
+    sub
+)
 macro(AddZMQBinary binary_name)
     foreach(i RANGE ${NumberVMsLess1})
-        AddFileToOverlayDir("${binary_name}" ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name} "bin/" overlay_vm${i})
+        AddFileToOverlayDir(
+            "${binary_name}"
+            ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name}
+            "bin/"
+            overlay_vm${i}
+        )
     endforeach()
 endmacro()
 
@@ -105,14 +138,29 @@ AddZMQBinary(sub)
 
 foreach(i RANGE ${NumberVMsLess1})
     if(NOT CAKEML_FILTER)
-        AddFileToOverlayDir("S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d" overlay_vm${i})
+        AddFileToOverlayDir(
+            "S91zmq_bench"
+            ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh
+            "etc/init.d"
+            overlay_vm${i}
+        )
     endif()
     # Add the buildroot overlay to our bare rootfs image
-    AddOverlayDirToRootfs(overlay_vm${i} ${rootfs_file} "buildroot" "rootfs_install"
-        output_rootfs_location_vm${i} rootfs_target_vm${i})
-    AddToFileServer("vm${i}_rootfs.cpio" "${output_rootfs_location_vm${i}}" DEPENDS rootfs_target_vm${i})
+    AddOverlayDirToRootfs(
+        overlay_vm${i}
+        ${rootfs_file}
+        "buildroot"
+        "rootfs_install"
+        output_rootfs_location_vm${i}
+        rootfs_target_vm${i}
+    )
+    AddToFileServer(
+        "vm${i}_rootfs.cpio"
+        "${output_rootfs_location_vm${i}}"
+        DEPENDS
+        rootfs_target_vm${i}
+    )
 endforeach()
-
 
 # Decompress Linux Kernel image and add to file server
 DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
