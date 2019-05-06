@@ -688,6 +688,15 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
+static int guest_write_address(uintptr_t paddr, void *vaddr, size_t size, size_t offset, seL4_CPtr cap, void *cookie) {
+    memcpy(vaddr, cookie + offset, size);
+    if (!config_set(CONFIG_PLAT_EXYNOS5)) {
+        int error = seL4_ARM_Page_CleanInvalidate_Data(cap, 0, PAGE_SIZE_4K);
+        ZF_LOGF_IFERR(error, "seL4_ARM_Page_CleanInvalidate_Data failed");
+    }
+    return 0;
+}
+
 void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_type)
 {
     int fd;
@@ -749,7 +758,8 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
     for (size_t offset = 0; len != 0; offset += len) {
         /* Load the image */
         len = read(fd, buf, sizeof(buf));
-        if (vm_copyout(vm, buf, load_addr + offset, len)) {
+        error = vm_guest_vspace_touch(&vm->mem.vm_vspace, load_addr + offset, len, guest_write_address, (void *)buf);
+        if (error) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
             close(fd);
             return NULL;
@@ -867,7 +877,7 @@ int main_continued(void)
     }
     for (int i = 0; i < iospace_caps; i++) {
         seL4_CPtr iospace = simple_get_nth_iospace_cap(&_simple, i);
-        err = vmm_guest_vspace_add_iospace(&_vspace, &vm.mem.vm_vspace, iospace);
+        err = vm_guest_vspace_add_iospace(&_vspace, &vm.mem.vm_vspace, iospace);
         if (err) {
             ZF_LOGF("Failed to add iospace");
         }
