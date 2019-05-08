@@ -848,7 +848,7 @@ int main_continued(void)
         .do_async = NULL,
         .get_async_event_notification = NULL,
     };
-    vm_init_arm_t vm_arch_params;
+    vm_init_arm_config_t vm_arch_params;
     vm_arch_params.vmm_endpoint = _fault_endpoint;
     vm_arch_params.vm_badge = VM_BADGE;
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, callbacks, VM_PRIO,
