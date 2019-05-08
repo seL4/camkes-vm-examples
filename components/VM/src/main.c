@@ -854,9 +854,9 @@ int main_continued(void)
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, callbacks, VM_PRIO,
             &_io_ops, VM_NAME, (void *)&vm_arch_params);
     assert(!err);
-    vm_vcpu_t *vcpu_0;
-    err = vm_create_vcpu(&vm, NULL, &vcpu_0, 0);
-    assert(!err);
+    vm_vcpu_t *vm_vcpu;
+    vm_vcpu = vm_create_vcpu(&vm, NULL);
+    assert(vm_vcpu);
 
 #ifdef CONFIG_ARM_SMMU
     /* install any iospaces */
