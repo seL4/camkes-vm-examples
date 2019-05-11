@@ -38,6 +38,8 @@
 
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/boot.h>
+#include <sel4vm/guest_memory.h>
+#include <sel4vm/guest_iospace.h>
 
 #include <sel4vm/vm.h>
 #include <sel4vm/devices.h>
@@ -50,7 +52,6 @@
 
 #include <sel4pci/pci_helper.h>
 
-#include <sel4vm/guest_vspace.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
 
@@ -688,9 +689,15 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-static int guest_write_address(uintptr_t paddr, void *vaddr, size_t size, size_t offset, seL4_CPtr cap, void *cookie) {
+static int guest_write_address(vm_t *vm, uintptr_t paddr, void *vaddr, size_t size, size_t offset, void *cookie) {
     memcpy(vaddr, cookie + offset, size);
     if (!config_set(CONFIG_PLAT_EXYNOS5)) {
+        seL4_CPtr cap = vspace_get_cap(&vm->mem.vmm_vspace, vaddr);
+        if (cap == seL4_CapNull) {
+            /* Not sure how we would get here, something has gone pretty wrong */
+            ZF_LOGE("Failed to get vmm cap for vaddr: %p", vaddr);
+            return -1;
+        }
         int error = seL4_ARM_Page_CleanInvalidate_Data(cap, 0, PAGE_SIZE_4K);
         ZF_LOGF_IFERR(error, "seL4_ARM_Page_CleanInvalidate_Data failed");
     }
@@ -799,7 +806,7 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
             return NULL;
         }
 
-        error = vm_guest_vspace_touch(&vm->mem.vm_vspace, load_addr + offset, len, guest_write_address, (void *)buf);
+        error = vm_guest_mem_touch(vm, load_addr + offset, len, guest_write_address, (void *)buf);
         if (error) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
             close(fd);
@@ -918,7 +925,7 @@ int main_continued(void)
     }
     for (int i = 0; i < iospace_caps; i++) {
         seL4_CPtr iospace = simple_get_nth_iospace_cap(&_simple, i);
-        err = vm_guest_vspace_add_iospace(&_vspace, &vm.mem.vm_vspace, iospace);
+        err = vm_guest_add_iospace(&_vspace, &vm.mem.vm_vspace, iospace);
         if (err) {
             ZF_LOGF("Failed to add iospace");
         }
