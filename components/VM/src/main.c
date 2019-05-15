@@ -67,7 +67,6 @@ extern void *fs_buf;
 int start_extra_frame_caps;
 
 int VM_PRIO = 100;
-#define VM_BADGE            (1U << 0)
 #define VIRTIO_NET_BADGE    (1U << 1)
 #define SERIAL_BADGE        (1U << 2)
 #define VM_NAME             "Linux"
@@ -874,6 +873,28 @@ void parse_camkes_linux_attributes(void)
     initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
+static int handle_async_event(seL4_Word badge, seL4_MessageInfo_t tag) {
+    seL4_Word label = seL4_MessageInfo_get_label(tag);
+    if (badge == 0) {
+        if (label == IRQ_MESSAGE_LABEL) {
+            irq_server_handle_irq_ipc(_irq_server, tag);
+        } else {
+            ZF_LOGE("Unknown label (%d)", label);
+        }
+#ifdef FEATURE_VUSB
+    } else if (badge == VUSB_NBADGE) {
+        vusb_notify();
+#endif
+    } else if (badge == VIRTIO_NET_BADGE) {
+        virtio_net_notify(&vm);
+    } else if (badge == SERIAL_BADGE) {
+        handle_serial_console();
+    } else {
+        ZF_LOGE("Unknown badge (%d)", badge);
+    }
+    return 0;
+}
+
 int main_continued(void)
 {
     vm_t vm;
@@ -903,12 +924,11 @@ int main_continued(void)
 
     /* Create the VM */
     vm_plat_callbacks_t callbacks = (vm_plat_callbacks_t) {
-        .do_async = NULL,
+        .do_async = handle_async_event,
         .get_async_event_notification = NULL,
     };
     vm_init_arm_config_t vm_arch_params;
     vm_arch_params.vmm_endpoint = _fault_endpoint;
-    vm_arch_params.vm_badge = VM_BADGE;
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, callbacks, VM_PRIO,
             &_io_ops, VM_NAME, (void *)&vm_arch_params);
     assert(!err);
@@ -946,46 +966,13 @@ int main_continued(void)
         return -1;
     }
 
-    /* Power on */
-    printf("Starting VM\n\n");
-    err = vm_start(&vm);
-    if (err) {
-        printf("Failed to start VM\n");
-        seL4_DebugHalt();
-        return -1;
-    }
-
-    /* Loop forever, handling events */
+    int vm_exit_reason;
     while (1) {
-        seL4_MessageInfo_t tag;
-        seL4_Word sender_badge;
-
-        tag = seL4_Recv(_fault_endpoint, &sender_badge);
-        if (sender_badge == 0) {
-            seL4_Word label;
-            label = seL4_MessageInfo_get_label(tag);
-            if (label == IRQ_MESSAGE_LABEL) {
-                irq_server_handle_irq_ipc(_irq_server, tag);
-            } else {
-                printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
-            }
-#ifdef FEATURE_VUSB
-        } else if (sender_badge == VUSB_NBADGE) {
-            vusb_notify();
-#endif
-        } else if (sender_badge == VIRTIO_NET_BADGE) {
-            virtio_net_notify(&vm);
-        } else if (sender_badge == SERIAL_BADGE) {
-            handle_serial_console();
-        } else {
-            assert(sender_badge == VM_BADGE);
-            err = vm_event(&vm, tag);
-            if (err) {
-                /* Shutdown */
-                vm_stop(&vm);
-                seL4_DebugHalt();
-                while (1);
-            }
+        err = vm_run(&vm);
+        if (err) {
+            ZF_LOGE("Failed to run VM");
+            seL4_DebugHalt();
+            return -1;
         }
     }
 
