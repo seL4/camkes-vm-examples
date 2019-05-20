@@ -40,8 +40,8 @@ config_option(VmPCISupport VM_PCI_SUPPORT
     DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
     DEFAULT OFF)
 
-config_option(VmVirtioNet VM_VIRTIO_NET
-    "Enable virtio net module"
+config_option(VmVirtioNetArping VM_VIRTIO_NET_ARPING
+    "Enable virtio net arping module"
     DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
     DEFAULT OFF)
 
@@ -99,9 +99,8 @@ if(EXISTS ${platform_module})
 endif()
 
 # Append virtio net sources if the virtio net config is enabled
-if(VmVirtioNet)
-    file(GLOB vm_virtio_src src/modules/virtio_net/*.c)
-    list(APPEND vm_src ${vm_virtio_src})
+if(VmVirtioNetArping)
+    list(APPEND vm_src src/modules/virtio_net_arping.c)
 endif()
 
 if(KernelPlatformExynos5410)
@@ -116,7 +115,7 @@ endif()
 DeclareCAmkESComponent(VM
     SOURCES ${vm_src}
     INCLUDES include ${vm_plat_include}
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4vmmcore)
+    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4vmmcore virtio)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")

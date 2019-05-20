@@ -12,6 +12,6 @@
 
 #pragma once
 
-#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+#include <sel4arm-vmm/vm.h>
 
-void arping_reply(char *eth_buffer, virtio_net_t *virtio_net);
+int install_virtio_vpci_device(vm_t* vm);

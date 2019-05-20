@@ -10,6 +10,18 @@
  * @TAG(DATA61_GPL)
  */
 
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+#include <autoconf.h>
+#include <vmlinux.h>
+
+#include <camkes.h>
+#include <camkes/dataport.h>
+
+#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+#include <virtio/virtio_net.h>
+
 #include <netinet/in.h>
 #include <netinet/in_systm.h>
 #include <net/ethernet.h>
@@ -18,18 +30,16 @@
 #include <netinet/ip_icmp.h>
 #include <arpa/inet.h>
 
-#include "virtio_net_arping.h"
-
 #define IPV4_LENGTH 4
 #define ARP_REQUEST 0x01
 #define ARP_REPLY 0x02
 #define HW_TYPE 1
 
-void arping_reply(char *eth_buffer, virtio_net_t *virtio_net)
+static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
-
+    int err;
     if (eth_buffer == NULL) {
-        return;
+        return -1;
     }
     struct ethhdr *rcv_req = (struct ethhdr *) eth_buffer;
     struct ether_arp *arp_req = (struct ether_arp *) (eth_buffer + sizeof(struct ethhdr));
@@ -57,13 +67,23 @@ void arping_reply(char *eth_buffer, virtio_net_t *virtio_net)
         arp_reply->ea_hdr.ar_hln = ETH_ALEN;
         arp_reply->ea_hdr.ar_pln = IPV4_LENGTH;
 
-        unsigned int len[1];
-        len[0] = sizeof(struct ethhdr) + sizeof(struct ether_arp);
-        void *cookie;
-        void *emul_buf = (void*)virtio_net->emul_driver->i_cb.allocate_rx_buf(virtio_net->emul_driver->cb_cookie, len[0], &cookie);
-        if (emul_buf) {
-            memcpy(emul_buf, (void*)reply_buffer, len[0]);
-            virtio_net->emul_driver->i_cb.rx_complete(virtio_net->emul_driver->cb_cookie, 1, &cookie, len);
+        err = virtio_net_rx(reply_buffer,sizeof(struct ethhdr) + sizeof(struct ether_arp), virtio_net);
+        if (err) {
+            ZF_LOGE("Unable to perform virtio net rx");
+            return -1;
         }
     }
+    return 0;
 }
+
+static virtio_net_t *virtio_net = NULL;
+
+void make_arping_virtio_net(vm_t *vm, void* cookie)
+{
+    virtio_net_callbacks_t callbacks;
+    callbacks.tx_callback = arping_reply;
+    callbacks.irq_callback = NULL;
+    virtio_net = virtio_net_init(vm, &callbacks);
+}
+
+DEFINE_MODULE(virtio_net, NULL, make_arping_virtio_net)

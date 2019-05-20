@@ -4,10 +4,10 @@
  * ABN 41 687 119 230.
  *
  * This software may be distributed and modified according to the terms of
- * the GNU General Public License version 2. Note that NO WARRANTY is provided.
- * See "LICENSE_GPLv2.txt" for details.
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
  *
- * @TAG(DATA61_GPL)
+ * @TAG(DATA61_BSD)
  */
 
 #include <sel4vmmcore/drivers/virtio_net/virtio.h>
@@ -15,7 +15,9 @@
 #include <sel4arm-vmm/devices.h>
 #include <sel4arm-vmm/devices/vpci.h>
 
-#include "virtio_net.h"
+#include <virtio/virtio.h>
+
+#include "virtio_vpci.h"
 
 static int width_to_size(enum fault_width fw)
 {
@@ -36,7 +38,7 @@ static int width_to_size(enum fault_width fw)
 static int
 pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
 {
-    uint16_t virtio_port = VIRTIO_NET_IOPORT_START + (fault_get_address(fault) & (VIRTIO_NET_IOPORT_SIZE - 1));
+    uint16_t virtio_port = VIRTIO_IOPORT_START + (fault_get_address(fault) & (VIRTIO_IOPORT_SIZE - 1));
     unsigned int value = 0;
     seL4_Word fault_data = 0;
 
@@ -63,12 +65,12 @@ const struct device dev_vpci_virtio_io = {
     .devid = DEV_CUSTOM,
     .name = "vpci.virtio_io",
     .pstart = PCI_IO_REGION_ADDR + PCI_IO_REGION_SIZE,
-    .size = VIRTIO_NET_IOPORT_SIZE,
+    .size = VIRTIO_IOPORT_SIZE,
     .handle_page_fault = &pci_virtio_io_fault_handler,
     .priv = NULL,
 };
 
-int install_virtio_net_device(vm_t* vm)
+int install_virtio_vpci_device(vm_t* vm)
 {
     int err = vm_add_device(vm, &dev_vpci_virtio_io);
     if (err) {

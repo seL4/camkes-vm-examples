@@ -30,6 +30,9 @@ include(${CAMKES_VM_HELPERS_PATH})
 CAmkESAddImportPath(components)
 CAmkESAddImportPath(interfaces)
 
+# Add libraries
+add_subdirectory(libs/libvirtio)
+
 # Add VM application
 add_subdirectory("apps/${CAMKES_VM_APP}")
 

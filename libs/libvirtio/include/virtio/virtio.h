@@ -9,7 +9,12 @@
  *
  * @TAG(DATA61_BSD)
  */
+
 #pragma once
 
-#define IRQ_SPI_OFFSET 32
-#define VIRTIO_NET_PLAT_INTERRUPT_LINE (92 + IRQ_SPI_OFFSET)
+#include <sel4arm-vmm/vm.h>
+#include <sel4arm-vmm/devices.h>
+
+#define VIRTIO_IOPORT_SIZE      0x400
+#define VIRTIO_IOPORT_START     0x6200
+#define VIRTIO_INTERRUPT_PIN    1
