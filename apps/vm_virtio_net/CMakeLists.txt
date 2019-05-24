@@ -24,7 +24,13 @@ AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos542
 # Generate overlayed rootfs
 set(rootfs_file "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
 AddFileToOverlayDir("interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/network_interfaces/interfaces "etc/network" overlay)
-AddFileToOverlayDir("S90arping_test" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/arping_test "etc/init.d" overlay)
+
+if (VIRTIO_NET_PING)
+    AddFileToOverlayDir("S90ping_test" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/ping_test "etc/init.d" overlay)
+else()
+    AddFileToOverlayDir("S90arping_test" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/arping_test "etc/init.d" overlay)
+endif()
+
 AddOverlayDirToRootfs(overlay ${rootfs_file} "buildroot" "rootfs_install"
             output_overlayed_rootfs_location rootfs_target
             GZIP)
@@ -38,11 +44,19 @@ AddToFileServer("linux-dtb" "${output_dtb_location}"
     DEPENDS dtb_gen_target)
 
 AddCamkesCPPFlag(cpp_flags
-    CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+    CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure VmVirtioNetVirtqueue)
 
 DefineCAmkESVMFileServer()
 
 CAmkESAddImportPath(exynos5422)
 
 # Declare root server
-DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags})
+if (VIRTIO_NET_PING)
+    DeclareCAmkESComponent(PingClient
+        SOURCES components/PingClient/ping_client.c
+        LIBS virtqueue)
+
+    DeclareCAmkESRootserver(vm_echo_ping.camkes CPP_FLAGS ${cpp_flags})
+else ()
+    DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags})
+endif()

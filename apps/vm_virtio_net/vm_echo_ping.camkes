@@ -1,0 +1,67 @@
+/*
+ * Copyright 2019, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+import <std_connector.camkes>;
+
+import <VM/vm_common.camkes>;
+import <devices.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
+
+#define VIRTQUEUE_BADGE 2
+
+component PingClient {
+    control;
+    /* Virtqueue connection for send and recv */
+    uses VirtQueueDev recv;
+    uses VirtQueueDrv send;
+    emits Callback self;
+    consumes Callback ping_wait;
+}
+
+assembly {
+    composition {
+        component PingClient ping_client;
+        component VirtQueueInit ping_vqinit0;
+        component VirtQueueInit ping_vqinit1;
+
+        connection seL4VirtQueues ping_virtq_conn0(to ping_vqinit0.init, from ping_client.send, from vm.recv);
+        connection seL4VirtQueues ping_virtq_conn1(to ping_vqinit1.init, from ping_client.recv, from vm.send);
+        connection seL4GlobalAsynchCallback ping_global_callback(from ping_client.self, to ping_client.ping_wait);
+    }
+    configuration {
+        vm.num_extra_frame_caps = 0;
+        vm.extra_frame_map_address = 0;
+
+        vm.recv_id = 0;
+        vm.recv_attributes = "10";
+        vm.recv_global_endpoint = "ping_client";
+        vm.recv_badge = VIRTQUEUE_BADGE;
+        vm.send_id = 1;
+        vm.send_attributes = "10";
+        vm.send_global_endpoint = "ping_client";
+        vm.send_badge = VIRTQUEUE_BADGE;
+
+        ping_client.recv_id = 0;
+        ping_client.recv_attributes = "10";
+        ping_client.recv_global_endpoint = "vm";
+        ping_client.recv_badge = VIRTQUEUE_BADGE;
+        ping_client.send_id = 1;
+        ping_client.send_attributes = "10";
+        ping_client.send_global_endpoint = "vm";
+        ping_client.send_badge = VIRTQUEUE_BADGE;
+        ping_client.ping_wait_global_endpoint = "ping_client";
+        ping_client.self_global_endpoint = "ping_client";
+
+        ping_vqinit0.init_topology = [{ "drv" : "ping_client.send", "dev" : "vm.recv"}];
+        ping_vqinit1.init_topology = [{ "drv" : "vm.send", "dev" : "ping_client.recv"}];
+    }
+}
