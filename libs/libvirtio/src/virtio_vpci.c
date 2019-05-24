@@ -35,8 +35,7 @@ static int width_to_size(enum fault_width fw)
 }
 
 
-static int
-pci_virtio_io_fault_handler(struct device* d, vm_t *vm, fault_t* fault)
+static int pci_virtio_io_fault_handler(struct device *d, vm_t *vm, fault_t *fault)
 {
     uint16_t virtio_port = VIRTIO_IOPORT_START + (fault_get_address(fault) & (VIRTIO_IOPORT_SIZE - 1));
     unsigned int value = 0;
@@ -70,7 +69,7 @@ const struct device dev_vpci_virtio_io = {
     .priv = NULL,
 };
 
-int install_virtio_vpci_device(vm_t* vm)
+int install_virtio_vpci_device(vm_t *vm)
 {
     int err = vm_add_device(vm, &dev_vpci_virtio_io);
     if (err) {

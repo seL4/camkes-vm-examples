@@ -12,17 +12,31 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 
-find_file(GLOBAL_COMPONENTS_PATH global-components.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/global-components/ CMAKE_FIND_ROOT_PATH_BOTH)
+find_file(
+    GLOBAL_COMPONENTS_PATH global-components.cmake
+    PATHS ${CMAKE_SOURCE_DIR}/projects/global-components/
+    CMAKE_FIND_ROOT_PATH_BOTH
+)
 mark_as_advanced(FORCE GLOBAL_COMPONENTS_PATH)
 if("${GLOBAL_COMPONENTS_PATH}" STREQUAL "GLOBAL_COMPONENTS_PATH-NOTFOUND")
-    message(FATAL_ERROR "Failed to find global-components.cmake. Consider cmake -DGLOBAL_COMPONENTS_PATH=/path/to/global-components.cmake")
+    message(
+        FATAL_ERROR
+            "Failed to find global-components.cmake. Consider cmake -DGLOBAL_COMPONENTS_PATH=/path/to/global-components.cmake"
+    )
 endif()
 include(${GLOBAL_COMPONENTS_PATH})
 
-find_file(CAMKES_VM_HELPERS_PATH camkes_vm_helpers.cmake PATHS ${CMAKE_SOURCE_DIR}/projects/camkes-vm/ CMAKE_FIND_ROOT_PATH_BOTH)
+find_file(
+    CAMKES_VM_HELPERS_PATH camkes_vm_helpers.cmake
+    PATHS ${CMAKE_SOURCE_DIR}/projects/camkes-vm/
+    CMAKE_FIND_ROOT_PATH_BOTH
+)
 mark_as_advanced(FORCE CAMKES_VM_HELPERS_PATH)
 if("${CAMKES_VM_HELPERS_PATH}" STREQUAL "CAMKES_VM_HELPERS_PATH-NOTFOUND")
-    message(FATAL_ERROR "Failed to find camkes_vm_helpers.cmake. Consider cmake -DCAMKES_VM_HELPERS_PATH=/path/to/camkes_vm_helpers.cmake")
+    message(
+        FATAL_ERROR
+            "Failed to find camkes_vm_helpers.cmake. Consider cmake -DCAMKES_VM_HELPERS_PATH=/path/to/camkes_vm_helpers.cmake"
+    )
 endif()
 include(${CAMKES_VM_HELPERS_PATH})
 

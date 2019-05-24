@@ -101,13 +101,15 @@ static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *p
     return complete ? ETHIF_TX_COMPLETE : ETHIF_TX_FAILED;
 }
 
-int virtio_net_rx(char *data, size_t length, virtio_net_t *virtio_net) {
+int virtio_net_rx(char *data, size_t length, virtio_net_t *virtio_net)
+{
     unsigned int len[1];
     len[0] = length;
     void *cookie;
-    void *emul_buf = (void*)virtio_net->emul_driver->i_cb.allocate_rx_buf(virtio_net->emul_driver->cb_cookie, len[0], &cookie);
+    void *emul_buf = (void *)virtio_net->emul_driver->i_cb.allocate_rx_buf(virtio_net->emul_driver->cb_cookie, len[0],
+                                                                           &cookie);
     if (emul_buf) {
-        memcpy(emul_buf, (void*)data, len[0]);
+        memcpy(emul_buf, (void *)data, len[0]);
         virtio_net->emul_driver->i_cb.rx_complete(virtio_net->emul_driver->cb_cookie, 1, &cookie, len);
     }
     return 0;
@@ -119,7 +121,7 @@ static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mt
     *mtu = MTU;
 }
 
-static void virtio_net_ack(void* token) {}
+static void virtio_net_ack(void *token) {}
 
 virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks)
 {

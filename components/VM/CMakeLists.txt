@@ -17,70 +17,119 @@ project(VM C)
 set(configure_string "")
 
 # ARM VM Configuration Options
-config_option(VmEmmc2NoDMA VM_EMMC2_NODMA
+config_option(
+    VmEmmc2NoDMA
+    VM_EMMC2_NODMA
     "SD access control to prevent DMA \
     Installs SD card into the VM with read only access. Write access is \
     trapped and emulated to ensure that DMA is not used."
-    DEFAULT OFF)
+    DEFAULT
+    OFF
+)
 
-config_option(VmVUSB VM_VUSB
+config_option(
+    VmVUSB
+    VM_VUSB
     "Para-virtual USB driver \
     Selects the device tree which enables the para virtual USB driver and \
     installs the device into the VM."
-    DEPENDS "KernelPlatformExynos5410"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformExynos5410"
+    DEFAULT
+    OFF
+)
 
-config_option(VmVchan VM_VCHAN
+config_option(
+    VmVchan
+    VM_VCHAN
     "Enable vchan connection"
-    DEPENDS "KernelPlatformExynos5410"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformExynos5410"
+    DEFAULT
+    OFF
+)
 
-config_option(VmPCISupport VM_PCI_SUPPORT
+config_option(
+    VmPCISupport
+    VM_PCI_SUPPORT
     "Enable virtual pci device support"
-    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
+    DEFAULT
+    OFF
+)
 
-config_option(VmVirtioNetArping VM_VIRTIO_NET_ARPING
+config_option(
+    VmVirtioNetArping
+    VM_VIRTIO_NET_ARPING
     "Enable virtio net arping module"
-    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    DEFAULT
+    OFF
+)
 
-config_option(VmVirtioNetVirtqueue VM_VIRTIO_NET_VIRTQUEUE
+config_option(
+    VmVirtioNetVirtqueue
+    VM_VIRTIO_NET_VIRTQUEUE
     "Enable virtio net virtqueue forwarding module"
-    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    DEFAULT
+    OFF
+)
 
-config_choice(VmRootfs VM_ROOTFS
+config_choice(
+    VmRootfs
+    VM_ROOTFS
     "Root file system selection \
     Selects the root device and partition which should be used for the root filesystem. \
     mmcblk0p2 -> Selects partition 2 of the on board eMMC as the root filesystem. \
     mmcblk1p2 -> Selects partition 2 of the on removable SD card as the root filesystem."
     "mmcblk0p2;VmRootfsMmcblk0p2;VM_ROOTFS_MMCBLK0P2"
-    "mmcblk1p2;VmRootfsMmcblk1p2;VM_ROOTFS_MMCBLK1P2")
+    "mmcblk1p2;VmRootfsMmcblk1p2;VM_ROOTFS_MMCBLK1P2"
+)
 
-config_choice(VmTk1Rootfs VM_TK1_ROOTFS
+config_choice(
+    VmTk1Rootfs
+    VM_TK1_ROOTFS
     "TK1 boot mode selection. Selects whether to load root file system off emmc or ramdisk \
     initrd -> Selects initrd as the root filesystem. \
     mmcblk0p2 -> Selects partition 2 of the emmc card as the root filesystem."
     "initrd;VmTk1InitrdRootfs;VM_TK1_INITRD_ROOTFS"
-    "mmcblk0p2;VmTk1EmmcRootfs;VM_TK1_EMMC_ROOTFS")
+    "mmcblk0p2;VmTk1EmmcRootfs;VM_TK1_EMMC_ROOTFS"
+)
 
-config_option(Tk1DeviceFwd TK1_DEVICE_FWD
+config_option(
+    Tk1DeviceFwd
+    TK1_DEVICE_FWD
     "Forward VM access to UART and Clock and reset controller. \
     When using the VM with other components that need access to the UART and clock and reset controller \
     devices, this option will cause the vm to forward the faults over a RPC connection"
-    DEPENDS "KernelPlatformTK1"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformTK1"
+    DEFAULT
+    OFF
+)
 
-config_option(Tk1Insecure TK1_INSECURE
+config_option(
+    Tk1Insecure
+    TK1_INSECURE
     "Insecure: Give all devices to VM component \
     The option when disabled only passes through UARTD, USB, EMMC, VGIC and a Clock and reset controller"
-    DEPENDS "KernelPlatformTK1"
-    DEFAULT OFF)
+    DEPENDS
+    "KernelPlatformTK1"
+    DEFAULT
+    OFF
+)
 
-config_option(VmInitRdFile VM_INITRD_FILE
+config_option(
+    VmInitRdFile
+    VM_INITRD_FILE
     "Enables the option for the VM to open and load a seperate initrd file"
-    DEFAULT OFF)
+    DEFAULT
+    OFF
+)
 
 add_config_library(arm_vm "${configure_string}")
 
@@ -121,10 +170,27 @@ else()
     set(vm_plat_include "plat_include/${KernelPlatform}")
 endif()
 # Declare the CAmkES VM component
-DeclareCAmkESComponent(VM
-    SOURCES ${vm_src}
-    INCLUDES include ${vm_plat_include}
-    LIBS sel4allocman elf sel4simple sel4simple-default cpio sel4arm-vmm sel4dma FileServer-client Configuration sel4pci sel4vmmcore virtio)
+DeclareCAmkESComponent(
+    VM
+    SOURCES
+    ${vm_src}
+    INCLUDES
+    include
+    ${vm_plat_include}
+    LIBS
+    sel4allocman
+    elf
+    sel4simple
+    sel4simple-default
+    cpio
+    sel4arm-vmm
+    sel4dma
+    FileServer-client
+    Configuration
+    sel4pci
+    sel4vmmcore
+    virtio
+)
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")

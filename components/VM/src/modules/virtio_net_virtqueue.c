@@ -26,10 +26,11 @@
 
 static virtio_net_t *virtio_net = NULL;
 
-virtqueue_device_t * recv_virtqueue;
-virtqueue_driver_t * send_virtqueue;
+virtqueue_device_t *recv_virtqueue;
+virtqueue_driver_t *send_virtqueue;
 
-static int tx_virtqueue_forward(char *eth_buffer, size_t length, virtio_net_t *virtio_net) {
+static int tx_virtqueue_forward(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
+{
     volatile void *alloc_buffer = NULL;
     int err = camkes_virtqueue_buffer_alloc(send_virtqueue, &alloc_buffer, length);
     if (err) {
@@ -58,8 +59,8 @@ static void virtio_net_notify_free_send(void)
     volatile void *used_buf = NULL;
     size_t used_buf_sz = 0;
     int err = virtqueue_driver_dequeue(send_virtqueue,
-                                               &used_buf,
-                                               &used_buf_sz);
+                                       &used_buf,
+                                       &used_buf_sz);
     if (err) {
         ZF_LOGE("Unable to dequeue used buff");
         return;
@@ -78,7 +79,7 @@ static int virtio_net_notify_handle_recv(void)
     }
     err = virtio_net_rx((char *)available_buff, available_buff_sz, virtio_net);
     if (err) {
-       ZF_LOGE("Unable to forward recieved buffer to the guest");
+        ZF_LOGE("Unable to forward recieved buffer to the guest");
     }
 
     virtqueue_device_enqueue(recv_virtqueue, available_buff, available_buff_sz);
@@ -96,7 +97,7 @@ void virtio_net_notify(vm_t *vm)
     }
 }
 
-void make_virtqueue_virtio_net(vm_t *vm, void* cookie)
+void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
 {
     virtio_net_callbacks_t callbacks;
     callbacks.tx_callback = tx_virtqueue_forward;

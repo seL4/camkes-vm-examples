@@ -90,7 +90,8 @@ static jmp_buf restart_jmp_buf;
 
 void camkes_make_simple(simple_t *simple);
 
-int WEAK virtio_net_notify(vm_t *vm) {
+int WEAK virtio_net_notify(vm_t *vm)
+{
     return 0;
 }
 

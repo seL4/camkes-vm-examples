@@ -28,18 +28,18 @@
 #define ICMP_MSG_SIZE 64 - sizeof(struct icmphdr)
 #define IPV4_LENGTH 4
 
-virtqueue_device_t * recv_virtqueue;
-virtqueue_driver_t * send_virtqueue;
+virtqueue_device_t *recv_virtqueue;
+virtqueue_driver_t *send_virtqueue;
 
 void handle_recv_callback(virtqueue_device_t *vq);
 void handle_send_callback(virtqueue_driver_t *vq);
 
 unsigned short one_comp_checksum(char *data, size_t length)
 {
-	unsigned int sum=0;
+    unsigned int sum = 0;
     int i = 0;
 
-    for (i = 0; i < length - 1; i+=2) {
+    for (i = 0; i < length - 1; i += 2) {
         unsigned short *data_word = (unsigned short *)&data[i];
         sum += *data_word;
     }
@@ -50,11 +50,12 @@ unsigned short one_comp_checksum(char *data, size_t length)
     }
 
     sum = (sum >> 16) + (sum & 0xFFFF);
-	sum += (sum >> 16);
+    sum += (sum >> 16);
     return ~sum;
 }
 
-int send_outgoing_packet(char *outgoing_data, size_t outgoing_data_size) {
+int send_outgoing_packet(char *outgoing_data, size_t outgoing_data_size)
+{
 
     volatile void *alloc_buffer = NULL;
     int err = camkes_virtqueue_buffer_alloc(send_virtqueue, &alloc_buffer, outgoing_data_size);
@@ -82,39 +83,40 @@ int send_outgoing_packet(char *outgoing_data, size_t outgoing_data_size) {
     return 0;
 }
 
-void print_ip_packet(void *ip_buf, size_t ip_length) {
-	struct iphdr *ip = ip_buf;
-	struct icmphdr *icmp = ip_buf + sizeof(struct iphdr);
+void print_ip_packet(void *ip_buf, size_t ip_length)
+{
+    struct iphdr *ip = ip_buf;
+    struct icmphdr *icmp = ip_buf + sizeof(struct iphdr);
 
     unsigned char *ip_packet = (unsigned char *)ip_buf;
-	printf("Packet Contents:");
-	for (int i = 0; i < ip_length; i++ )
-	{
-		if (i % 15 == 0) {
+    printf("Packet Contents:");
+    for (int i = 0; i < ip_length; i++) {
+        if (i % 15 == 0) {
             printf("\n%d:\t", i);
         }
-		printf("%x ", ip_packet[i]);
-	}
-	printf("\n");
+        printf("%x ", ip_packet[i]);
+    }
+    printf("\n");
 
     struct in_addr saddr = {ip->saddr};
     struct in_addr daddr = {ip->daddr};
     printf("IP Header - Version: IPv%d protocol: %d | src address: %s",
-		ip->version, ip->protocol, inet_ntoa(saddr));
+           ip->version, ip->protocol, inet_ntoa(saddr));
     printf(" | dest address: %s\n", inet_ntoa(daddr));
     printf("ICMP Header - Type: %d | id: %d | seq: %d\n",
-        icmp->type, icmp->un.echo.id, icmp->un.echo.sequence);
+           icmp->type, icmp->un.echo.id, icmp->un.echo.sequence);
     printf("\n");
 }
 
-int create_arp_req_reply(char *recv_data, size_t recv_data_size) {
+int create_arp_req_reply(char *recv_data, size_t recv_data_size)
+{
     unsigned char reply_buffer[MTU];
 
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
-    struct ether_arp *arp_req = (struct ether_arp *) (recv_data + sizeof(struct ethhdr));
+    struct ether_arp *arp_req = (struct ether_arp *)(recv_data + sizeof(struct ethhdr));
 
     struct ethhdr *send_reply = (struct ethhdr *) reply_buffer;
-    struct ether_arp *arp_reply = (struct ether_arp *) (reply_buffer + sizeof(struct ethhdr));
+    struct ether_arp *arp_reply = (struct ether_arp *)(reply_buffer + sizeof(struct ethhdr));
 
     memcpy(send_reply->h_dest, arp_req->arp_sha, ETH_ALEN);
     send_reply->h_proto = htons(ETH_P_ARP);
@@ -142,17 +144,18 @@ int create_arp_req_reply(char *recv_data, size_t recv_data_size) {
     return send_outgoing_packet(reply_buffer, sizeof(struct ethhdr) + sizeof(struct ether_arp));
 }
 
-int create_icmp_req_reply(char *recv_data, size_t recv_data_size) {
+int create_icmp_req_reply(char *recv_data, size_t recv_data_size)
+{
 
     struct ethhdr *eth_req = (struct ethhdr *) recv_data;
     struct iphdr *ip_req = (struct iphdr *)(recv_data + sizeof(struct ethhdr));
-	struct icmphdr *icmp_req = (struct icmphdr *)(recv_data + sizeof(struct ethhdr) + sizeof(struct iphdr));
+    struct icmphdr *icmp_req = (struct icmphdr *)(recv_data + sizeof(struct ethhdr) + sizeof(struct iphdr));
 
     unsigned char reply_buffer[MTU];
     struct ethhdr *eth_reply = (struct ethhdr *) reply_buffer;
-    struct iphdr *ip_reply = (struct iphdr *) (reply_buffer + sizeof(struct ethhdr));
-    struct icmphdr *icmp_reply = (struct icmphdr *) (reply_buffer + sizeof(struct ethhdr) + sizeof(struct iphdr));
-    char *icmp_msg = (char *) (icmp_reply+1);
+    struct iphdr *ip_reply = (struct iphdr *)(reply_buffer + sizeof(struct ethhdr));
+    struct icmphdr *icmp_reply = (struct icmphdr *)(reply_buffer + sizeof(struct ethhdr) + sizeof(struct iphdr));
+    char *icmp_msg = (char *)(icmp_reply + 1);
 
     memcpy(eth_reply->h_dest, eth_req->h_source, ETH_ALEN);
     memcpy(eth_reply->h_source, eth_req->h_dest, ETH_ALEN);
@@ -174,7 +177,7 @@ int create_icmp_req_reply(char *recv_data, size_t recv_data_size) {
     ip_reply->check = one_comp_checksum((char *)ip_reply, sizeof(struct iphdr));
 
     return send_outgoing_packet(reply_buffer,
-            sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct icmphdr) + ICMP_MSG_SIZE);
+                                sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct icmphdr) + ICMP_MSG_SIZE);
 }
 
 void handle_recv_data(char *recv_data, size_t recv_data_size)
@@ -190,7 +193,7 @@ void handle_recv_data(char *recv_data, size_t recv_data_size)
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
     if (ntohs(rcv_req->h_proto) == ETH_P_ARP) {
         create_arp_req_reply(recv_data, recv_data_size);
-    } else if (ntohs(rcv_req->h_proto) == ETH_P_IP){
+    } else if (ntohs(rcv_req->h_proto) == ETH_P_IP) {
         char ip_packet[MTU];
         memcpy(ip_packet, recv_data + sizeof(struct ethhdr), recv_data_size - sizeof(struct ethhdr));
         print_ip_packet(ip_packet, recv_data_size - sizeof(struct ethhdr));
@@ -201,7 +204,7 @@ void handle_recv_data(char *recv_data, size_t recv_data_size)
 
 void handle_recv_callback(virtqueue_device_t *vq)
 {
-    volatile void* buf = NULL;
+    volatile void *buf = NULL;
     size_t buf_size = 0;
     int err = virtqueue_device_dequeue(vq,
                                        &buf,
@@ -228,7 +231,7 @@ void handle_recv_callback(virtqueue_device_t *vq)
 
 void handle_send_callback(virtqueue_driver_t *vq)
 {
-    volatile void* buf = NULL;
+    volatile void *buf = NULL;
     size_t buf_size = 0;
     int err = virtqueue_driver_dequeue(vq,
                                        &buf,

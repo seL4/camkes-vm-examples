@@ -14,4 +14,4 @@
 
 #include <sel4arm-vmm/vm.h>
 
-int install_virtio_vpci_device(vm_t* vm);
+int install_virtio_vpci_device(vm_t *vm);

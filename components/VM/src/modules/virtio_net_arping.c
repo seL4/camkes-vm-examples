@@ -42,11 +42,11 @@ static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_ne
         return -1;
     }
     struct ethhdr *rcv_req = (struct ethhdr *) eth_buffer;
-    struct ether_arp *arp_req = (struct ether_arp *) (eth_buffer + sizeof(struct ethhdr));
+    struct ether_arp *arp_req = (struct ether_arp *)(eth_buffer + sizeof(struct ethhdr));
     if (ntohs(rcv_req->h_proto) == ETH_P_ARP) {
         unsigned char reply_buffer[1500];
         struct ethhdr *send_reply = (struct ethhdr *) reply_buffer;
-        struct ether_arp *arp_reply = (struct ether_arp *) (reply_buffer + sizeof(struct ethhdr));
+        struct ether_arp *arp_reply = (struct ether_arp *)(reply_buffer + sizeof(struct ethhdr));
 
         memcpy(send_reply->h_dest, arp_req->arp_sha, ETH_ALEN);
         send_reply->h_proto = htons(ETH_P_ARP);
@@ -67,7 +67,7 @@ static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_ne
         arp_reply->ea_hdr.ar_hln = ETH_ALEN;
         arp_reply->ea_hdr.ar_pln = IPV4_LENGTH;
 
-        err = virtio_net_rx(reply_buffer,sizeof(struct ethhdr) + sizeof(struct ether_arp), virtio_net);
+        err = virtio_net_rx(reply_buffer, sizeof(struct ethhdr) + sizeof(struct ether_arp), virtio_net);
         if (err) {
             ZF_LOGE("Unable to perform virtio net rx");
             return -1;
@@ -78,7 +78,7 @@ static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_ne
 
 static virtio_net_t *virtio_net = NULL;
 
-void make_arping_virtio_net(vm_t *vm, void* cookie)
+void make_arping_virtio_net(vm_t *vm, void *cookie)
 {
     virtio_net_callbacks_t callbacks;
     callbacks.tx_callback = arping_reply;
