@@ -23,6 +23,7 @@ assembly {
         component FileServer fserv;
 
         connection seL4RPCDataport fs(from vm.fs, to fserv.fs_ctrl);
+        connection seL4GlobalAsynch vm_notify_read_conn(from vm.notification_ready_connector, to vm.notification_ready);
     }
     configuration {
         fserv.heap_size = 165536;
@@ -40,6 +41,8 @@ assembly {
         vm._priority = 101;
         vm.sem_value = 0;
 
+        vm.notification_ready_global_endpoint = "vm";
+        vm.notification_ready_connector_global_endpoint = "vm";
     }
 
 }

@@ -691,6 +691,8 @@ int main_continued(void)
     /* install custom open/close/read implementations to redirect I/O from the VMM to
      * our file server */
     install_fileserver(FILE_SERVER_INTERFACE(fs));
+    err = seL4_TCB_BindNotification(camkes_get_tls()->tcb_cap, notification_ready_notification());
+    assert(!err);
 
     err = vmm_init();
     assert(!err);

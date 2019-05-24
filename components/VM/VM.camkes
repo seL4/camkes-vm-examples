@@ -13,6 +13,7 @@
 #if VMVCHAN
 import <VchanInterface.idl4>;
 #endif //VMVCHAN
+import <global-connectors.camkes>;
 
 #if TK1DEVICEFWD
 import <gen_fwd.idl4>;
@@ -46,6 +47,9 @@ component VM {
     consumes VchanEvent vevent;
     dataport vchan_headers_t share_mem;
 #endif //VMVCHAN
+
+    consumes HaveNotification notification_ready;
+    emits HaveNotification notification_ready_connector;
 
     attribute int base_prio;
     attribute int num_extra_frame_caps;
