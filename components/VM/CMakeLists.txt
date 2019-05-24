@@ -45,6 +45,11 @@ config_option(VmVirtioNetArping VM_VIRTIO_NET_ARPING
     DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
     DEFAULT OFF)
 
+config_option(VmVirtioNetVirtqueue VM_VIRTIO_NET_VIRTQUEUE
+    "Enable virtio net virtqueue forwarding module"
+    DEPENDS "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    DEFAULT OFF)
+
 config_choice(VmRootfs VM_ROOTFS
     "Root file system selection \
     Selects the root device and partition which should be used for the root filesystem. \
@@ -101,6 +106,10 @@ endif()
 # Append virtio net sources if the virtio net config is enabled
 if(VmVirtioNetArping)
     list(APPEND vm_src src/modules/virtio_net_arping.c)
+endif()
+
+if(VmVirtioNetVirtqueue)
+    list(APPEND vm_src src/modules/virtio_net_virtqueue.c)
 endif()
 
 if(KernelPlatformExynos5410)

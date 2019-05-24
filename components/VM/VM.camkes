@@ -14,6 +14,7 @@
 import <VchanInterface.idl4>;
 #endif //VMVCHAN
 import <global-connectors.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
 
 #if TK1DEVICEFWD
 import <gen_fwd.idl4>;
@@ -48,6 +49,10 @@ component VM {
     dataport vchan_headers_t share_mem;
 #endif //VMVCHAN
 
+#if VMVIRTIONETVIRTQUEUE
+    maybe uses VirtQueueDev recv;
+    maybe uses VirtQueueDrv send;
+#endif
     consumes HaveNotification notification_ready;
     emits HaveNotification notification_ready_connector;
 
