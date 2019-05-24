@@ -22,7 +22,7 @@ endif()
 set(KernelArmHypervisorSupport ON CACHE BOOL "" FORCE)
 set(KernelArmExportPCNTUser ON CACHE BOOL "" FORCE)
 set(KernelArmExportVCNTUser ON CACHE BOOL "" FORCE)
-set(KernelRootCNodeSizeBits 19 CACHE STRING "" FORCE)
+set(KernelRootCNodeSizeBits 18 CACHE STRING "" FORCE)
 set(KernelMaxNumBootinfoUntypedCaps 230 CACHE STRING "")
 set(KernelIRQReporting OFF CACHE BOOL "" FORCE)
 
