@@ -86,6 +86,7 @@ static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *p
         if (len[i] > MTU) {
             ZF_LOGE("TX data exceeds MTU (%d) - truncating remaining data", MTU);
             complete = false;
+            break;
         }
         memcpy((void *)ethbuffer, (void *)phys[i], len[i]);
         if (virtio_cookie->callbacks.tx_callback) {
