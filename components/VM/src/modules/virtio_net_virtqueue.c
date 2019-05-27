@@ -107,15 +107,13 @@ void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
     /* Initialise recv virtqueue */
     int err = camkes_virtqueue_device_init(&recv_virtqueue, 0);
     if (err) {
-        ZF_LOGE("Unable to initialise recv virtqueue");
-        assert(!err);
+        ZF_LOGF("Unable to initialise recv virtqueue");
     }
 
     /* Initialise send virtqueue */
     err = camkes_virtqueue_driver_init(&send_virtqueue, 1);
     if (err) {
-        ZF_LOGE("Unable to initialise send virtqueue");
-        assert(!err);
+        ZF_LOGF("Unable to initialise send virtqueue");
     }
 
 }
