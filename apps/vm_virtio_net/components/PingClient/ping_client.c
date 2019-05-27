@@ -24,7 +24,6 @@
 #include <netinet/ip_icmp.h>
 #include <arpa/inet.h>
 
-#define MTU 1500
 #define ICMP_MSG_SIZE 64 - sizeof(struct icmphdr)
 #define IPV4_LENGTH 4
 
@@ -110,7 +109,7 @@ void print_ip_packet(void *ip_buf, size_t ip_length)
 
 int create_arp_req_reply(char *recv_data, size_t recv_data_size)
 {
-    unsigned char reply_buffer[MTU];
+    unsigned char reply_buffer[ETHERMTU];
 
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
     struct ether_arp *arp_req = (struct ether_arp *)(recv_data + sizeof(struct ethhdr));
@@ -151,7 +150,7 @@ int create_icmp_req_reply(char *recv_data, size_t recv_data_size)
     struct iphdr *ip_req = (struct iphdr *)(recv_data + sizeof(struct ethhdr));
     struct icmphdr *icmp_req = (struct icmphdr *)(recv_data + sizeof(struct ethhdr) + sizeof(struct iphdr));
 
-    unsigned char reply_buffer[MTU];
+    unsigned char reply_buffer[ETHERMTU];
     struct ethhdr *eth_reply = (struct ethhdr *) reply_buffer;
     struct iphdr *ip_reply = (struct iphdr *)(reply_buffer + sizeof(struct ethhdr));
     struct icmphdr *icmp_reply = (struct icmphdr *)(reply_buffer + sizeof(struct ethhdr) + sizeof(struct iphdr));
@@ -194,7 +193,7 @@ void handle_recv_data(char *recv_data, size_t recv_data_size)
     if (ntohs(rcv_req->h_proto) == ETH_P_ARP) {
         create_arp_req_reply(recv_data, recv_data_size);
     } else if (ntohs(rcv_req->h_proto) == ETH_P_IP) {
-        char ip_packet[MTU];
+        char ip_packet[ETHERMTU];
         memcpy(ip_packet, recv_data + sizeof(struct ethhdr), recv_data_size - sizeof(struct ethhdr));
         print_ip_packet(ip_packet, recv_data_size - sizeof(struct ethhdr));
         create_icmp_req_reply(recv_data, recv_data_size);;
