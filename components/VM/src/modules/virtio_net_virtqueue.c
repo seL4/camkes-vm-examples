@@ -109,7 +109,6 @@ void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
     if (err) {
         ZF_LOGE("Unable to initialise recv virtqueue");
         assert(!err);
-        return;
     }
 
     /* Initialise send virtqueue */
@@ -117,7 +116,6 @@ void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
     if (err) {
         ZF_LOGE("Unable to initialise send virtqueue");
         assert(!err);
-        return;
     }
 
 }
