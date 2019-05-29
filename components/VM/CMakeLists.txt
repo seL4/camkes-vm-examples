@@ -189,8 +189,11 @@ DeclareCAmkESComponent(
     Configuration
     sel4pci
     sel4vmmcore
-    virtio
 )
+
+if(VmVirtioNetArping OR VmVirtioNetVirtqueue)
+    DeclareCAmkESComponent(VM LIBS virtio)
+endif()
 
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
