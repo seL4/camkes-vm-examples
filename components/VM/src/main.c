@@ -10,6 +10,8 @@
  * @TAG(DATA61_BSD)
  */
 #include <autoconf.h>
+#include <arm_vm/gen_config.h>
+#include <sel4muslcsys/gen_config.h>
 
 #include <stdio.h>
 #include <assert.h>

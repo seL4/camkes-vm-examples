@@ -10,6 +10,7 @@
  * @TAG(DATA61_BSD)
  */
 #include <autoconf.h>
+#include <arm_vm/gen_config.h>
 
 #include <vmlinux.h>
 
@@ -26,8 +27,6 @@
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 #include <utils/util.h>
-
-#include <autoconf.h>
 
 #include <camkes.h>
 

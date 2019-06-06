@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <autoconf.h>
+#include <arm_vm/gen_config.h>
 #include <vmlinux.h>
 
 #include <camkes.h>

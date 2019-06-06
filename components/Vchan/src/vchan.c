@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <autoconf.h>
+#include <arm_vm/gen_config.h>
 
 #include <sel4/sel4.h>
 #include <sel4utils/util.h>

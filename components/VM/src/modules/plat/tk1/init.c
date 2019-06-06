@@ -10,6 +10,7 @@
  * @TAG(DATA61_BSD)
  */
 #include <autoconf.h>
+#include <arm_vm/gen_config.h>
 
 #include <vmlinux.h>
 

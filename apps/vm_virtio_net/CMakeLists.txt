@@ -85,7 +85,7 @@ CAmkESAddImportPath(exynos5422)
 
 # Declare root server
 if(VIRTIO_NET_PING)
-    DeclareCAmkESComponent(PingClient SOURCES components/PingClient/ping_client.c LIBS virtqueue)
+    DeclareCAmkESComponent( PingClient SOURCES components/PingClient/ping_client.c LIBS virtqueue kernel_autoconf)
 
     DeclareCAmkESRootserver(
         vm_echo_ping.camkes

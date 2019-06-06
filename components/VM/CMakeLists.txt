@@ -186,9 +186,11 @@ DeclareCAmkESComponent(
     sel4arm-vmm
     sel4dma
     FileServer-client
-    Configuration
     sel4pci
     sel4vmmcore
+    arm_vm_Config
+    kernel_autoconf
+    sel4muslcsys_Config
 )
 
 if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
