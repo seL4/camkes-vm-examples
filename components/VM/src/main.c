@@ -63,9 +63,6 @@ int VM_PRIO = 100;
 #define VM_BADGE            (1U << 0)
 #define VIRTIO_NET_BADGE    (1U << 1)
 #define SERIAL_BADGE        (1U << 2)
-#define VM_LINUX_NAME       "linux"
-#define VM_LINUX_DTB_NAME   "linux-dtb"
-#define VM_LINUX_INITRD_NAME "linux-initrd"
 #define VM_NAME             "Linux"
 
 #define IRQSERVER_PRIO      (VM_PRIO + 1)
@@ -85,10 +82,17 @@ allocman_t *allocman;
 static char allocator_mempool[83886080];
 seL4_CPtr _fault_endpoint;
 irq_server_t _irq_server;
-
 struct ps_io_ops _io_ops;
 
 static jmp_buf restart_jmp_buf;
+
+unsigned long linux_ram_base;
+unsigned long linux_ram_paddr_base;
+unsigned long linux_ram_size;
+unsigned long linux_ram_offset;
+unsigned long dtb_addr;
+unsigned long initrd_max_size;
+unsigned long initrd_addr;
 
 void camkes_make_simple(simple_t *simple);
 
@@ -356,7 +360,7 @@ static int vmm_init(void)
         vka_cspace_make_path(vka, cap, &path);
         int utType = device ? ALLOCMAN_UT_DEV : ALLOCMAN_UT_KERNEL;
         if (utType == ALLOCMAN_UT_DEV &&
-            paddr >= LINUX_RAM_PADDR_BASE && paddr <= (LINUX_RAM_PADDR_BASE + (LINUX_RAM_SIZE - 1))) {
+            paddr >= linux_ram_paddr_base && paddr <= (linux_ram_paddr_base + (linux_ram_size - 1))) {
             utType = ALLOCMAN_UT_DEV_MEM;
         }
         err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
@@ -402,15 +406,15 @@ static void map_unity_ram(vm_t *vm)
 {
     /* Dimensions of physical memory that we'll use. Note that we do not map the entirety of RAM.
      */
-    const uintptr_t paddr_start = LINUX_RAM_PADDR_BASE;
-    const uintptr_t paddr_end = paddr_start + LINUX_RAM_SIZE;
+    const uintptr_t paddr_start = linux_ram_paddr_base;
+    const uintptr_t paddr_end = paddr_start + linux_ram_size;
 
     int err;
 
     uintptr_t start;
     reservation_t res;
     unsigned int bits = seL4_PageBits;
-    res = vspace_reserve_range_at(&vm->vm_vspace, (void *)(paddr_start - LINUX_RAM_OFFSET), paddr_end - paddr_start,
+    res = vspace_reserve_range_at(&vm->vm_vspace, (void *)(paddr_start - linux_ram_offset), paddr_end - paddr_start,
                                   seL4_AllRights, 1);
     assert(res.res);
     for (start = paddr_start; start < paddr_end; start += BIT(bits)) {
@@ -424,7 +428,7 @@ static void map_unity_ram(vm_t *vm)
             vka_cspace_free(vm->vka, frame.capPtr);
             break;
         }
-        uintptr_t addr = start - LINUX_RAM_OFFSET;
+        uintptr_t addr = start - linux_ram_offset;
         err = vspace_map_pages_at_vaddr(&vm->vm_vspace, &frame.capPtr, &bits, (void *)addr, 1, bits, res);
         assert(!err);
     }
@@ -530,7 +534,7 @@ int install_linux_devices(vm_t *vm)
     }
     err = vm_install_vgic(vm);
     assert(!err);
-    err = vm_install_ram_range(vm, LINUX_RAM_BASE, LINUX_RAM_SIZE);
+    err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size);
     assert(!err);
 
     int max_vmm_modules = (int)(__stop__vmm_module - __start__vmm_module);
@@ -604,19 +608,19 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
     case IMG_BIN:
         if (config_set(CONFIG_PLAT_TX1) || config_set(CONFIG_PLAT_TX2)) {
             /* This is likely an aarch64/aarch32 linux difference */
-            load_addr = LINUX_RAM_BASE + 0x80000;
+            load_addr = linux_ram_base + 0x80000;
         } else {
-            load_addr = LINUX_RAM_BASE + 0x8000;
+            load_addr = linux_ram_base + 0x8000;
         }
         break;
     case IMG_ZIMAGE:
-        load_addr = zImage_get_load_address(&maybe_elf, LINUX_RAM_BASE);
+        load_addr = zImage_get_load_address(&maybe_elf, linux_ram_base);
         break;
     case IMG_DTB:
-        load_addr = DTB_ADDR;
+        load_addr = dtb_addr;
         break;
     case IMG_INITRD:
-        load_addr = INITRD_ADDR;
+        load_addr = initrd_addr;
         break;
     default:
         ZF_LOGE("Error: Unknown Linux image format for \'%s\'", kernel_name);
@@ -691,10 +695,22 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     return 0;
 }
 
+void parse_camkes_linux_attributes(void) {
+    linux_ram_base = strtoul(_linux_ram_base, NULL, 0);
+    linux_ram_paddr_base = strtoul(_linux_ram_paddr_base, NULL, 0);
+    linux_ram_size = strtoul(_linux_ram_size, NULL, 0);
+    linux_ram_offset = strtoul(_linux_ram_offset, NULL, 0);
+    dtb_addr = strtoul(_dtb_addr, NULL, 0);
+    initrd_max_size = strtoul(_initrd_max_size, NULL, 0);
+    initrd_addr = strtoul(_initrd_addr, NULL, 0);
+}
+
 int main_continued(void)
 {
     vm_t vm;
     int err;
+
+    parse_camkes_linux_attributes();
 
     /* setup for restart with a setjmp */
     while (setjmp(restart_jmp_buf) != 0) {
@@ -747,8 +763,8 @@ int main_continued(void)
 #endif /* CONFIG_PLAT_EXYNOS5410 || CONFIG_PLAT_TX2 */
 
     /* Load system images */
-    printf("Loading Linux: \'%s\' dtb: \'%s\'\n", VM_LINUX_NAME, VM_LINUX_DTB_NAME);
-    err = load_linux(&vm, VM_LINUX_NAME, VM_LINUX_DTB_NAME, VM_LINUX_INITRD_NAME);
+    printf("Loading Linux: \'%s\' dtb: \'%s\'\n", _linux_name, _dtb_name);
+    err = load_linux(&vm, _linux_name, _dtb_name, _initrd_name);
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();

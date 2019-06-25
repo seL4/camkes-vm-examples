@@ -40,6 +40,9 @@ assembly {
     configuration {
         vm.num_extra_frame_caps = 0;
         vm.extra_frame_map_address = 0;
+        vm._linux_name = "linux";
+        vm._dtb_name = "linux-dtb";
+        vm._initrd_name = "linux-initrd";
 
         vm.recv_id = 0;
         vm.recv_attributes = "10";

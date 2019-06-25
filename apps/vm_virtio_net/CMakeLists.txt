@@ -103,7 +103,10 @@ if(VIRTIO_NET_PING)
         virtqueue
     )
 
-    DeclareCAmkESRootserver(vm_echo_ping.camkes CPP_FLAGS ${cpp_flags})
+    DeclareCAmkESRootserver(vm_echo_ping.camkes
+        CPP_FLAGS ${cpp_flags}
+        CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
 else()
-    DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags})
+    DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags}
+        CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
 endif()

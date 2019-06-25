@@ -66,4 +66,5 @@ DefineCAmkESVMFileServer()
 
 
 # Declare odroid root server
-DeclareCAmkESRootserver(vm_odroid.camkes CPP_FLAGS ${cpp_flags})
+DeclareCAmkESRootserver(vm_odroid.camkes CPP_FLAGS ${cpp_flags}
+    CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)

@@ -65,4 +65,15 @@ component VM {
     attribute int base_prio;
     attribute int num_extra_frame_caps;
     attribute int extra_frame_map_address;
+
+    attribute string _linux_ram_base;
+    attribute string _linux_ram_paddr_base;
+    attribute string _linux_ram_size;
+    attribute string _linux_ram_offset;
+    attribute string _dtb_addr;
+    attribute string _initrd_max_size;
+    attribute string _initrd_addr;
+    attribute string _linux_name;
+    attribute string _dtb_name;
+    attribute string _initrd_name;
 }
