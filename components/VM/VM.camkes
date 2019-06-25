@@ -16,6 +16,11 @@ import <VchanInterface.idl4>;
 import <global-connectors.camkes>;
 import <VirtQueue/VirtQueue.camkes>;
 
+import <FileServerInterface.camkes>;
+import <FileServer/FileServer.camkes>;
+import <SerialServer/SerialServer.camkes>;
+import <TimeServer/TimeServer.camkes>;
+
 #if TK1DEVICEFWD
 import <gen_fwd.idl4>;
 #endif
