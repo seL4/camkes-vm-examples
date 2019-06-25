@@ -47,9 +47,9 @@ CAmkESAddImportPath(interfaces)
 # Add libraries
 add_subdirectory(libs/libvirtio)
 
-# Add VM application
-add_subdirectory("apps/${CAMKES_VM_APP}")
-
 # VM components
 add_subdirectory(components/Vchan)
 add_subdirectory(components/VM)
+
+# Add VM application
+add_subdirectory("apps/${CAMKES_VM_APP}")
