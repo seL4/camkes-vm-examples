@@ -17,7 +17,7 @@ project(camkes-arm-tk1-vm C)
 include(../../arm_vm_helpers.cmake)
 
 # Create our CPP Flags based on ARM VM config variables
-if ("${KernelARMPlatform}" STREQUAL "tk1")
+if("${KernelARMPlatform}" STREQUAL "tk1")
     set(cpp_flags "-DKERNELARMPLATFORM_TK1")
 
     # Different device tree if compiling with Tk1Insecure
@@ -32,9 +32,13 @@ if ("${KernelARMPlatform}" STREQUAL "tk1")
     else()
         set(linux_binary_name "linux-tk1-debian")
     endif()
-    add_custom_command(OUTPUT linux/linux-dtb
-        COMMAND bash -c "which dtc && dtc -I dts -O dtb ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
-        VERBATIM)
+    add_custom_command(
+        OUTPUT linux/linux-dtb
+        COMMAND
+            bash -c
+            "which dtc && dtc -I dts -O dtb ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
+        VERBATIM
+    )
     # Create custom target for setting the dtb
     add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
 
@@ -42,7 +46,7 @@ if ("${KernelARMPlatform}" STREQUAL "tk1")
     AddToFileServer("linux" "${CMAKE_CURRENT_LIST_DIR}/../../linux/${linux_binary_name}")
     AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
 
-elseif ("${KernelARMPlatform}" STREQUAL "tx1")
+elseif("${KernelARMPlatform}" STREQUAL "tx1")
     set(cpp_flags "-DKERNELARMPLATFORM_TX1")
 
     AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx1/linux")
@@ -56,12 +60,16 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
     set(rootfs_file "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
-    UpdateDtbFromInitrd("${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb" ${rootfs_file}
-        "0x4d700000" dtb_gen_target output_dtb_location)
-    AddToFileServer("linux-dtb" "${output_dtb_location}"
-        DEPENDS dtb_gen_target)
+    UpdateDtbFromInitrd(
+        "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb"
+        ${rootfs_file}
+        "0x4d700000"
+        dtb_gen_target
+        output_dtb_location
+    )
+    AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
-elseif ("${KernelARMPlatform}" STREQUAL "tx2")
+elseif("${KernelARMPlatform}" STREQUAL "tx2")
     set(cpp_flags "-DKERNELARMPLATFORM_TX2")
 
     AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx2/linux")
@@ -69,14 +77,17 @@ elseif ("${KernelARMPlatform}" STREQUAL "tx2")
 
 endif()
 
-AddCamkesCPPFlag(cpp_flags
-    CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
 DefineCAmkESVMFileServer()
 
 CAmkESAddImportPath(${KernelARMPlatform})
 
 # Declare root server
-DeclareCAmkESRootserver(vm_minimal.camkes
-    CPP_FLAGS ${cpp_flags}
-    CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
+DeclareCAmkESRootserver(
+    vm_minimal.camkes
+    CPP_FLAGS
+    ${cpp_flags}
+    CPP_INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/../../components/VM
+)

@@ -55,12 +55,7 @@ AddOverlayDirToRootfs(
     rootfs_target
     GZIP
 )
-AddToFileServer(
-    "linux-initrd"
-    ${output_overlayed_rootfs_location}
-    DEPENDS
-    rootfs_target
-)
+AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
 # Updated dtb based on generated initrd
 UpdateDtbFromInitrd(
     "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb"
@@ -71,12 +66,7 @@ UpdateDtbFromInitrd(
     DEPENDS
     rootfs_target
 )
-AddToFileServer(
-    "linux-dtb"
-    "${output_dtb_location}"
-    DEPENDS
-    dtb_gen_target
-)
+AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
 AddCamkesCPPFlag(
     cpp_flags
@@ -95,18 +85,21 @@ CAmkESAddImportPath(exynos5422)
 
 # Declare root server
 if(VIRTIO_NET_PING)
-    DeclareCAmkESComponent(
-        PingClient
-        SOURCES
-        components/PingClient/ping_client.c
-        LIBS
-        virtqueue
-    )
+    DeclareCAmkESComponent(PingClient SOURCES components/PingClient/ping_client.c LIBS virtqueue)
 
-    DeclareCAmkESRootserver(vm_echo_ping.camkes
-        CPP_FLAGS ${cpp_flags}
-        CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
+    DeclareCAmkESRootserver(
+        vm_echo_ping.camkes
+        CPP_FLAGS
+        ${cpp_flags}
+        CPP_INCLUDES
+        ${CMAKE_CURRENT_LIST_DIR}/../../components/VM
+    )
 else()
-    DeclareCAmkESRootserver(vm_virtio_net.camkes CPP_FLAGS ${cpp_flags}
-        CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
+    DeclareCAmkESRootserver(
+        vm_virtio_net.camkes
+        CPP_FLAGS
+        ${cpp_flags}
+        CPP_INCLUDES
+        ${CMAKE_CURRENT_LIST_DIR}/../../components/VM
+    )
 endif()

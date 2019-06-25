@@ -26,8 +26,7 @@ target_include_directories(app_include INTERFACE include)
 
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5410")
-AddCamkesCPPFlag(cpp_flags
-    CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
 # Add VM components
 add_subdirectory(components/pilot)
@@ -43,7 +42,6 @@ if(VmVchan)
     add_subdirectory(components/helloworld)
 endif()
 
-
 set(linux_binary_name "${CMAKE_CURRENT_LIST_DIR}/../../linux/linux")
 
 # Different device tree if compiling with VmVUSB
@@ -53,9 +51,13 @@ else()
     set(device_tree_src "linux-secure-dtb")
 endif()
 # Sed the device tree updating the rootfs name
-add_custom_command(OUTPUT linux/linux-dtb
-    COMMAND bash -c "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
-    VERBATIM)
+add_custom_command(
+    OUTPUT linux/linux-dtb
+    COMMAND
+        bash -c
+        "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
+    VERBATIM
+)
 # Create custom target for setting the dtb
 add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
 
@@ -64,7 +66,11 @@ AddToFileServer("linux" "${linux_binary_name}")
 AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
 DefineCAmkESVMFileServer()
 
-
 # Declare odroid root server
-DeclareCAmkESRootserver(vm_odroid.camkes CPP_FLAGS ${cpp_flags}
-    CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)
+DeclareCAmkESRootserver(
+    vm_odroid.camkes
+    CPP_FLAGS
+    ${cpp_flags}
+    CPP_INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/../../components/VM
+)

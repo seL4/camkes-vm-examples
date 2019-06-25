@@ -695,7 +695,8 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     return 0;
 }
 
-void parse_camkes_linux_attributes(void) {
+void parse_camkes_linux_attributes(void)
+{
     linux_ram_base = strtoul(_linux_ram_base, NULL, 0);
     linux_ram_paddr_base = strtoul(_linux_ram_paddr_base, NULL, 0);
     linux_ram_size = strtoul(_linux_ram_size, NULL, 0);
