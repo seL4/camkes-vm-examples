@@ -77,4 +77,6 @@ DefineCAmkESVMFileServer()
 CAmkESAddImportPath(${KernelARMPlatform})
 
 # Declare root server
-DeclareCAmkESRootserver(vm_minimal.camkes CPP_FLAGS ${cpp_flags})
+DeclareCAmkESRootserver(vm_minimal.camkes
+    CPP_FLAGS ${cpp_flags}
+    CPP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/../../components/VM)

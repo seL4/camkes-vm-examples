@@ -10,16 +10,24 @@
  * @TAG(DATA61_BSD)
  */
 
-import <std_connector.camkes>;
+#include <configurations/vm.h>
 
-import <VM/vm_common.camkes>;
+import <std_connector.camkes>;
+import <global-connectors.camkes>;
+
+import <VM/VM.camkes>;
 import <devices.camkes>;
 
 assembly {
     composition {
+        VM_GENERAL_COMPOSITION_DEF()
+        VM_COMPOSITION_DEF(0)
     }
     configuration {
-        vm.num_extra_frame_caps = 0;
-        vm.extra_frame_map_address = 0;
+        VM_GENERAL_CONFIGURATION_DEF()
+        VM_CONFIGURATION_DEF(0)
+
+        vm0.num_extra_frame_caps = 0;
+        vm0.extra_frame_map_address = 0;
     }
 }

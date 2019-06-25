@@ -14,7 +14,7 @@ assembly {
 	composition {}
 	configuration {
 
-        vm.untyped_mmios = [
+        vm0.untyped_mmios = [
                     "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
                     "0x70006000:12", // UARTA
                     "0x60004000:12", // ICTLR (Interrupt controller, this shouldn't be available??
@@ -27,7 +27,7 @@ assembly {
                     "0x70003000:12", // pinmux
 
                     ];
-        vm.irqs =  [27, // INTERRUPT_VTIMER
+        vm0.irqs =  [27, // INTERRUPT_VTIMER
                     31, // INTERRUPT_PPI_15
                     32, // INTERRUPT_TMR1
                     33, // INTERRUPT_TMR2

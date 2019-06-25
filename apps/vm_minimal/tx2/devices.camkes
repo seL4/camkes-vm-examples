@@ -13,7 +13,7 @@
 assembly {
 	composition {}
 	configuration {
-        vm.untyped_mmios = [
+        vm0.untyped_mmios = [
             "0x100000:16", // Chip ID ROM.
             "0x2200000:17", // GPIO controller
             "0x2430000:16", // Pinmux controller
@@ -67,7 +67,7 @@ assembly {
              */
             "0xF1000000:27" // VM RAM DMA region
         ];
-        vm.irqs = [
+        vm0.irqs = [
             31, // Legacy nIRQ
             27, // TX2_IRQ_PPI_VTIMER,
             144, // TX2_UARTA,
