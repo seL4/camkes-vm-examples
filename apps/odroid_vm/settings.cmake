@@ -10,4 +10,4 @@
 # @TAG(DATA61_BSD)
 #
 
-set(KernelARMPlatform "exynos5410" CACHE STRING "" FORCE)
+set(PLATFORM "exynos5410" CACHE STRING "" FORCE)

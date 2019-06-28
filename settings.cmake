@@ -10,14 +10,24 @@
 # @TAG(DATA61_BSD)
 #
 
-include(${CMAKE_CURRENT_LIST_DIR}/easy-settings.cmake)
+set(project_dir "${CMAKE_CURRENT_LIST_DIR}")
+get_filename_component(resolved_path ${CMAKE_CURRENT_LIST_FILE} REALPATH)
+# repo_dir is distinct from project_dir as this file is symlinked.
+# project_dir corresponds to the top level project directory, and
+# repo_dir is the absolute path after following the symlink.
+get_filename_component(repo_dir ${resolved_path} DIRECTORY)
+
+include(${project_dir}/projects/seL4_tools/cmake-tool/helpers/application_settings.cmake)
+
+include(${repo_dir}/easy-settings.cmake)
 
 # Kernel settings
 set(KernelArch "arm" CACHE STRING "" FORCE)
 if(AARCH64)
-    set(KernelArmSel4Arch "aarch64" CACHE STRING "" FORCE)
+    set(KernelSel4Arch "aarch64" CACHE STRING "" FORCE)
 else()
-    set(KernelArmSel4Arch "arm_hyp" CACHE STRING "" FORCE)
+    set(KernelSel4Arch "arm_hyp" CACHE STRING "" FORCE)
+    set(ARM_HYP ON CACHE INTERNAL "" FORCE)
 endif()
 set(KernelArmHypervisorSupport ON CACHE BOOL "" FORCE)
 set(KernelArmExportPCNTUser ON CACHE BOOL "" FORCE)
@@ -43,6 +53,10 @@ if(NOT CAMKES_VM_APP)
 endif()
 
 # Add VM application
-include("${CMAKE_CURRENT_LIST_DIR}/apps/${CAMKES_VM_APP}/settings.cmake")
+include("${repo_dir}/apps/${CAMKES_VM_APP}/settings.cmake")
 
-ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelArmSel4Arch})
+correct_platform_strings()
+
+include(${project_dir}/kernel/configs/seL4Config.cmake)
+
+ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelSel4Arch})

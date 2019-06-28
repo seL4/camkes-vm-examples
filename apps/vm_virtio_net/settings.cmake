@@ -15,7 +15,6 @@ if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
 endif()
-set(KernelARMPlatform "${PLATFORM}" CACHE STRING "" FORCE)
 set(LibUSB OFF CACHE BOOL "" FORCE)
 set(VmPCISupport ON CACHE BOOL "" FORCE)
 if(VIRTIO_NET_PING)
