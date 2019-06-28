@@ -13,5 +13,5 @@
 cmake_minimum_required(VERSION 3.8.2)
 
 # Define kernel config options
-set(KernelX86Sel4Arch ia32 CACHE STRING "" FORCE)
+set(KernelSel4Arch ia32 CACHE STRING "" FORCE)
 set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
