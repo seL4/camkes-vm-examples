@@ -697,13 +697,13 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
 void parse_camkes_linux_attributes(void)
 {
-    linux_ram_base = strtoul(_linux_ram_base, NULL, 0);
-    linux_ram_paddr_base = strtoul(_linux_ram_paddr_base, NULL, 0);
-    linux_ram_size = strtoul(_linux_ram_size, NULL, 0);
-    linux_ram_offset = strtoul(_linux_ram_offset, NULL, 0);
-    dtb_addr = strtoul(_dtb_addr, NULL, 0);
-    initrd_max_size = strtoul(_initrd_max_size, NULL, 0);
-    initrd_addr = strtoul(_initrd_addr, NULL, 0);
+    linux_ram_base = strtoul(linux_address_config.linux_ram_base, NULL, 0);
+    linux_ram_paddr_base = strtoul(linux_address_config.linux_ram_paddr_base, NULL, 0);
+    linux_ram_size = strtoul(linux_address_config.linux_ram_size, NULL, 0);
+    linux_ram_offset = strtoul(linux_address_config.linux_ram_offset, NULL, 0);
+    dtb_addr = strtoul(linux_address_config.dtb_addr, NULL, 0);
+    initrd_max_size = strtoul(linux_address_config.initrd_max_size, NULL, 0);
+    initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
 int main_continued(void)
@@ -764,8 +764,8 @@ int main_continued(void)
 #endif /* CONFIG_PLAT_EXYNOS5410 || CONFIG_PLAT_TX2 */
 
     /* Load system images */
-    printf("Loading Linux: \'%s\' dtb: \'%s\'\n", _linux_name, _dtb_name);
-    err = load_linux(&vm, _linux_name, _dtb_name, _initrd_name);
+    printf("Loading Linux: \'%s\' dtb: \'%s\'\n", linux_image_config.linux_name, linux_image_config.dtb_name);
+    err = load_linux(&vm, linux_image_config.linux_name, linux_image_config.dtb_name, linux_image_config.initrd_name);
     if (err) {
         printf("Failed to load VM image\n");
         seL4_DebugHalt();

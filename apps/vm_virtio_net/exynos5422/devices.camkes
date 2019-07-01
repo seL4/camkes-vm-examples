@@ -23,13 +23,15 @@
 assembly {
 	composition {}
 	configuration {
-        vm._linux_ram_base = VAR_STRINGIZE(VM_RAM_BASE);
-        vm._linux_ram_paddr_base = VAR_STRINGIZE(VM_RAM_BASE);
-        vm._linux_ram_size = VAR_STRINGIZE(VM_RAM_SIZE);
-        vm._linux_ram_offset = VAR_STRINGIZE(VM_RAM_OFFSET);
-        vm._dtb_addr = VAR_STRINGIZE(VM_DTB_ADDR);
-        vm._initrd_max_size = VAR_STRINGIZE(VM_INITRD_MAX_SIZE);
-        vm._initrd_addr = VAR_STRINGIZE(VM_INITRD_ADDR);
+        vm.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
 
         vm.untyped_mmios = [
                     "0x02073000:12", // FIRMWARE

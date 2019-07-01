@@ -23,13 +23,15 @@ assembly {
 	composition {}
 	configuration {
 
-        vm0._linux_ram_base = VAR_STRINGIZE(VM_RAM_BASE);
-        vm0._linux_ram_paddr_base = VAR_STRINGIZE(VM_RAM_BASE);
-        vm0._linux_ram_size = VAR_STRINGIZE(VM_RAM_SIZE);
-        vm0._linux_ram_offset = VAR_STRINGIZE(VM_RAM_OFFSET);
-        vm0._dtb_addr = VAR_STRINGIZE(VM_DTB_ADDR);
-        vm0._initrd_max_size = VAR_STRINGIZE(VM_INITRD_MAX_SIZE);
-        vm0._initrd_addr = VAR_STRINGIZE(VM_INITRD_ADDR);
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
 
         vm0.untyped_mmios = [
             "0x100000:16", // Chip ID ROM.

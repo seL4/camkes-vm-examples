@@ -29,8 +29,10 @@ assembly {
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
-        vm0._linux_name = "linux";
-        vm0._dtb_name = "linux-dtb";
-        vm0._initrd_name = "linux-initrd";
+        vm0.linux_image_config = {
+            "linux_name" : "linux",
+            "dtb_name" : "linux-dtb",
+            "initrd_name" : "linux-initrd"
+        };
     }
 }
