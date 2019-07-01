@@ -28,7 +28,7 @@
 
 #include <virtio/virtio.h>
 #include <virtio/virtio_net.h>
-#include <virtio/virtio_net_plat.h>
+#include <virtio/virtio_plat.h>
 
 #include "virtio_vpci.h"
 

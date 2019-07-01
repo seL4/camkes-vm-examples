@@ -16,18 +16,10 @@ project(libvirtio C)
 
 add_compile_options(-std=gnu99)
 
-set(sources src/virtio_net.c src/virtio_vpci.c)
+set(sources src/virtio_net.c src/virtio_console.c src/virtio_vpci.c)
 
 add_library(virtio STATIC EXCLUDE_FROM_ALL ${sources})
 
 target_include_directories(virtio PUBLIC include plat_include/${KernelPlatform})
 
-target_link_libraries(
-    virtio
-    Configuration
-    muslc
-    sel4
-    sel4camkes
-    sel4arm-vmm
-    sel4vmmcore
-)
+target_link_libraries(virtio Configuration muslc sel4 sel4camkes sel4arm-vmm sel4vmmcore)
