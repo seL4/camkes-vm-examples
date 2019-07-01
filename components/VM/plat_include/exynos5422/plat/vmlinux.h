@@ -59,11 +59,13 @@ static const int linux_pt_irqs[] = {
     65, // MDMA
     66, // PDMA
     67, // PDMA
+#ifndef CONFIG_VM_VIRTIO_CON
     68, // PWM
     69, // PWM
     70, // PWM
     71, // PWM
     72, // PWM
+#endif
     74, // WATCHDOG
     75, // RTC
     76, // RTC
@@ -71,10 +73,12 @@ static const int linux_pt_irqs[] = {
     78, // GPIO LEFT
     79, // PINCTRL GPZ
     82, // PINCTRL3
+#ifndef CONFIG_VM_VIRTIO_CON
     83, // UART0
     84, // UART1
     85, // UART2
     86, // UART3
+#endif
     88, // I2C0
     89, // I2C1
     90, // I2C2
