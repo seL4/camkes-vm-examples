@@ -13,8 +13,9 @@ import <std_connector.camkes>;
 import <global-connectors.camkes>;
 
 import <FileServerInterface.camkes>;
-
 import <FileServer/FileServer.camkes>;
+import <SerialServer/SerialServer.camkes>;
+import <TimeServer/TimeServer.camkes>;
 import "VM.camkes";
 
 assembly {
@@ -44,5 +45,4 @@ assembly {
         vm.notification_ready_global_endpoint = "vm";
         vm.notification_ready_connector_global_endpoint = "vm";
     }
-
 }

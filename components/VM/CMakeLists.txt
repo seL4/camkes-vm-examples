@@ -17,27 +17,13 @@ project(VM C)
 set(configure_string "")
 
 # ARM VM Configuration Options
-config_option(
-    VmEmmc2NoDMA
-    VM_EMMC2_NODMA
-    "SD access control to prevent DMA \
+config_option(VmEmmc2NoDMA VM_EMMC2_NODMA "SD access control to prevent DMA \
     Installs SD card into the VM with read only access. Write access is \
-    trapped and emulated to ensure that DMA is not used."
-    DEFAULT
-    OFF
-)
+    trapped and emulated to ensure that DMA is not used." DEFAULT OFF)
 
-config_option(
-    VmVUSB
-    VM_VUSB
-    "Para-virtual USB driver \
+config_option(VmVUSB VM_VUSB "Para-virtual USB driver \
     Selects the device tree which enables the para virtual USB driver and \
-    installs the device into the VM."
-    DEPENDS
-    "KernelPlatformExynos5410"
-    DEFAULT
-    OFF
-)
+    installs the device into the VM." DEPENDS "KernelPlatformExynos5410" DEFAULT OFF)
 
 config_option(
     VmVchan

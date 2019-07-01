@@ -9,8 +9,7 @@
  *
  * @TAG(DATA61_BSD)
  */
-#ifndef VMLINUX_H
-#define VMLINUX_H
+#pragma once
 
 #include <sel4utils/irq_server.h>
 
@@ -25,7 +24,7 @@ typedef struct vmm_module {
     const char *name;
     void *cookie;
     // Function called for setup.
-    void (*init_module)(vm_t* vm, void* cookie);
+    void (*init_module)(vm_t *vm, void *cookie);
 } ALIGN(32) vmm_module_t;
 
 /* Declare a module.
@@ -36,6 +35,3 @@ typedef struct vmm_module {
     .cookie = _cookie, \
     .init_module = _init_module, \
 };
-
-#endif /* VMLINUX_H */
-
