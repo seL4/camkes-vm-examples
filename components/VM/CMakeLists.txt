@@ -79,6 +79,16 @@ config_option(
     OFF
 )
 
+config_option(
+    VmVirtioConsole
+    VM_VIRTIO_CON
+    "Enable virtio console module"
+    DEPENDS
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    DEFAULT
+    OFF
+)
+
 config_choice(
     VmRootfs
     VM_ROOTFS
@@ -161,6 +171,10 @@ if(VmVirtioNetVirtqueue)
     list(APPEND vm_src src/modules/virtio_net_virtqueue.c)
 endif()
 
+if(VmVirtioConsole)
+    list(APPEND vm_src src/modules/virtio_con.c)
+endif()
+
 if(KernelPlatformExynos5410)
     list(APPEND vm_src ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/exynos5410/init.c)
     set(vm_plat_include "plat_include/exynos5410")
@@ -191,7 +205,7 @@ DeclareCAmkESComponent(
     sel4vmmcore
 )
 
-if(VmVirtioNetArping OR VmVirtioNetVirtqueue)
+if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
     DeclareCAmkESComponent(VM LIBS virtio)
 endif()
 

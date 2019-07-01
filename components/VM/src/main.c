@@ -40,6 +40,7 @@
 #include <sel4arm-vmm/devices/vusb.h>
 #include <sel4arm-vmm/devices/vpci.h>
 #include <sel4arm-vmm/images.h>
+#include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
 
 #include <sel4pci/pci_helper.h>
 
@@ -60,7 +61,8 @@ int start_extra_frame_caps;
 
 int VM_PRIO = 100;
 #define VM_BADGE            (1U << 0)
-#define VIRTIO_NET_BADGE     (1U << 1)
+#define VIRTIO_NET_BADGE    (1U << 1)
+#define SERIAL_BADGE        (1U << 2)
 #define VM_LINUX_NAME       "linux"
 #define VM_LINUX_DTB_NAME   "linux-dtb"
 #define VM_LINUX_INITRD_NAME "linux-initrd"
@@ -91,6 +93,11 @@ static jmp_buf restart_jmp_buf;
 void camkes_make_simple(simple_t *simple);
 
 int WEAK virtio_net_notify(vm_t *vm)
+{
+    return 0;
+}
+
+int WEAK handle_serial_console()
 {
     return 0;
 }
@@ -777,6 +784,8 @@ int main_continued(void)
 #endif
         } else if (sender_badge == VIRTIO_NET_BADGE) {
             virtio_net_notify(&vm);
+        } else if (sender_badge == SERIAL_BADGE) {
+            handle_serial_console();
         } else {
             assert(sender_badge == VM_BADGE);
             err = vm_event(&vm, tag);

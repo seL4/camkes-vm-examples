@@ -40,6 +40,9 @@ component VM {
     maybe consumes restart restart_event;
     has semaphore vm_sem;
 
+    maybe uses PutChar putchar;
+    maybe uses PutChar guest_putchar;
+    maybe uses GetChar serial_getchar; 
 
 #if VMVCHAN
     include "vchan_sharemem.h";
