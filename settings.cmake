@@ -60,3 +60,15 @@ correct_platform_strings()
 include(${project_dir}/kernel/configs/seL4Config.cmake)
 
 ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelSel4Arch})
+
+# Other project settings needed for static allocation.
+# This is done early on so that it works for projects loaded before
+# options processing in camkes-tool (notably, elfloader-tool).
+include(${project_dir}/projects/capdl/capdl-loader-app/helpers.cmake)
+include(${project_dir}/projects/seL4_tools/elfloader-tool/helpers.cmake)
+if (CAmkESCapDLStaticAlloc)
+    # Need to compile the capDL loader for static alloc
+    SetCapDLLoaderStaticAlloc()
+    # Need to place the capDL loader ELF at the end of memory
+    SetElfloaderRootserversLast()
+endif()
