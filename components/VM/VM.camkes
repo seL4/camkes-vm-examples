@@ -77,9 +77,9 @@ component VM {
     } linux_address_config;
 
     attribute {
-        string linux_name;
-        string dtb_name;
-        string initrd_name;
+        string linux_name = "linux";
+        string dtb_name = "linux-dtb";
+        string initrd_name = "linux-initrd";
     } linux_image_config;
 
 }

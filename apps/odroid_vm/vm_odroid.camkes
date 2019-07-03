@@ -235,11 +235,7 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
-        vm.linux_image_config = {
-            "linux_name" : "linux",
-            "dtb_name" : "linux-dtb",
-            "initrd_name" : "linux-initrd"
-        };
+        vm.linux_image_config = {};
 
         vm.untyped_mmios = [
                     "0x10000000:12", // CHIP_ID
