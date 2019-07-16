@@ -100,6 +100,12 @@ unsigned long initrd_addr;
 
 void camkes_make_simple(simple_t *simple);
 
+int WEAK camkes_dtb_untyped_count();
+seL4_CPtr WEAK camkes_dtb_get_nth_untyped(int n, size_t *size_bits, uintptr_t *paddr);
+seL4_Error WEAK camkes_dtb_get_irq_cap(int irq, seL4_CNode cnode, seL4_Word index, uint8_t depth);
+simple_get_IRQ_handler_fn original_simple_get_irq_fn;
+int *WEAK camkes_dtb_get_irqs(int *num_irqs);
+
 int WEAK virtio_net_notify(vm_t *vm)
 {
     return 0;
@@ -321,6 +327,20 @@ static int vm_new_io_mapper(simple_t simple, vspace_t vspace, vka_t vka, ps_io_m
     return 0;
 }
 
+static seL4_Error vm_simple_get_irq(void *data, int irq, seL4_CNode cnode, seL4_Word index, uint8_t depth)
+{
+    seL4_Error res;
+    res = original_simple_get_irq_fn(_simple.data, irq, cnode, index, depth);
+    if (res == seL4_NoError) {
+        return res;
+    }
+    if (camkes_dtb_get_irq_cap) {
+        return camkes_dtb_get_irq_cap(irq, cnode, index, depth);
+    } else {
+        return seL4_FailedLookup;
+    }
+}
+
 static int vmm_init(void)
 {
     vka_object_t fault_ep_obj;
@@ -340,6 +360,8 @@ static int vmm_init(void)
     };
 
     camkes_make_simple(simple);
+    original_simple_get_irq_fn = simple->arch_simple.irq;
+    simple->arch_simple.irq = &vm_simple_get_irq;
 
     start_extra_frame_caps = simple_last_valid_cap(simple) + 1;
 
@@ -371,6 +393,22 @@ static int vmm_init(void)
         assert(!err);
     }
 
+    if (camkes_dtb_untyped_count) {
+        for (int i = 0; i < camkes_dtb_untyped_count(); i++) {
+            size_t size;
+            uintptr_t paddr;
+            seL4_CPtr cap = camkes_dtb_get_nth_untyped(i, &size, &paddr);
+            cspacepath_t path;
+            vka_cspace_make_path(vka, cap, &path);
+            int utType = ALLOCMAN_UT_DEV;
+            if (paddr >= LINUX_RAM_PADDR_BASE &&
+                paddr <= (LINUX_RAM_PADDR_BASE + (LINUX_RAM_SIZE - 1))) {
+                utType = ALLOCMAN_UT_DEV_MEM;
+            }
+            err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
+            assert(!err);
+        }
+    }
     /* Initialize the vspace */
     err = sel4utils_bootstrap_vspace(vspace, &_alloc_data,
                                      simple_get_init_cap(simple, seL4_CapInitThreadPD), vka, NULL, NULL, existing_frames);
@@ -625,6 +663,17 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
         err = route_irq(irq_num, vm, irq_server);
         if (err) {
             return err;
+        }
+    }
+    if (camkes_dtb_get_irqs) {
+        int num_dtb_irqs = 0;
+        int *dtb_irqs = camkes_dtb_get_irqs(&num_dtb_irqs);
+        for (i = 0; i < num_dtb_irqs; i++) {
+            int irq_num = dtb_irqs[i];
+            err = route_irq(irq_num, vm, irq_server);
+            if (err) {
+                return err;
+            }
         }
     }
     return 0;

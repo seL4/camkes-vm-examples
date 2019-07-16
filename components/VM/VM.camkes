@@ -15,6 +15,7 @@ import <VchanInterface.idl4>;
 #endif //VMVCHAN
 import <global-connectors.camkes>;
 import <VirtQueue/VirtQueue.camkes>;
+import <seL4VMDTBPassthrough.idl4>;
 
 import <FileServerInterface.camkes>;
 import <FileServer/FileServer.camkes>;
@@ -61,6 +62,9 @@ component VM {
     maybe uses VirtQueueDrv send;
     consumes HaveNotification notification_ready;
     emits HaveNotification notification_ready_connector;
+
+    maybe uses VMDTBPassthrough dtb_self;
+    provides VMDTBPassthrough dtb;
 
     attribute int base_prio;
     attribute int num_extra_frame_caps;
