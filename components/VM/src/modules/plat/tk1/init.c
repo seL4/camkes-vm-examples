@@ -49,8 +49,7 @@ static const struct device *linux_ram_devices[] = {
 
 
 
-static void
-plat_init_module(vm_t* vm, void *cookie)
+static void plat_init_module(vm_t *vm, void *cookie)
 {
     int err;
     int i;

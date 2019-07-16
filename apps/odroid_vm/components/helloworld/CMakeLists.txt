@@ -16,7 +16,17 @@ project(helloworld C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(helloworld
-    SOURCES ${sources}
-    INCLUDES src
-    LIBS sel4allocman sel4simple sel4simple-default sel4arm-vmm sel4dma sel4vchan)
+DeclareCAmkESComponent(
+    helloworld
+    SOURCES
+    ${sources}
+    INCLUDES
+    src
+    LIBS
+    sel4allocman
+    sel4simple
+    sel4simple-default
+    sel4arm-vmm
+    sel4dma
+    sel4vchan
+)

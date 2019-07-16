@@ -44,7 +44,7 @@ static int vchan_readwrite(void *data, uint64_t cmd);
 static int vchan_state(void *data, uint64_t cmd);
 
 static void vchan_callback(void *addr);
-static void vchan_ack(void* token);
+static void vchan_ack(void *token);
 
 /* Function lookup table for handling requests */
 static struct vmm_manager_ops {
@@ -83,7 +83,8 @@ static camkes_vchan_con_t vchan_camkes_component = {
 };
 
 /* Set up relevent runtime systems for vchan */
-static void vm_vchan_setup(vm_t *vm) {
+static void vm_vchan_setup(vm_t *vm)
+{
     vm->lock = &vm_lock_lock;
     vm->unlock = &vm_lock_unlock;
 
@@ -93,16 +94,17 @@ static void vm_vchan_setup(vm_t *vm) {
 }
 
 /* No ack callback needed when the vchan acknoledges a vchan irq */
-static void vchan_ack(void* token) {}
+static void vchan_ack(void *token) {}
 
 
-static int update_callback_alert(void *addr) {
+static int update_callback_alert(void *addr)
+{
     int res;
     vchan_alert_internal_t *pass = addr;
-    vchan_alert_t *alrt = (vchan_alert_t *) &(pass->stats);
+    vchan_alert_t *alrt = (vchan_alert_t *) & (pass->stats);
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, alrt->dest);
-    if(con == NULL) {
+    if (con == NULL) {
         DVMVCHAN(2, "vchan-cb: No vchan component instance for %d\n", alrt->dest);
         return -1;
     }
@@ -116,10 +118,10 @@ static int update_callback_alert(void *addr) {
     res = con->alert_status(ct, &(alrt->data_ready), &(alrt->buffer_space));
 
     DVMVCHAN(2, "vchan-cb: |%d|%d|%d|%d|%d\n",
-        alrt->dest, alrt->port, alrt->buffer_space, alrt->data_ready);
+             alrt->dest, alrt->port, alrt->buffer_space, alrt->data_ready);
 
-    if(res != -1) {
-        if(res == 1) {
+    if (res != -1) {
+        if (res == 1) {
             DVMVCHAN(2, "vchan-cb: client side closed, cb %d\n", alrt->port);
             free(pass);
         } else {
@@ -138,7 +140,8 @@ static int update_callback_alert(void *addr) {
         The nature of the event (a full or empty data buffer), is passed to the running vm
             via coping the event value and triggering a hardware IRQ
 */
-static void vchan_callback(void *addr) {
+static void vchan_callback(void *addr)
+{
     DVMVCHAN(5, "vchan-cb: triggered\n");
 
     update_callback_alert(addr);
@@ -150,11 +153,12 @@ static void vchan_callback(void *addr) {
 /*
     Return the given vm guest number of this component
 */
-int get_vm_num() {
+int get_vm_num()
+{
     int res;
     // char *name = (char *) get_instance_name();
     int ret = sscanf("vm_vm0", "vm_vm%d", &res);
-    if(ret == 0) {
+    if (ret == 0) {
         return -1;
     }
 
@@ -164,10 +168,11 @@ int get_vm_num() {
 /*
     Return the state of a given vchan connection
 */
-static int vchan_state(void *data, uint64_t cmd) {
+static int vchan_state(void *data, uint64_t cmd)
+{
     vchan_check_args_t *args = data;
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
-    if(con == NULL) {
+    if (con == NULL) {
         DVMVCHAN(2, "connect: %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
@@ -179,20 +184,21 @@ static int vchan_state(void *data, uint64_t cmd) {
 /*
     Connect a vchan to a another guest vm
 */
-static int vchan_connect(void *data, uint64_t cmd) {
+static int vchan_connect(void *data, uint64_t cmd)
+{
     int res;
     vchan_connect_t *pass = data;
 
     DVMVCHAN(2, "connect: %d, connecting to %d\n", pass->v.domain, pass->v.dest);
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
-    if(con == NULL) {
+    if (con == NULL) {
         DVMVCHAN(2, "connect: %d, has no vchan component instance\n", pass->v.domain);
         return -1;
     }
 
     vchan_alert_internal_t *alrt = malloc(sizeof(vchan_alert_internal_t));
-    if(pass == NULL) {
+    if (pass == NULL) {
         DVMVCHAN(2, "connect: %d, failed to allocate internal vchan-alert\n", pass->v.domain);
         return -1;
     }
@@ -205,7 +211,7 @@ static int vchan_connect(void *data, uint64_t cmd) {
     };
 
     res = con->connect(t);
-    if(res < 0) {
+    if (res < 0) {
         DVMVCHAN(2, "connect: %d, failed to connect to %d\n", pass->v.domain, pass->v.dest);
         return -1;
     }
@@ -214,7 +220,7 @@ static int vchan_connect(void *data, uint64_t cmd) {
     alrt->out_addr = pass->event_mon;
     vm_copyin(run_vmm, &(alrt->stats), (uintptr_t) pass->event_mon, sizeof(vchan_alert_t));
 
-    if(update_callback_alert((void *) alrt) < 0) {
+    if (update_callback_alert((void *) alrt) < 0) {
         DVMVCHAN(2, "connect: %d, failed reg callback\n", pass->v.domain);
         return -1;
     }
@@ -228,11 +234,12 @@ static int vchan_connect(void *data, uint64_t cmd) {
 /*
     Close a vchan connection this guest vm is using
 */
-static int vchan_close(void *data, uint64_t cmd) {
+static int vchan_close(void *data, uint64_t cmd)
+{
     vchan_connect_t *pass = data;
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, pass->v.dest);
-    if(con == NULL) {
+    if (con == NULL) {
         DVMVCHAN(2, "close: %d, has no vchan component instance\n", pass->v.domain);
         return -1;
     }
@@ -256,14 +263,15 @@ static int vchan_close(void *data, uint64_t cmd) {
         Copies into a memory buffer, and then defers to VmmManager to finish the operation
         Defering is necessary for ensuring concurrency
 */
-static int vchan_readwrite(void *data, uint64_t cmd) {
+static int vchan_readwrite(void *data, uint64_t cmd)
+{
     vchan_args_t *args = data;
     int *update;
 
     DVMVCHAN(4, "vmcall_readwrite: starting action %d\n", (int) cmd);
 
     camkes_vchan_con_t *con = get_vchan_con(run_vmm, args->v.dest);
-    if(con == NULL) {
+    if (con == NULL) {
         DVMVCHAN(2, "vmcall_readwrite: %d, has no vchan component instance\n", args->v.domain);
         return -1;
     }
@@ -286,39 +294,39 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
         If streaming, send as much data as possible
          If not streaming, any operation that can't fit into the buffer fails
     */
-    if(cmd == VCHAN_RECV) {
-        if(args->stream) {
+    if (cmd == VCHAN_RECV) {
+        if (args->stream) {
             size = MIN(filled, args->size);
-        } else if(filled < args->size) {
+        } else if (filled < args->size) {
             DVMVCHAN(2, "vmcall_readwrite: bad recv size |rq:%d|hv:%d|\n", args->size, filled);
             return -1;
         }
     } else {
-        if(args->stream) {
+        if (args->stream) {
             size = MIN(VCHAN_BUF_SIZE - filled, args->size);
         } else if ((VCHAN_BUF_SIZE - filled) < args->size) {
             DVMVCHAN(2, "vmcall_readwrite: bad send size |rq:%d|hv:%d|\n",
-                     (int) args->size, (int) (VCHAN_BUF_SIZE - filled));
+                     (int) args->size, (int)(VCHAN_BUF_SIZE - filled));
             return -1;
         }
     }
 
     off_t remain = 0;
 
-    if(size != 0) {
-        if(cmd == VCHAN_SEND) {
+    if (size != 0) {
+        if (cmd == VCHAN_SEND) {
             update = &(b->write_pos);
         } else {
             update = &(b->read_pos);
         }
 
         off_t start = (*update % VCHAN_BUF_SIZE);
-        if(start + size > VCHAN_BUF_SIZE) {
+        if (start + size > VCHAN_BUF_SIZE) {
             remain = (start + size) - VCHAN_BUF_SIZE;
             size -= remain;
         }
 
-        if(cmd == VCHAN_SEND) {
+        if (cmd == VCHAN_SEND) {
             vm_copyin(run_vmm, (b->sync_data + start), phys, size);
             vm_copyin(run_vmm, (b->sync_data), (phys + size), remain);
         } else {
@@ -339,17 +347,19 @@ static int vchan_readwrite(void *data, uint64_t cmd) {
 /*
     Used for replying back to a driver successfully connecting
 */
-static int driver_connect(void *data, uint64_t cmd) {
+static int driver_connect(void *data, uint64_t cmd)
+{
     /* Only allow one vchan driver instance to be connected */
-    if(driver_connected)
+    if (driver_connected) {
         return -1;
+    }
 
     struct vmm_args *vargs = data;
     driver_connected = 1;
     vargs->datatype = DATATYPE_INT;
     int *res = (int *)vargs->ret_data;
     *res = get_vm_num();
-    if(*res < 0) {
+    if (*res < 0) {
         return -1;
     }
 
@@ -360,7 +370,8 @@ static int driver_connect(void *data, uint64_t cmd) {
     Entry point for vchan calls in the hypervisor
         Determine and perform a given command
 */
-static void vchan_entry_point(vm_t *vm, uint32_t data) {
+static void vchan_entry_point(vm_t *vm, uint32_t data)
+{
     char args_buffer[256];
     run_vmm = vm;
     int cmd;
@@ -372,14 +383,14 @@ static void vchan_entry_point(vm_t *vm, uint32_t data) {
     cmd = args->cmd;
 
     /* Catch if the request is for an invalid command */
-    if(cmd >= NUM_VMM_OPS || vmm_manager_ops_table.op_func[cmd] == NULL) {
+    if (cmd >= NUM_VMM_OPS || vmm_manager_ops_table.op_func[cmd] == NULL) {
         DVMVCHAN(2, "vchan: unsupported command or null tbl arg %d\n", cmd);
         args->err = -1;
     } else {
         /* Perform given token:command action */
         vm_copyin(vm, &driver_arg, args->phys_data, args->size);
         args->err = (*vmm_manager_ops_table.op_func[cmd])(&driver_arg, cmd);
-        if(args->err != -1) {
+        if (args->err != -1) {
             vm_copyout(vm, &driver_arg, args->phys_data, args->size);
         }
     }
@@ -388,8 +399,8 @@ static void vchan_entry_point(vm_t *vm, uint32_t data) {
 }
 
 
-static int
-vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
+static int vchan_device_fault_handler(struct device *d UNUSED, vm_t *vm, fault_t *fault)
+{
     uint32_t data = fault_get_data(fault);
     vchan_entry_point(vm, data);
     // fflush(stdout);
@@ -398,16 +409,17 @@ vchan_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
 }
 
 struct device vchan_dev = {
-        .devid = DEV_CUSTOM,
-        .name = "vchan-driver",
-        .pstart = 0x2040000,
-        .size = 0x1000,
-        .handle_page_fault = &vchan_device_fault_handler,
-        .priv = NULL,
-    };
+    .devid = DEV_CUSTOM,
+    .name = "vchan-driver",
+    .pstart = 0x2040000,
+    .size = 0x1000,
+    .handle_page_fault = &vchan_device_fault_handler,
+    .priv = NULL,
+};
 
-static void vchan_init_module(vm_t *vm, void *cookie) {
-	int err = vm_add_device(vm, &vchan_dev);
+static void vchan_init_module(vm_t *vm, void *cookie)
+{
+    int err = vm_add_device(vm, &vchan_dev);
     assert(!err);
 
     vm_vchan_setup(&vm);
