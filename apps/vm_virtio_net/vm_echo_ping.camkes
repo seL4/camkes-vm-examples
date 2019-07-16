@@ -11,7 +11,7 @@
  */
 
 import <std_connector.camkes>;
-
+import <vm-connectors.camkes>;
 import <VM/vm_common.camkes>;
 import <devices.camkes>;
 import <VirtQueue/VirtQueue.camkes>;
@@ -36,6 +36,7 @@ assembly {
         connection seL4VirtQueues ping_virtq_conn0(to ping_vqinit0.init, from ping_client.send, from vm.recv);
         connection seL4VirtQueues ping_virtq_conn1(to ping_vqinit1.init, from ping_client.recv, from vm.send);
         connection seL4GlobalAsynchCallback ping_global_callback(from ping_client.self, to ping_client.ping_wait);
+        connection seL4VMDTBPassthrough vm_dtb(from vm.dtb_self, to vm.dtb);
     }
     configuration {
         vm.num_extra_frame_caps = 0;

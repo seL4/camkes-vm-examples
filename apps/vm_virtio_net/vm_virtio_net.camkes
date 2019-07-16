@@ -11,12 +11,13 @@
  */
 
 import <std_connector.camkes>;
-
+import <vm-connectors.camkes>;
 import <VM/vm_common.camkes>;
 import <devices.camkes>;
 
 assembly {
     composition {
+        connection seL4VMDTBPassthrough vm_dtb(from vm.dtb_self, to vm.dtb);
     }
     configuration {
         vm.num_extra_frame_caps = 0;
