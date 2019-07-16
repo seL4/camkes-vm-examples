@@ -43,6 +43,7 @@ include(${CAMKES_VM_HELPERS_PATH})
 # Common build definitions
 CAmkESAddImportPath(components)
 CAmkESAddImportPath(interfaces)
+CAmkESAddTemplatesPath(templates)
 
 # Add libraries
 add_subdirectory(libs/libvirtio)
