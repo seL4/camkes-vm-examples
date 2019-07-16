@@ -14,7 +14,7 @@
 
 import <std_connector.camkes>;
 import <global-connectors.camkes>;
-
+import <vm-connectors.camkes>;
 import <VM/VM.camkes>;
 import <devices.camkes>;
 
@@ -22,6 +22,7 @@ assembly {
     composition {
         VM_GENERAL_COMPOSITION_DEF()
         VM_COMPOSITION_DEF(0)
+        connection seL4VMDTBPassthrough vm_dtb(from vm0.dtb_self, to vm0.dtb);
     }
     configuration {
         VM_GENERAL_CONFIGURATION_DEF()
