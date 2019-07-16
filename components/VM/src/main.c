@@ -582,37 +582,49 @@ int install_linux_devices(vm_t *vm)
 
 }
 
+static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
+{
+    ps_irq_t irq = { .type = PS_INTERRUPT, .irq = { .number = irq_num }};
+    virq_handle_t virq;
+    irq_callback_fn_t handler = NULL;
+    if (get_custom_irq_handler) {
+        handler = get_custom_irq_handler(irq);
+    }
+    if (handler == NULL) {
+        handler = &irq_handler;
+    }
+
+    irq_token_t token = calloc(1, sizeof(struct irq_token));
+    if (token == NULL) {
+        return -1;
+    }
+
+    virq = vm_virq_new(vm, irq.irq.number, &do_irq_server_ack, token);
+    if (virq == NULL) {
+        return -1;
+    }
+
+    token->virq = virq;
+    token->irq = irq;
+    token->vm = vm;
+
+    irq_id_t irq_id = irq_server_register_irq(irq_server, irq, handler, token);
+    if (irq_id < 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 static int route_irqs(vm_t *vm, irq_server_t *irq_server)
 {
+    int err;
     int i;
     for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
-        ps_irq_t irq = { .type = PS_INTERRUPT, .irq = { .number = linux_pt_irqs[i] }};
-        virq_handle_t virq;
-        irq_callback_fn_t handler = NULL;
-        if (get_custom_irq_handler) {
-            handler = get_custom_irq_handler(irq);
-        }
-        if (handler == NULL) {
-            handler = &irq_handler;
-        }
-
-        irq_token_t token = calloc(1, sizeof(struct irq_token));
-        if (token == NULL) {
-            return -1;
-        }
-
-        virq = vm_virq_new(vm, irq.irq.number, &do_irq_server_ack, token);
-        if (virq == NULL) {
-            return -1;
-        }
-
-        token->virq = virq;
-        token->irq = irq;
-        token->vm = vm;
-
-        irq_id_t irq_id = irq_server_register_irq(irq_server, irq, handler, token);
-        if (irq_id < 0) {
-            return -1;
+        int irq_num = linux_pt_irqs[i];
+        err = route_irq(irq_num, vm, irq_server);
+        if (err) {
+            return err;
         }
     }
     return 0;
