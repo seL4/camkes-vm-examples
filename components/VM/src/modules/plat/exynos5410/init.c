@@ -101,24 +101,25 @@ static vusb_device_t* _vusb;
 static usb_host_t _hcd;
 
 static void
-usb_irq_handler(struct irq_data* irq_data)
+usb_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
 {
-    usb_host_t* hcd = (usb_host_t*)irq_data->token;
+    assert(data);
+    usb_host_t* hcd = (usb_host_t *)data;
     usb_hcd_handle_irq(hcd);
-    irq_data_ack_irq(irq_data);
+    assert(!acknowledge_fn(ack_data));
 }
 
 static int
 install_vusb(vm_t* vm)
 {
-    irq_server_t irq_server;
+    irq_server_t *irq_server;
     ps_io_ops_t* io_ops;
     vusb_device_t* vusb;
     usb_host_t* hcd;
-    struct irq_data* irq_data;
+    irq_id_t irq_id;
     seL4_CPtr vmm_ep;
     int err;
-    irq_server = _irq_server;
+    irq_server = &_irq_server;
     io_ops = vm->io_ops;
     hcd = &_hcd;
     vmm_ep = _fault_endpoint;
@@ -131,8 +132,8 @@ install_vusb(vm_t* vm)
     }
 
     /* Route physical IRQs */
-    irq_data = irq_server_register_irq(irq_server, 103, usb_irq_handler, hcd);
-    if (!irq_data) {
+    irq_id = irq_server_register_irq(irq_server, 103, usb_irq_handler, hcd);
+    if (irq_id < 0) {
         return -1;
     }
     /* Install the virtual device */
@@ -261,18 +262,27 @@ plat_init_module(vm_t* vm, void *cookie)
 
 
 static void
-vcombiner_irq_handler(struct irq_data* irq)
+vcombiner_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
 {
+    assert(data);
+    irq_token_t irq_data;
     vm_t* vm;
-    assert(irq);
-    vm = (vm_t*)irq->token;
-    vm_combiner_irq_handler(vm, irq->irq);
-    irq_data_ack_irq(irq);
+    irq_data = (irq_token_t)data;
+
+    irq_data->acknowledge_fn = acknowledge_fn;
+    irq_data->ack_data = ack_data;
+
+    vm = irq_data->vm;
+    ps_irq_t irq = irq_data->irq;
+    vm_combiner_irq_handler(vm, irq.irq.number);
+    acknowledge_fn(ack_data);
 }
 
 
-irq_handler_fn get_custom_irq_handler(irq_t irq) {
-    if (irq >= 32 && irq <= 63) {
+irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq) {
+    assert(irq.type == PS_INTERRUPT);
+
+    if (irq.irq.number >= 32 && irq.irq.number <= 63) {
         /* IRQ combiner IRQs must be handled by the combiner directly */
         return vcombiner_irq_handler;
     }
