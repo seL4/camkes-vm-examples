@@ -400,8 +400,8 @@ static int vmm_init(void)
 
     /* Create an IRQ server */
     _irq_server = irq_server_new(vspace, vka, IRQSERVER_PRIO,
-                         simple, simple_get_cnode(simple), fault_ep_obj.cptr,
-                         IRQ_MESSAGE_LABEL, 256, &_malloc_ops);
+                                 simple, simple_get_cnode(simple), fault_ep_obj.cptr,
+                                 IRQ_MESSAGE_LABEL, 256, &_malloc_ops);
     assert(_irq_server);
 
     /* Create threads for the IRQ server */

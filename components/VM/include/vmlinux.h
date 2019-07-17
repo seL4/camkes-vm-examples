@@ -23,13 +23,13 @@ irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq) WEAK;
 /* Struct type that's passed into the IRQ callback functions for
  * this component */
 struct irq_token {
-    vm_t* vm;
+    vm_t *vm;
     ps_irq_t irq;
     virq_handle_t virq;
     ps_irq_acknowledge_fn_t acknowledge_fn;
     void *ack_data;
 };
-typedef struct irq_token* irq_token_t;
+typedef struct irq_token *irq_token_t;
 
 typedef struct vmm_module {
     const char *name;

@@ -57,8 +57,7 @@ static const struct device *linux_pt_devices[] = {
 #endif
 };
 
-static int
-vm_shutdown_cb(vm_t* vm, void* token)
+static int vm_shutdown_cb(vm_t *vm, void *token)
 {
     printf("Received shutdown from linux\n");
     return -1;
@@ -66,8 +65,7 @@ vm_shutdown_cb(vm_t* vm, void* token)
 
 void restart_component(void);
 
-static int
-vm_reboot_cb(vm_t* vm, void* token)
+static int vm_reboot_cb(vm_t *vm, void *token)
 {
     restart_component();
 
@@ -75,8 +73,8 @@ vm_reboot_cb(vm_t* vm, void* token)
 
 }
 
-static int
-pwmsig_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
+static int pwmsig_device_fault_handler(struct device *d UNUSED, vm_t *vm, fault_t *fault)
+{
     uint32_t data = fault_get_data(fault);
     ignore_fault(fault);
 //    printf("IN VM, GOT PWM SIGNAL 0x%x\n", data);
@@ -86,36 +84,34 @@ pwmsig_device_fault_handler(struct device* d UNUSED, vm_t* vm, fault_t* fault){
 }
 
 struct device pwmsig_dev = {
-        .devid = DEV_CUSTOM,
-        .name = "NICTAcopter signal",
-        .pstart = 0x30000000,
-        .size = 0x1000,
-        .handle_page_fault = &pwmsig_device_fault_handler,
-        .priv = NULL,
-    };
+    .devid = DEV_CUSTOM,
+    .name = "NICTAcopter signal",
+    .pstart = 0x30000000,
+    .size = 0x1000,
+    .handle_page_fault = &pwmsig_device_fault_handler,
+    .priv = NULL,
+};
 
 
 #if defined FEATURE_VUSB
 
-static vusb_device_t* _vusb;
+static vusb_device_t *_vusb;
 static usb_host_t _hcd;
 
-static void
-usb_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
+static void usb_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
 {
     assert(data);
-    usb_host_t* hcd = (usb_host_t *)data;
+    usb_host_t *hcd = (usb_host_t *)data;
     usb_hcd_handle_irq(hcd);
     assert(!acknowledge_fn(ack_data));
 }
 
-static int
-install_vusb(vm_t* vm)
+static int install_vusb(vm_t *vm)
 {
     irq_server_t *irq_server;
-    ps_io_ops_t* io_ops;
-    vusb_device_t* vusb;
-    usb_host_t* hcd;
+    ps_io_ops_t *io_ops;
+    vusb_device_t *vusb;
+    usb_host_t *hcd;
     irq_id_t irq_id;
     seL4_CPtr vmm_ep;
     int err;
@@ -148,8 +144,7 @@ install_vusb(vm_t* vm)
     return 0;
 }
 
-void
-vusb_notify(void)
+void vusb_notify(void)
 {
     vm_vusb_notify(_vusb);
 }
@@ -164,13 +159,12 @@ vusb_notify(void)
 #define HUBCONNECT_GPIO          XEINT6
 #define NINT_GPIO                XEINT7
 
-static int
-install_vusb(vm_t* vm)
+static int install_vusb(vm_t *vm)
 {
     /* Passthrough USB for linux, however, we must first initialise
      * dependent systems which linux is not granted access to.
      * Primarily, we must turn on the ethernet and on board hub */
-    ps_io_ops_t* io_ops = vm->io_ops;
+    ps_io_ops_t *io_ops = vm->io_ops;
     gpio_sys_t gpio_sys;
     struct i2c_bb i2c_bb;
     i2c_bus_t i2c_bus;
@@ -203,18 +197,16 @@ install_vusb(vm_t* vm)
     return 0;
 }
 
-void
-vusb_notify(void)
+void vusb_notify(void)
 {
 }
 
 #endif /* FEATURE_VUSB */
 
 
-void
-configure_clocks(vm_t *vm)
+void configure_clocks(vm_t *vm)
 {
-    struct clock_device* clock_dev;
+    struct clock_device *clock_dev;
     clock_dev = vm_install_ac_clock(vm, VACDEV_DEFAULT_DENY, VACDEV_REPORT_AND_MASK);
     assert(clock_dev);
     vm_clock_provide(clock_dev, CLK_MMC0);
@@ -224,8 +216,7 @@ configure_clocks(vm_t *vm)
     vm_clock_provide(clock_dev, CLK_SCLKCPLL);
 }
 
-static void
-plat_init_module(vm_t* vm, void *cookie)
+static void plat_init_module(vm_t *vm, void *cookie)
 {
     int err;
     int i;
@@ -261,12 +252,11 @@ plat_init_module(vm_t* vm, void *cookie)
 }
 
 
-static void
-vcombiner_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
+static void vcombiner_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
 {
     assert(data);
     irq_token_t irq_data;
-    vm_t* vm;
+    vm_t *vm;
     irq_data = (irq_token_t)data;
 
     irq_data->acknowledge_fn = acknowledge_fn;
@@ -279,7 +269,8 @@ vcombiner_irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *
 }
 
 
-irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq) {
+irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq)
+{
     assert(irq.type == PS_INTERRUPT);
 
     if (irq.irq.number >= 32 && irq.irq.number <= 63) {
