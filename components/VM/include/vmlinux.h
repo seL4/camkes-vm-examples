@@ -18,7 +18,7 @@
 #define MACH_TYPE_SPECIAL    ~0
 #define MACH_TYPE            MACH_TYPE_SPECIAL
 
-irq_handler_fn get_custom_irq_handler(irq_t irq) WEAK;
+irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq) WEAK;
 
 /* Struct type that's passed into the IRQ callback functions for
  * this component */

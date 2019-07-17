@@ -30,6 +30,7 @@
 #include <simple/simple_helpers.h>
 #include <simple-default/simple-default.h>
 #include <platsupport/io.h>
+#include <platsupport/irq.h>
 #include <sel4platsupport/platsupport.h>
 #include <sel4platsupport/io.h>
 
@@ -81,7 +82,9 @@ sel4utils_alloc_data_t _alloc_data;
 allocman_t *allocman;
 static char allocator_mempool[83886080];
 seL4_CPtr _fault_endpoint;
-irq_server_t _irq_server;
+irq_server_t *_irq_server;
+ps_malloc_ops_t _malloc_ops;
+
 struct ps_io_ops _io_ops;
 
 static jmp_buf restart_jmp_buf;
@@ -392,12 +395,24 @@ static int vmm_init(void)
     assert(!err);
     _fault_endpoint = fault_ep_obj.cptr;
 
-    /* Create an IRQ server */
-    err = irq_server_new(vspace, vka, simple_get_cnode(simple), IRQSERVER_PRIO,
-                         simple, fault_ep_obj.cptr,
-                         IRQ_MESSAGE_LABEL, 256, &_irq_server);
+    err = sel4platsupport_new_malloc_ops(&_malloc_ops);
     assert(!err);
 
+    /* Create an IRQ server */
+    _irq_server = irq_server_new(vspace, vka, IRQSERVER_PRIO,
+                         simple, simple_get_cnode(simple), fault_ep_obj.cptr,
+                         IRQ_MESSAGE_LABEL, 256, &_malloc_ops);
+    assert(_irq_server);
+
+    /* Create threads for the IRQ server */
+    size_t num_irq_threads = DIV_ROUND_UP(ARRAY_SIZE(linux_pt_irqs), seL4_BadgeBits);
+
+    for (int i = 0; i < num_irq_threads; i++) {
+        /* Create new IRQ server threads and have them allocate notifications for us */
+        thread_id_t t_id = irq_server_thread_new(_irq_server, seL4_CapNull,
+                                                 0, -1);
+        assert(t_id >= 0);
+    }
 
     return 0;
 }
@@ -501,16 +516,31 @@ static void restart_event(void *arg)
 
 static void do_irq_server_ack(void *token)
 {
-    struct irq_data *irq_data = (struct irq_data *)token;
-    irq_data_ack_irq(irq_data);
+    assert(token);
+    irq_token_t irq_token = token;
+    /* If the acknowledge function pointer is NULL, this means that the actual
+     * interrupt has not arrived/we have not handled it. So we defer it for
+     * later.
+     *
+     * NOTE: this only happens with the arch timer, in that we receive
+     * an EOI from Linux before we inject the VIRQ */
+    if (irq_token->acknowledge_fn && irq_token->ack_data) {
+        int err = irq_token->acknowledge_fn(irq_token->ack_data);
+        assert(!err);
+        irq_token->ack_data = NULL;
+    }
 }
 
-static void irq_handler(struct irq_data *irq_data)
+static void irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void *ack_data)
 {
-    virq_handle_t virq;
+    /* We don't actually acknowledge the IRQ yet, this is done later when we update the VGIC's state. */
+    assert(data);
+    irq_token_t token = data;
+    /* Fill in the rest of the details */
+    token->acknowledge_fn = acknowledge_fn;
+    token->ack_data = ack_data;
     int err;
-    virq = (virq_handle_t)irq_data->token;
-    err = vm_inject_IRQ(virq);
+    err = vm_inject_IRQ(token->virq);
     assert(!err);
 }
 
@@ -551,29 +581,38 @@ int install_linux_devices(vm_t *vm)
 
 }
 
-static int route_irqs(vm_t *vm, irq_server_t irq_server)
+static int route_irqs(vm_t *vm, irq_server_t *irq_server)
 {
     int i;
     for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
-        irq_t irq = linux_pt_irqs[i];
-        struct irq_data *irq_data;
+        ps_irq_t irq = { .type = PS_INTERRUPT, .irq = { .number = linux_pt_irqs[i] }};
         virq_handle_t virq;
-        irq_handler_fn handler = NULL;
+        irq_callback_fn_t handler = NULL;
         if (get_custom_irq_handler) {
             handler = get_custom_irq_handler(irq);
         }
         if (handler == NULL) {
             handler = &irq_handler;
         }
-        irq_data = irq_server_register_irq(irq_server, irq, handler, NULL);
-        if (!irq_data) {
+
+        irq_token_t token = calloc(1, sizeof(struct irq_token));
+        if (token == NULL) {
             return -1;
         }
-        virq = vm_virq_new(vm, irq, &do_irq_server_ack, irq_data);
+
+        virq = vm_virq_new(vm, irq.irq.number, &do_irq_server_ack, token);
         if (virq == NULL) {
             return -1;
         }
-        irq_data->token = (void *)virq;
+
+        token->virq = virq;
+        token->irq = irq;
+        token->vm = vm;
+
+        irq_id_t irq_id = irq_server_register_irq(irq_server, irq, handler, token);
+        if (irq_id < 0) {
+            return -1;
+        }
     }
     return 0;
 }
@@ -791,7 +830,7 @@ int main_continued(void)
             seL4_Word label;
             label = seL4_MessageInfo_get_label(tag);
             if (label == IRQ_MESSAGE_LABEL) {
-                irq_server_handle_irq_ipc(_irq_server);
+                irq_server_handle_irq_ipc(_irq_server, tag);
             } else {
                 printf("Unknown label (%d) for IPC badge %d\n", label, sender_badge);
             }
