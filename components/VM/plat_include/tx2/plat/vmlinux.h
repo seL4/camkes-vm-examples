@@ -9,8 +9,7 @@
  *
  * @TAG(DATA61_BSD)
  */
-#ifndef VMLINUX_TX2_H
-#define VMLINUX_TX2_H
+#pragma once
 
 #include <assert.h>
 #include <sel4arm-vmm/vm.h>
@@ -180,6 +179,3 @@ static const int linux_pt_irqs[] = {
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x01000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
-
-#endif /* VMLINUX_H */
-

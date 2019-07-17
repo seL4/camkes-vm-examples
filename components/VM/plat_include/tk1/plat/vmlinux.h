@@ -9,8 +9,7 @@
  *
  * @TAG(DATA61_BSD)
  */
-#ifndef VMLINUX_TK1_H
-#define VMLINUX_TK1_H
+#pragma once
 
 #include <sel4arm-vmm/vm.h>
 
@@ -167,9 +166,9 @@
 #define ARDPAUX                         191
 
 static const int linux_pt_irqs[] = {
-INTERRUPT_VTIMER               ,
-INTERRUPT_SDMMC4               ,
-INTERRUPT_UARTD                ,
+    INTERRUPT_VTIMER,
+    INTERRUPT_SDMMC4,
+    INTERRUPT_UARTD,
 };
 
 
@@ -182,6 +181,3 @@ INTERRUPT_UARTD                ,
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x02000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
-
-#endif /* VMLINUX_H */
-
