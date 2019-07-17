@@ -29,10 +29,7 @@
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x4D700000
 
 static const int linux_pt_irqs[] = {
-    27, 85, 107, 109,
-#ifndef FEATURE_VUSB
-    103
-#endif
+    27,
 };
 
 void vusb_notify(void);
