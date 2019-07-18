@@ -91,7 +91,7 @@ if(VIRTIO_NET_PING)
         components/PingClient/ping_client.c
         LIBS
         virtqueue
-        kernel_autoconf
+        sel4_autoconf
     )
 
     DeclareCAmkESRootserver(

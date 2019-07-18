@@ -189,7 +189,7 @@ DeclareCAmkESComponent(
     sel4pci
     sel4vmmcore
     arm_vm_Config
-    kernel_autoconf
+    sel4_autoconf
     sel4muslcsys_Config
 )
 
