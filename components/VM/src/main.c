@@ -83,7 +83,6 @@ allocman_t *allocman;
 static char allocator_mempool[83886080];
 seL4_CPtr _fault_endpoint;
 irq_server_t *_irq_server;
-ps_malloc_ops_t _malloc_ops;
 
 struct ps_io_ops _io_ops;
 
@@ -395,13 +394,13 @@ static int vmm_init(void)
     assert(!err);
     _fault_endpoint = fault_ep_obj.cptr;
 
-    err = sel4platsupport_new_malloc_ops(&_malloc_ops);
+    err = sel4platsupport_new_malloc_ops(&_io_ops.malloc_ops);
     assert(!err);
 
     /* Create an IRQ server */
     _irq_server = irq_server_new(vspace, vka, IRQSERVER_PRIO,
                                  simple, simple_get_cnode(simple), fault_ep_obj.cptr,
-                                 IRQ_MESSAGE_LABEL, 256, &_malloc_ops);
+                                 IRQ_MESSAGE_LABEL, 256, &_io_ops.malloc_ops);
     assert(_irq_server);
 
     /* Create threads for the IRQ server */
