@@ -42,7 +42,7 @@
     /*- set reg_set = pop('reg_set') -*/
 
     /*- for (paddr, size) in reg_set -*/
-        /*- set paddr = (paddr/4096) * 4096 -*/
+        /*- set paddr = macros.ROUND_DOWN(paddr, 4096) -*/
         /*- set size = macros.ROUND_UP(size, 4096) -*/
         /*- set page_size = macros.get_page_size(size, options.architecture) -*/
         /*- set page_size_bits = int(math.log(page_size, 2)) -*/
