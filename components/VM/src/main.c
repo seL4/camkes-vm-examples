@@ -443,8 +443,16 @@ static int vmm_init(void)
                                  IRQ_MESSAGE_LABEL, 256, &_io_ops.malloc_ops);
     assert(_irq_server);
 
+    int num_pt_irqs = ARRAY_SIZE(linux_pt_irqs);
+
+    if (camkes_dtb_get_irqs) {
+        int num_dtb_irqs = 0;
+        int *dtb_irqs = camkes_dtb_get_irqs(&num_dtb_irqs);
+        num_pt_irqs += num_dtb_irqs;
+    }
+
     /* Create threads for the IRQ server */
-    size_t num_irq_threads = DIV_ROUND_UP(ARRAY_SIZE(linux_pt_irqs), seL4_BadgeBits);
+    size_t num_irq_threads = DIV_ROUND_UP(num_pt_irqs, seL4_BadgeBits);
 
     for (int i = 0; i < num_irq_threads; i++) {
         /* Create new IRQ server threads and have them allocate notifications for us */
