@@ -27,74 +27,81 @@
 
 static virtio_net_t *virtio_net = NULL;
 
-virtqueue_device_t *recv_virtqueue;
-virtqueue_driver_t *send_virtqueue;
+virtqueue_device_t recv_virtqueue;
+virtqueue_driver_t send_virtqueue;
 
 static int tx_virtqueue_forward(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
-    volatile void *alloc_buffer = NULL;
-    int err = camkes_virtqueue_buffer_alloc(send_virtqueue, &alloc_buffer, length);
+    volatile void *buf = NULL;
+    int err = camkes_virtqueue_buffer_alloc(&send_virtqueue, &buf, length);
     if (err) {
-        ZF_LOGE("Unable to allocate virtqueue buffer");
-        return -1;
-    }
-    memcpy((void *)alloc_buffer, (void *)eth_buffer, length);
-
-    err = virtqueue_driver_enqueue(send_virtqueue, alloc_buffer, length);
-    if (err) {
-        ZF_LOGE("Unknown error while enqueuing available buffer");
-        camkes_virtqueue_buffer_free(send_virtqueue, alloc_buffer);
         return -1;
     }
 
-    err = virtqueue_driver_signal(send_virtqueue);
-    if (err != 0) {
-        ZF_LOGE("Unknown error while signaling sending virtqueue");
-    }
+    memcpy(buf, (void *)eth_buffer, length);
 
-    return err;
+    if (camkes_virtqueue_driver_send_buffer(&send_virtqueue, buf, length) != 0) {
+        camkes_virtqueue_buffer_free(&send_virtqueue, buf);
+        return -1;
+    }
+    send_virtqueue.notify();
+    return 0;
 }
 
 static void virtio_net_notify_free_send(void)
 {
-    volatile void *used_buf = NULL;
-    size_t used_buf_sz = 0;
-    int err = virtqueue_driver_dequeue(send_virtqueue,
-                                       &used_buf,
-                                       &used_buf_sz);
-    if (err) {
-        ZF_LOGE("Unable to dequeue used buff");
+    void *buf = NULL;
+    size_t buf_size = 0, wr_len = 0;
+    vq_flags_t flag;
+    virtqueue_ring_object_t handle;
+    if (!virtqueue_get_used_buf(&send_virtqueue, &handle, &wr_len)) {
+        ZF_LOGE("Client virtqueue dequeue failed");
         return;
     }
-    camkes_virtqueue_buffer_free(send_virtqueue, used_buf);
+    while (camkes_virtqueue_driver_gather_buffer(&send_virtqueue, &handle, &buf, &buf_size, &flag)) {
+        /* Clean up and free the buffer we allocated */
+        camkes_virtqueue_buffer_free(&send_virtqueue, buf);
+    }
 }
 
 static int virtio_net_notify_handle_recv(void)
 {
-    volatile void *available_buff = NULL;
-    size_t available_buff_sz = 0;
-    int err = virtqueue_device_dequeue(recv_virtqueue, &available_buff, &available_buff_sz);
-    if (err) {
-        ZF_LOGE("Unable to dequeue recv virtqueue");
+
+    volatile void *buf = NULL;
+    size_t buf_size = 0;
+    vq_flags_t flag;
+    virtqueue_ring_object_t handle;
+    if (!virtqueue_get_available_buf(&recv_virtqueue, &handle)) {
+        ZF_LOGE("Client virtqueue dequeue failed");
         return -1;
     }
-    err = virtio_net_rx((char *)available_buff, available_buff_sz, virtio_net);
-    if (err) {
-        ZF_LOGE("Unable to forward recieved buffer to the guest");
+
+    while (camkes_virtqueue_device_gather_buffer(&recv_virtqueue, &handle, &buf, &buf_size, &flag)) {
+        int err = virtio_net_rx((char *) buf, buf_size, virtio_net);
+        if (err) {
+            ZF_LOGE("Unable to forward recieved buffer to the guest");
+        }
     }
 
-    virtqueue_device_enqueue(recv_virtqueue, available_buff, available_buff_sz);
+    if (!virtqueue_add_used_buf(&recv_virtqueue, &handle, 0)) {
+        ZF_LOGE("Unable to enqueue used recv buffer");
+        return -1;
+    }
+
+    recv_virtqueue.notify();
 }
 
 void virtio_net_notify(vm_t *vm)
 {
-    int err;
-    if (virtqueue_driver_poll(send_virtqueue) == 1) {
-        virtio_net_notify_free_send();
+    if (VQ_DEV_POLL(&recv_virtqueue)) {
+        int err = virtio_net_notify_handle_recv();
+        if (err) {
+            ZF_LOGE("Failed to handle virtio net recv");
+        }
     }
-    if (virtqueue_device_poll(recv_virtqueue) == 1) {
-        err = virtio_net_notify_handle_recv();
-        if ("Failed to handle virtio net recv");
+
+    if (VQ_DRV_POLL(&send_virtqueue)) {
+        virtio_net_notify_free_send();
     }
 }
 

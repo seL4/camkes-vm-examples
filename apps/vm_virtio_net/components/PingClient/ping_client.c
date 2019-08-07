@@ -27,8 +27,8 @@
 #define ICMP_MSG_SIZE 64 - sizeof(struct icmphdr)
 #define IPV4_LENGTH 4
 
-virtqueue_device_t *recv_virtqueue;
-virtqueue_driver_t *send_virtqueue;
+virtqueue_device_t recv_virtqueue;
+virtqueue_driver_t send_virtqueue;
 
 void handle_recv_callback(virtqueue_device_t *vq);
 void handle_send_callback(virtqueue_driver_t *vq);
@@ -55,30 +55,17 @@ unsigned short one_comp_checksum(char *data, size_t length)
 
 int send_outgoing_packet(char *outgoing_data, size_t outgoing_data_size)
 {
-
-    volatile void *alloc_buffer = NULL;
-    int err = camkes_virtqueue_buffer_alloc(send_virtqueue, &alloc_buffer, outgoing_data_size);
+    char* buf = NULL;
+    int err = camkes_virtqueue_buffer_alloc(&send_virtqueue, &buf, outgoing_data_size);
     if (err) {
         return -1;
     }
-
-    char *buffer_data = (char *)alloc_buffer;
-    memcpy(buffer_data, outgoing_data, outgoing_data_size);
-
-    err = virtqueue_driver_enqueue(send_virtqueue,
-                                   alloc_buffer, outgoing_data_size);
-    if (err != 0) {
-        ZF_LOGE("Client send enqueue failed");
-        camkes_virtqueue_buffer_free(send_virtqueue, alloc_buffer);
+    memcpy(buf, outgoing_data, outgoing_data_size);
+    if (camkes_virtqueue_driver_send_buffer(&send_virtqueue, buf, outgoing_data_size) != 0) {
+        camkes_virtqueue_buffer_free(&send_virtqueue, buf);
         return -1;
     }
-
-    err = virtqueue_driver_signal(send_virtqueue);
-    if (err != 0) {
-        ZF_LOGE("Client send signal failed");
-        return -1;
-    }
-
+    send_virtqueue.notify();
     return 0;
 }
 
@@ -181,14 +168,6 @@ int create_icmp_req_reply(char *recv_data, size_t recv_data_size)
 
 void handle_recv_data(char *recv_data, size_t recv_data_size)
 {
-    int err;
-
-    /* Check if there is data still waiting in the send virtqueue */
-    int send_poll_res = virtqueue_driver_poll(send_virtqueue);
-    if (send_poll_res) {
-        handle_send_callback(send_virtqueue);
-    }
-
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
     if (ntohs(rcv_req->h_proto) == ETH_P_ARP) {
         create_arp_req_reply(recv_data, recv_data_size);
@@ -205,62 +184,51 @@ void handle_recv_callback(virtqueue_device_t *vq)
 {
     volatile void *buf = NULL;
     size_t buf_size = 0;
-    int err = virtqueue_device_dequeue(vq,
-                                       &buf,
-                                       &buf_size);
-    if (err) {
+    vq_flags_t flag;
+    virtqueue_ring_object_t handle;
+    if (!virtqueue_get_available_buf(vq, &handle)) {
         ZF_LOGE("Client virtqueue dequeue failed");
         return;
     }
 
-    char *recv_buffer = (char *)buf;
-    handle_recv_data(recv_buffer, buf_size);
+    while (camkes_virtqueue_device_gather_buffer(vq, &handle, &buf, &buf_size, &flag)) {
+        handle_recv_data((char*) buf, buf_size);
+    }
 
-    err = virtqueue_device_enqueue(recv_virtqueue, recv_buffer, buf_size);
-    if (err) {
+    if (!virtqueue_add_used_buf(&recv_virtqueue, &handle, 0)) {
         ZF_LOGE("Unable to enqueue used recv buffer");
         return;
     }
 
-    err = virtqueue_device_signal(recv_virtqueue);
-    if (err) {
-        ZF_LOGW("Failed to signal on recieve virtqueue");
-    }
+    recv_virtqueue.notify();
 }
 
 void handle_send_callback(virtqueue_driver_t *vq)
 {
     volatile void *buf = NULL;
-    size_t buf_size = 0;
-    int err = virtqueue_driver_dequeue(vq,
-                                       &buf,
-                                       &buf_size);
-    if (err) {
+    size_t buf_size = 0, wr_len = 0;
+    vq_flags_t flag;
+    virtqueue_ring_object_t handle;
+    if (!virtqueue_get_used_buf(vq, &handle, &wr_len)) {
         ZF_LOGE("Client virtqueue dequeue failed");
         return;
     }
-    /* Clean up and free the buffer we allocated */
-    camkes_virtqueue_buffer_free(vq, buf);
+
+    while (camkes_virtqueue_driver_gather_buffer(vq, &handle, &buf, &buf_size, &flag)) {
+        /* Clean up and free the buffer we allocated */
+        camkes_virtqueue_buffer_free(vq, buf);
+    }
 }
 
 
 void ping_wait_callback(void)
 {
-    int err;
-    int recv_poll_res = virtqueue_device_poll(recv_virtqueue);
-    if (recv_poll_res) {
-        handle_recv_callback(recv_virtqueue);
-    }
-    if (recv_poll_res == -1) {
-        ZF_LOGF("Client recv poll failed");
+    if (VQ_DEV_POLL(&recv_virtqueue)) {
+        handle_recv_callback(&recv_virtqueue);
     }
 
-    int send_poll_res = virtqueue_driver_poll(send_virtqueue);
-    if (send_poll_res) {
-        handle_send_callback(send_virtqueue);
-    }
-    if (send_poll_res == -1) {
-        ZF_LOGF("Client send poll failed");
+    if (VQ_DRV_POLL(&send_virtqueue)) {
+        handle_send_callback(&send_virtqueue);
     }
 }
 

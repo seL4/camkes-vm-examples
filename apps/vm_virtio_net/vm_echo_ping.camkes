@@ -47,21 +47,25 @@ assembly {
         vm.recv_attributes = "10";
         vm.recv_global_endpoint = "ping_client";
         vm.recv_badge = VIRTQUEUE_BADGE;
+        vm.recv_shmem_size = 32768;
         vm.send_id = 1;
         vm.send_attributes = "10";
         vm.send_global_endpoint = "ping_client";
         vm.send_badge = VIRTQUEUE_BADGE;
+        vm.send_shmem_size = 32768;
 
         ping_client.recv_id = 0;
         ping_client.recv_attributes = "10";
         ping_client.recv_global_endpoint = "vm";
         ping_client.recv_badge = VIRTQUEUE_BADGE;
+        ping_client.recv_shmem_size = 32768;
         ping_client.send_id = 1;
         ping_client.send_attributes = "10";
         ping_client.send_global_endpoint = "vm";
         ping_client.send_badge = VIRTQUEUE_BADGE;
         ping_client.ping_wait_global_endpoint = "ping_client";
         ping_client.self_global_endpoint = "ping_client";
+        ping_client.send_shmem_size = 32768;
 
         ping_vqinit0.init_topology = [{ "drv" : "ping_client.send", "dev" : "vm.recv"}];
         ping_vqinit1.init_topology = [{ "drv" : "vm.send", "dev" : "ping_client.recv"}];
