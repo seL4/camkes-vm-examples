@@ -38,7 +38,7 @@
 
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/boot.h>
-#include <sel4vm/guest_memory.h>
+#include <sel4vm/guest_ram.h>
 #include <sel4vm/guest_iospace.h>
 
 #include <sel4vm/vm.h>
@@ -806,7 +806,7 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
             return NULL;
         }
 
-        error = vm_guest_mem_touch(vm, load_addr + offset, len, guest_write_address, (void *)buf);
+        error = vm_ram_touch(vm, load_addr + offset, len, guest_write_address, (void *)buf);
         if (error) {
             ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
             close(fd);
