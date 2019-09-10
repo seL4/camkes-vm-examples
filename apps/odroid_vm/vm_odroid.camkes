@@ -188,9 +188,13 @@ assembly {
         uartbase_gcs.mem_size = 0x1000;
         uartbase_gcs.irq_irq_number = 86;                        //UART1 interrupt
 
+        uartbase_gcs.integrity_label = "uart_gcs";
+
         uartbase_px4.mem_paddr = 0x12C10000;
         uartbase_px4.mem_size = 0x1000;
         uartbase_px4.irq_irq_number = 84;                        //UART1 interrupt
+
+        uartbase_px4.integrity_label = "uart_px4";
 
         gpiobase_obj.gpio2base_paddr = 0x14000000;
         gpiobase_obj.gpio2base_size = 0x1000;
@@ -206,9 +210,13 @@ assembly {
         gpiobase_obj.irq_grp31_int_irq_number = 63; //Combined IRQ group 31
         gpiobase_obj.xint16_31_int_irq_number = 64; //Extern Interrupt EINT16-EINT31
 
+        gpiobase_obj.integrity_label = "gpio_obj";
+
         spibase_obj.spi1_reg_paddr = 0x12D30000;
         spibase_obj.spi1_reg_size = 0x1000;
         spibase_obj.spi1_int_irq_number = 101;                    //SPI1  interrupt
+
+        spibase_obj.integrity_label = "spi_obj";
 
         clkbase_obj.cmu_cpu_clk_paddr = 0x10010000;
         clkbase_obj.cmu_cpu_clk_size = 0x1000;
@@ -219,13 +227,19 @@ assembly {
         clkbase_obj.cmu_top_clk_paddr = 0x10020000;
         clkbase_obj.cmu_top_clk_size = 0x1000;
 
+        clkbase_obj.integrity_label = "clk_obj";
+
         i2c0_obj.i2c0_reg_paddr = 0x12C60000;
         i2c0_obj.i2c0_reg_size = 0x1000;
         i2c0_obj.i2c0_int_irq_number = 88;
 
+        i2c0_obj.integrity_label = "pwm_obj";
+
         timerbase_obj.timer_reg_paddr = 0x12DD0000;
         timerbase_obj.timer_reg_size = 0x1000;
         timerbase_obj.irq_irq_number	       = 72;			//Timer interrupt
+
+        timerbase_obj.integrity_label = "timer_obj";
 
         uart_gcs.ID = 1;
         uart_px4.ID = 3;
