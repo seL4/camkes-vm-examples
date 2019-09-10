@@ -873,7 +873,7 @@ void parse_camkes_linux_attributes(void)
     initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
-static int handle_async_event(seL4_Word badge, seL4_MessageInfo_t tag) {
+static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag, void *cookie) {
     seL4_Word label = seL4_MessageInfo_get_label(tag);
     if (badge == 0) {
         if (label == IRQ_MESSAGE_LABEL) {
@@ -1010,19 +1010,17 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    vm_plat_callbacks_t callbacks = (vm_plat_callbacks_t) {
-        .do_async = handle_async_event,
-        .get_async_event_notification = NULL,
-    };
     vm_init_arm_config_t vm_arch_params;
     vm_arch_params.vmm_endpoint = _fault_endpoint;
-    err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, callbacks, VM_PRIO,
+    err = vm_init(&vm, &_vka, &_simple, allocman, _vspace, VM_PRIO,
             &_io_ops, VM_NAME, (void *)&vm_arch_params);
     assert(!err);
     vm_vcpu_t *vm_vcpu;
     vm_vcpu = vm_create_vcpu(&vm, NULL);
     assert(vm_vcpu);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
+    assert(!err);
+    err = vm_register_notification_callback(&vm, handle_async_event, NULL);
     assert(!err);
 
 #ifdef CONFIG_ARM_SMMU
