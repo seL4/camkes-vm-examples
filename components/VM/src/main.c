@@ -673,7 +673,6 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-
 #define FDT_MAX_SIZE 0x10000
 
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
@@ -704,10 +703,10 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     if (!config_set(CONFIG_VM_DTB_FILE)) {
         // currently hard-coded preserve the cpu0 in the fdt
         camkes_io_fdt(&(_io_ops.io_fdt));
-        const void* fdt_ori = _io_ops.io_fdt.cookie;
+        const void *fdt_ori = _io_ops.io_fdt.cookie;
 
         void *gen_fdt = malloc(FDT_MAX_SIZE);
-        fdtgen_context_t* context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
+        fdtgen_context_t *context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
 
         const char *list[] = {"/cpus/cpu@0"};
         fdtgen_keep_nodes(context, list, 1);
