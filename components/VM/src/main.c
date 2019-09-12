@@ -702,7 +702,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
     if (!config_set(CONFIG_VM_DTB_FILE)) {
         camkes_io_fdt(&(_io_ops.io_fdt));
-        const void *fdt_ori = _io_ops.io_fdt.cookie;
+        const void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
 
         void *gen_fdt = malloc(FDT_MAX_SIZE);
         fdtgen_context_t *context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
