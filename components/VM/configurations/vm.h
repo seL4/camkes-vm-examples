@@ -81,6 +81,8 @@
         string linux_name = "linux"; \
         string dtb_name = "linux-dtb"; \
         string initrd_name = "linux-initrd"; \
+        string linux_bootcmdline = ""; \
+        string linux_stdout = ""; \
     } linux_image_config; \
 
 
