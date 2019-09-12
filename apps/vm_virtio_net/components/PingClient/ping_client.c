@@ -55,7 +55,7 @@ unsigned short one_comp_checksum(char *data, size_t length)
 
 int send_outgoing_packet(char *outgoing_data, size_t outgoing_data_size)
 {
-    char* buf = NULL;
+    char *buf = NULL;
     int err = camkes_virtqueue_buffer_alloc(&send_virtqueue, &buf, outgoing_data_size);
     if (err) {
         return -1;
@@ -192,7 +192,7 @@ void handle_recv_callback(virtqueue_device_t *vq)
     }
 
     while (camkes_virtqueue_device_gather_buffer(vq, &handle, &buf, &buf_size, &flag)) {
-        handle_recv_data((char*) buf, buf_size);
+        handle_recv_data((char *) buf, buf_size);
     }
 
     if (!virtqueue_add_used_buf(&recv_virtqueue, &handle, 0)) {
