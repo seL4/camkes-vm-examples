@@ -701,26 +701,26 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     }
 
     if (!config_set(CONFIG_VM_DTB_FILE)) {
-        // currently hard-coded preserve the cpu0 in the fdt
         camkes_io_fdt(&(_io_ops.io_fdt));
         const void *fdt_ori = _io_ops.io_fdt.cookie;
 
         void *gen_fdt = malloc(FDT_MAX_SIZE);
         fdtgen_context_t *context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
 
+        /* currently hard-coded to preserve the cpu@0 in the fdt */
         const char *list[] = {"/cpus/cpu@0"};
         fdtgen_keep_nodes(context, list, 1);
-        // using the paths array generate fdt
+
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
         fdtgen_keep_nodes(context, paths, num_paths);
 
         fdtgen_generate(context, fdt_ori);
 
-        // generate a memory node (linux_ram_base and linux_ram_size)
+        /* generate a memory node (linux_ram_base and linux_ram_size) */
         fdtgen_generate_memory_node(context, linux_ram_base, linux_ram_size);
 
-        // generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout)
+        /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
         fdtgen_generate_chosen_node(context, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
 
         size_t initrd_size = 0;;
@@ -748,7 +748,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
             offset += PAGE_SIZE_4K;
         }
         dtb = (void *)load_addr;
-        /* free(gen_fdt); */
+        free(gen_fdt);
     } else {
         /* Load device tree */
         guest_image_t dtb_image;
