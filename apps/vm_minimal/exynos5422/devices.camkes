@@ -107,7 +107,11 @@ assembly {
                       {"path": "/soc/pinctrl@14010000"},
                       {"path": "/soc/sysmmu@14650000"},
                       {"path": "/soc/i2s@3830000"},
-                      {"path": "/soc/sysmmu@14680000"}]);
+                      {"path": "/soc/sysmmu@14680000"},
+                      {"path": "/fixed-rate-clocks/oscclk"},
+                      {"path": "/fixed-rate-clocks/xxti"},
+                      {"path": "/timer"},
+                      ]);
 
         vm0.untyped_mmios = [
                     "0x10486000:12", // VCPU
