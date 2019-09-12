@@ -66,7 +66,9 @@
 #include <vmlinux.h>
 #include "fsclient.h"
 
+#include <libfdt.h>
 #include <fdtgen.h>
+#include "fdt_manipulation.h"
 
 extern void *fs_buf;
 int start_extra_frame_caps;
@@ -714,24 +716,23 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
         fdtgen_keep_nodes(context, paths, num_paths);
-
         fdtgen_generate(context, fdt_ori);
+        fdtgen_free_context(context);
 
         /* generate a memory node (linux_ram_base and linux_ram_size) */
-        fdtgen_generate_memory_node(context, linux_ram_base, linux_ram_size);
+        fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size);
 
         /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
-        fdtgen_generate_chosen_node(context, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
+        fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
 
         size_t initrd_size = 0;;
         if (config_set(CONFIG_VM_INITRD_FILE)) {
             initrd_size = get_initrd_size(initrd_name);
             /* linux,initrd-start = < initrd_addr >; */
             /* linux,initrd-end = < initrd_addr + initrd_size>; */
-            fdtgen_append_chosen_node_with_initrd_info(context, initrd_addr, initrd_size);
+            fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
         }
 
-        fdtgen_free_context(context);
         fdt_pack(gen_fdt);
 
         uintptr_t load_addr = dtb_addr;

@@ -135,7 +135,7 @@ config_option(
 
 add_config_library(arm_vm "${configure_string}")
 
-file(GLOB vm_src src/*.c)
+file(GLOB vm_src src/main.c src/fdt_manipulation.c)
 
 list(APPEND vm_src src/modules/map_frame_hack.c)
 
