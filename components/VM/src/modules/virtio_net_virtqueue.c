@@ -58,7 +58,7 @@ static void virtio_net_notify_free_send(void)
         ZF_LOGE("Client virtqueue dequeue failed");
         return;
     }
-    while (camkes_virtqueue_driver_gather_buffer(&send_virtqueue, &handle, &buf, &buf_size, &flag)) {
+    while (camkes_virtqueue_driver_gather_buffer(&send_virtqueue, &handle, &buf, &buf_size, &flag) >= 0) {
         /* Clean up and free the buffer we allocated */
         camkes_virtqueue_buffer_free(&send_virtqueue, buf);
     }
@@ -76,7 +76,7 @@ static int virtio_net_notify_handle_recv(void)
         return -1;
     }
 
-    while (camkes_virtqueue_device_gather_buffer(&recv_virtqueue, &handle, &buf, &buf_size, &flag)) {
+    while (camkes_virtqueue_device_gather_buffer(&recv_virtqueue, &handle, &buf, &buf_size, &flag) >= 0) {
         int err = virtio_net_rx((char *) buf, buf_size, virtio_net);
         if (err) {
             ZF_LOGE("Unable to forward recieved buffer to the guest");

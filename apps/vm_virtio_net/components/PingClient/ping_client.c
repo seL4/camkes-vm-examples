@@ -191,7 +191,7 @@ void handle_recv_callback(virtqueue_device_t *vq)
         return;
     }
 
-    while (camkes_virtqueue_device_gather_buffer(vq, &handle, &buf, &buf_size, &flag)) {
+    while (camkes_virtqueue_device_gather_buffer(vq, &handle, &buf, &buf_size, &flag) >= 0) {
         handle_recv_data((char *) buf, buf_size);
     }
 
@@ -214,7 +214,7 @@ void handle_send_callback(virtqueue_driver_t *vq)
         return;
     }
 
-    while (camkes_virtqueue_driver_gather_buffer(vq, &handle, &buf, &buf_size, &flag)) {
+    while (camkes_virtqueue_driver_gather_buffer(vq, &handle, &buf, &buf_size, &flag) >= 0) {
         /* Clean up and free the buffer we allocated */
         camkes_virtqueue_buffer_free(vq, buf);
     }
