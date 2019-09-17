@@ -33,6 +33,7 @@
 /*- set untyped_dtb_mmio = [] -*/
 /*- set dtb_irqs_map = {} -*/
 /*- set dtb_irqs = [] -*/
+/*- set dtb_node_paths = [] -*/
 
 /*# Extract the relevant fields from the DTB (regs, interrupts, etc) #*/
 /*- for i in range(0, len(dtb)) -*/
@@ -60,6 +61,8 @@
         /*- endif -*/
     /*- endfor -*/
 
+    /*- set dtb_path = node.get('this_node_path') -*/
+    /*- do dtb_node_paths.append(dtb_path) -*/
 /*- endfor -*/
 
 /*- set self_cnode = alloc_cap('cnode', my_cnode, write=true) -*/
@@ -69,6 +72,17 @@ static int camkes_dtb_irqs[] = {
             /*? irq ?*/,
     /*- endfor -*/
 };
+
+static char *camkes_dtb_node_paths[] = {
+    /*- for path in dtb_node_paths -*/
+            "/*? path ?*/",
+    /*- endfor -*/
+};
+
+char **camkes_dtb_get_node_paths(int *num_nodes) {
+    *num_nodes = ARRAY_SIZE(camkes_dtb_node_paths);
+    return camkes_dtb_node_paths;
+}
 
 int *camkes_dtb_get_irqs(int *num_irqs) {
     *num_irqs = ARRAY_SIZE(camkes_dtb_irqs);

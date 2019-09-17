@@ -115,6 +115,7 @@ seL4_CPtr WEAK camkes_dtb_get_nth_untyped(int n, size_t *size_bits, uintptr_t *p
 seL4_Error WEAK camkes_dtb_get_irq_cap(int irq, seL4_CNode cnode, seL4_Word index, uint8_t depth);
 simple_get_IRQ_handler_fn original_simple_get_irq_fn;
 int *WEAK camkes_dtb_get_irqs(int *num_irqs);
+char **WEAK camkes_dtb_get_node_paths(int *num_nodes);
 
 int WEAK virtio_net_notify(vm_t *vm)
 {
