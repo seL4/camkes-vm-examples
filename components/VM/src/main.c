@@ -677,6 +677,55 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
 
 #define FDT_MAX_SIZE 0x10000
 
+static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *initrd_name, char **paths,
+                        int num_paths)
+{
+    int err = 0;
+    fdtgen_context_t *context = fdtgen_new_context(gen_fdt, buf_size);
+    if (context == NULL) {
+        return -1;
+    }
+
+    /* currently hard-coded to preserve the cpu@0 in the fdt */
+    const char *list[] = {"/cpus/cpu@0"};
+    fdtgen_keep_nodes(context, list, 1);
+
+    fdtgen_keep_nodes(context, paths, num_paths);
+    err = fdtgen_generate(context, fdt_ori);
+    fdtgen_free_context(context);
+    if (err) {
+        return -1;
+    }
+
+    /* generate a memory node (linux_ram_base and linux_ram_size) */
+    err = fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size);
+    if (err) {
+        return -1;
+    }
+
+    /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
+    err = fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
+    if (err) {
+        return -1;
+    }
+
+    size_t initrd_size = 0;;
+    if (config_set(CONFIG_VM_INITRD_FILE)) {
+        initrd_size = get_initrd_size(initrd_name);
+        /* linux,initrd-start = < initrd_addr >; */
+        /* linux,initrd-end = < initrd_addr + initrd_size>; */
+        err = fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
+        if (err) {
+            return -1;
+        }
+    }
+
+    fdt_pack(gen_fdt);
+
+
+    return 0;
+}
+
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
     void *entry;
@@ -707,38 +756,18 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         const void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
 
         void *gen_fdt = malloc(FDT_MAX_SIZE);
-        fdtgen_context_t *context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
-
-        /* currently hard-coded to preserve the cpu@0 in the fdt */
-        const char *list[] = {"/cpus/cpu@0"};
-        fdtgen_keep_nodes(context, list, 1);
-
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
-        fdtgen_keep_nodes(context, paths, num_paths);
-        fdtgen_generate(context, fdt_ori);
-        fdtgen_free_context(context);
 
-        /* generate a memory node (linux_ram_base and linux_ram_size) */
-        fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size);
-
-        /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
-        fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
-
-        size_t initrd_size = 0;;
-        if (config_set(CONFIG_VM_INITRD_FILE)) {
-            initrd_size = get_initrd_size(initrd_name);
-            /* linux,initrd-start = < initrd_addr >; */
-            /* linux,initrd-end = < initrd_addr + initrd_size>; */
-            fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
+        err = generate_fdt(fdt_ori, gen_fdt, FDT_MAX_SIZE, initrd_name, paths, num_paths);
+        if (err) {
+            free(gen_fdt);
+            return -1;
         }
 
-        fdt_pack(gen_fdt);
-
         uintptr_t load_addr = dtb_addr;
-        int num_pages = ROUND_UP(FDT_MAX_SIZE, PAGE_SIZE_4K) >> PAGE_BITS_4K;
         size_t offset = 0;
-
+        int num_pages = ROUND_UP(FDT_MAX_SIZE, PAGE_SIZE_4K) >> PAGE_BITS_4K;
         for (int i = 0; i < num_pages; i++) {
             /* Load the dtb */
             if (vm_copyout(vm, gen_fdt + offset, load_addr + offset, PAGE_SIZE_4K)) {
@@ -748,8 +777,9 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
             }
             offset += PAGE_SIZE_4K;
         }
-        dtb = (void *)load_addr;
         free(gen_fdt);
+
+        dtb = (void *)load_addr;
     } else {
         /* Load device tree */
         guest_image_t dtb_image;
