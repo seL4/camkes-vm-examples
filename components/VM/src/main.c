@@ -66,6 +66,8 @@
 #include <vmlinux.h>
 #include "fsclient.h"
 
+#include <fdtgen.h>
+
 extern void *fs_buf;
 int start_extra_frame_caps;
 
@@ -671,6 +673,9 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
+
+#define FDT_MAX_SIZE 0x10000
+
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
     void *entry;
@@ -696,12 +701,63 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         return -1;
     }
 
-    /* Load device tree */
-    guest_image_t dtb_image;
-    err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
-    dtb = (void *)dtb_image.load_paddr;
-    if (!dtb || err) {
-        return -1;
+    if (!config_set(CONFIG_VM_DTB_FILE)) {
+        // currently hard-coded preserve the cpu0 in the fdt
+        camkes_io_fdt(&(_io_ops.io_fdt));
+        const void* fdt_ori = _io_ops.io_fdt.cookie;
+
+        void *gen_fdt = malloc(FDT_MAX_SIZE);
+        fdtgen_context_t* context = fdtgen_new_context(gen_fdt, FDT_MAX_SIZE);
+
+        const char *list[] = {"/cpus/cpu@0"};
+        fdtgen_keep_nodes(context, list, 1);
+        // using the paths array generate fdt
+        int num_paths;
+        char **paths = camkes_dtb_get_node_paths(&num_paths);
+        fdtgen_keep_nodes(context, paths, num_paths);
+
+        fdtgen_generate(context, fdt_ori);
+
+        // generate a memory node (linux_ram_base and linux_ram_size)
+        fdtgen_generate_memory_node(context, linux_ram_base, linux_ram_size);
+
+        // generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout)
+        fdtgen_generate_chosen_node(context, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
+
+        size_t initrd_size = 0;;
+        if (config_set(CONFIG_VM_INITRD_FILE)) {
+            initrd_size = get_initrd_size(initrd_name);
+            /* linux,initrd-start = < initrd_addr >; */
+            /* linux,initrd-end = < initrd_addr + initrd_size>; */
+            fdtgen_append_chosen_node_with_initrd_info(context, initrd_addr, initrd_size);
+        }
+
+        fdtgen_free_context(context);
+        fdt_pack(gen_fdt);
+
+        uintptr_t load_addr = dtb_addr;
+        int num_pages = ROUND_UP(FDT_MAX_SIZE, PAGE_SIZE_4K) >> PAGE_BITS_4K;
+        size_t offset = 0;
+
+        for (int i = 0; i < num_pages; i++) {
+            /* Load the dtb */
+            if (vm_copyout(vm, gen_fdt + offset, load_addr + offset, PAGE_SIZE_4K)) {
+                ZF_LOGE("Error: Failed to load dtb image @ addr 0x%x", load_addr + offset);
+                free(gen_fdt);
+                return -1;
+            }
+            offset += PAGE_SIZE_4K;
+        }
+        dtb = (void *)load_addr;
+        /* free(gen_fdt); */
+    } else {
+        /* Load device tree */
+        guest_image_t dtb_image;
+        err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
+        dtb = (void *)dtb_image.load_paddr;
+        if (!dtb || err) {
+            return -1;
+        }
     }
 
     /* Attempt to load initrd if provided */

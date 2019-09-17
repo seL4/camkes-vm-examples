@@ -125,6 +125,14 @@ config_option(
     OFF
 )
 
+config_option(
+    VmDtbFile
+    VM_DTB_FILE
+    "Enables the option for the VM to open and load a seperate dtb file"
+    DEFAULT
+    OFF
+)
+
 add_config_library(arm_vm "${configure_string}")
 
 file(GLOB vm_src src/*.c)
@@ -184,6 +192,8 @@ DeclareCAmkESComponent(
     arm_vm_Config
     sel4_autoconf
     sel4muslcsys_Config
+    fdt
+    fdtgen
 )
 
 if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
