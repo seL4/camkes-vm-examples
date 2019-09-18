@@ -21,6 +21,11 @@
 
 #include "virtio_vpci.h"
 
+typedef struct private_data {
+    vmm_pci_space_t *pci;
+    vmm_io_port_list_t *io_ports;
+} private_data_t;
+
 static int width_to_size(enum fault_width fw)
 {
 
@@ -49,7 +54,9 @@ static int pci_virtio_io_fault_handler(struct device *d, vm_t *vm, fault_t *faul
     } else {
         value = fault_get_data(fault);
     }
-    emulate_io_handler(vm->arch.io_port, virtio_port, is_in, width_to_size(fault_get_width(fault)), (void *)&value);
+
+    private_data_t *data = d->priv;
+    emulate_io_handler(data->io_ports, virtio_port, is_in, width_to_size(fault_get_width(fault)), (void *)&value);
 
     if (is_in) {
         memcpy(&fault_data, (void *)&value, width_to_size(fault_get_width(fault)));
@@ -71,9 +78,22 @@ const struct device dev_vpci_virtio_io = {
     .priv = NULL,
 };
 
-int install_virtio_vpci_device(vm_t *vm)
+int install_virtio_vpci_device(vm_t *vm, vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
 {
-    int err = vm_add_device(vm, &dev_vpci_virtio_io);
+    private_data_t *data = calloc(1, sizeof(*data));
+    if (data == NULL) {
+        ZF_LOGE("Failed to allocate private_data_t object");
+        return -1;
+    }
+
+    data->pci = pci;
+    data->io_ports = io_ports;
+
+    struct device vpci_dev = dev_vpci_virtio_io;
+    vpci_dev.priv = data;
+
+
+    int err = vm_add_device(vm, &vpci_dev);
     if (err) {
         ZF_LOGE("Failed to install Virtio PCI IOPort device");
     }

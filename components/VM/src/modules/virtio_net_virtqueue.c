@@ -29,6 +29,8 @@ static virtio_net_t *virtio_net = NULL;
 
 virtqueue_device_t recv_virtqueue;
 virtqueue_driver_t send_virtqueue;
+extern vmm_pci_space_t *pci;
+extern vmm_io_port_list_t *io_ports;
 
 static int tx_virtqueue_forward(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
@@ -110,7 +112,7 @@ void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
     virtio_net_callbacks_t callbacks;
     callbacks.tx_callback = tx_virtqueue_forward;
     callbacks.irq_callback = NULL;
-    virtio_net = virtio_net_init(vm, &callbacks);
+    virtio_net = virtio_net_init(vm, &callbacks, pci, io_ports);
 
     /* Initialise recv virtqueue */
     int err = camkes_virtqueue_device_init(&recv_virtqueue, 0);

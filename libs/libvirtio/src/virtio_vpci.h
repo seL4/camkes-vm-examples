@@ -14,4 +14,4 @@
 
 #include <sel4vm/guest_vm.h>
 
-int install_virtio_vpci_device(vm_t *vm);
+int install_virtio_vpci_device(vm_t *vm, vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports);

@@ -42,7 +42,8 @@ static void console_handle_irq(void *cookie)
     vm_inject_IRQ(virtio_cookie->virtio_con_irq_handle);
 }
 
-virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar)
+virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
+                                  vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
 {
 
     int err;
@@ -59,26 +60,16 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar)
         return NULL;
     }
 
-    virtio_emul_vm_t *virtio_emul_vm;
-    virtio_emul_vm = (virtio_emul_vm_t *)calloc(1, sizeof(virtio_emul_vm_t));
-    if (virtio_emul_vm == NULL) {
-        ZF_LOGE("Failed to allocate virtio_emul_vm object");
-        free(console_cookie);
-        return NULL;
-    }
-
-    err = install_virtio_vpci_device(vm);
+    err = install_virtio_vpci_device(vm, pci, io_ports);
     if (err) {
         ZF_LOGE("Failed to install virtio vpci device");
         free(console_cookie);
-        free(virtio_emul_vm);
         return NULL;
     }
 
-    virtio_emul_vm->vm = vm;
 
     backend.console_data = (void *)console_cookie;
-    virtio_con = common_make_virtio_con(virtio_emul_vm, vm->arch.pci, vm->arch.io_port, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
+    virtio_con = common_make_virtio_con(vm, pci, io_ports, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_CON_PLAT_INTERRUPT_LINE, backend);
     console_cookie->virtio_con = virtio_con;
     console_cookie->virtio_con_irq_handle = vm_virq_new(vm, VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);

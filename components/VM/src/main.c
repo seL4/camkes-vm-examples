@@ -63,6 +63,7 @@
 
 #include <vmlinux.h>
 #include "fsclient.h"
+
 extern void *fs_buf;
 int start_extra_frame_caps;
 
@@ -88,6 +89,9 @@ allocman_t *allocman;
 static char allocator_mempool[83886080];
 seL4_CPtr _fault_endpoint;
 irq_server_t *_irq_server;
+
+vmm_pci_space_t *pci;
+vmm_io_port_list_t *io_ports;
 
 struct ps_io_ops _io_ops;
 
@@ -607,7 +611,7 @@ int install_linux_devices(vm_t *vm)
     int i;
     /* Install virtual devices */
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
-        err = vm_install_vpci(vm);
+        err = vm_install_vpci(vm, io_ports, pci);
         assert(!err);
     }
     err = vm_install_vgic(vm);
@@ -1005,6 +1009,18 @@ int main_continued(void)
     install_fileserver(FILE_SERVER_INTERFACE(fs));
     err = seL4_TCB_BindNotification(camkes_get_tls()->tcb_cap, notification_ready_notification());
     assert(!err);
+
+    err = vmm_pci_init(&pci);
+    if (err) {
+        ZF_LOGE("Failed to initialise vmm pci");
+        return err;
+    }
+
+    err = vmm_io_port_init(&io_ports);
+    if (err) {
+        ZF_LOGE("Failed to initialise VM ioports");
+        return err;
+    }
 
     err = vmm_init();
     assert(!err);

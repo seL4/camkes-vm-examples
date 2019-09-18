@@ -36,6 +36,9 @@
 #define ARP_REPLY 0x02
 #define HW_TYPE 1
 
+extern vmm_pci_space_t *pci;
+extern vmm_io_port_list_t *io_ports;
+
 static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
     int err;
@@ -84,7 +87,7 @@ void make_arping_virtio_net(vm_t *vm, void *cookie)
     virtio_net_callbacks_t callbacks;
     callbacks.tx_callback = arping_reply;
     callbacks.irq_callback = NULL;
-    virtio_net = virtio_net_init(vm, &callbacks);
+    virtio_net = virtio_net_init(vm, &callbacks, pci, io_ports);
 }
 
 DEFINE_MODULE(virtio_net, NULL, make_arping_virtio_net)

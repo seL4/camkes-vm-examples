@@ -35,6 +35,9 @@ extern void *serial_getchar_buf;
 #define BUFSIZE 4088
 
 char txbuf[BUFSIZE];
+extern vmm_pci_space_t *pci;
+extern vmm_io_port_list_t *io_ports;
+
 void handle_serial_console()
 {
     struct {
@@ -59,7 +62,7 @@ static void emulate_console_putchar(char c)
 
 void make_virtio_con(vm_t *vm, void *cookie)
 {
-    virtio_con = virtio_console_init(vm, emulate_console_putchar);
+    virtio_con = virtio_console_init(vm, emulate_console_putchar, pci, io_ports);
     if (!virtio_con) {
         ZF_LOGF("Failed to initialise virtio console");
     }

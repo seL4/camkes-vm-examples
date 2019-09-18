@@ -124,7 +124,8 @@ static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mt
 
 static void virtio_net_ack(void *token) {}
 
-virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks)
+virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
+                              vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
 {
     virtio_net_cookie_t *driver_cookie;
     virtio_net_t *virtio_net;
@@ -140,23 +141,14 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks)
         return NULL;
     }
 
-    int err = install_virtio_vpci_device(vm);
+    int err = install_virtio_vpci_device(vm, pci, io_ports);
     if (err) {
         ZF_LOGE("Failed to install virtio vpci device");
         return NULL;
     }
 
-    virtio_emul_vm_t *virtio_emul_vm;
-    virtio_emul_vm = (virtio_emul_vm_t *)calloc(1, sizeof(virtio_emul_vm_t));
-    if (virtio_emul_vm == NULL) {
-        ZF_LOGE("Failed to allocate virtio_emul_vm object");
-        free(driver_cookie);
-        return NULL;
-    }
-
-    virtio_emul_vm->vm = vm;
-    virtio_net = common_make_virtio_net(virtio_emul_vm, vm->arch.pci, vm->arch.io_port, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
-                                        VIRTIO_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend);
+    virtio_net = common_make_virtio_net(vm, pci, io_ports, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
+                                        VIRTIO_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend, false);
     if (virtio_net == NULL) {
         ZF_LOGE("Failed to initialise virtio net driver");
         return NULL;
