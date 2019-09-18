@@ -86,16 +86,7 @@ assembly {
         ];
         vm0.irqs = [
             31, // Legacy nIRQ
-            27, // TX2_IRQ_PPI_VTIMER,
-            33, // TX2_TOP_TKE_SHARED1,
-            34, // TX2_TOP_TKE_SHARED2,
-            35, // TX2_TOP_TKE_SHARED3,
-            36, // TX2_TOP_TKE_SHARED4,
-            37, // TX2_TOP_TKE_SHARED5,
-            38, // TX2_TOP_TKE_SHARED6,
-            39, // TX2_TOP_TKE_SHARED7,
-            40, // TX2_TOP_TKE_SHARED8,
-            41 // TX2_TOP_TKE_SHARED9,
+            27, // TX2_IRQ_PPI_VTIMER
         ];
 	}
 }

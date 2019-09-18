@@ -159,15 +159,6 @@ static_assert((TX2_UARTA - GIC_LIC_INTID_BASE) == 112, "tx2_irqs_page5");
 
 static const int linux_pt_irqs[] = {
     TX2_IRQ_PPI_VTIMER,
-    TX2_TOP_TKE_SHARED1,
-    TX2_TOP_TKE_SHARED2,
-    TX2_TOP_TKE_SHARED3,
-    TX2_TOP_TKE_SHARED4,
-    TX2_TOP_TKE_SHARED5,
-    TX2_TOP_TKE_SHARED6,
-    TX2_TOP_TKE_SHARED7,
-    TX2_TOP_TKE_SHARED8,
-    TX2_TOP_TKE_SHARED9,
 };
 
 /* This address pertains to guest-vm@f1000000 in the overlay DTS. */
