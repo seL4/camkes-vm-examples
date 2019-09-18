@@ -85,7 +85,6 @@ assembly {
             "0xF8000000:24",
         ];
         vm0.irqs = [
-            31, // Legacy nIRQ
             27, // TX2_IRQ_PPI_VTIMER
         ];
 	}
