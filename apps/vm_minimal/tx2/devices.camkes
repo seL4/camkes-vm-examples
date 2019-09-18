@@ -72,14 +72,17 @@ assembly {
 
         vm0.untyped_mmios = [
             "0x3886000:12", // GICV Iface.
-            /* The purpose of this untyped region is to force the untyped
+            /* The purpose of these untyped regions is to force the untyped
              * allocator to treat this memory region as reserved so that when we
              * try to ensure that the VMM is placed into this region in RAM, it
              * will definitely be available for placement.
              *
              * This address pertains to guest-vm@f1000000 in the overlay DTS
              */
-            "0xF1000000:27" // VM RAM DMA region
+            "0xF1000000:24",
+            "0xF2000000:25",
+            "0xF4000000:26",
+            "0xF8000000:24",
         ];
         vm0.irqs = [
             31, // Legacy nIRQ
