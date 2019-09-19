@@ -15,8 +15,7 @@ cmake_minimum_required(VERSION 3.8.2)
 project(cma34cr_centos)
 
 # Include CAmkES VM helper functions
-include("../../vm/camkes_vm_helpers.cmake")
-include("../../util_libs/liblwip/lwip_helpers.cmake")
+include(${CAMKES_VM_HELPERS_PATH})
 
 # Retrieve Init0 extra src files
 file(GLOB init0_extra src/*.c)
@@ -33,6 +32,8 @@ AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS decompress_linux)
 # Declare C162 Rootfs
 AddToFileServer("rootfs.cpio" ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/rootfs.cpio)
 
+# Provided by find_package(util_libs)
+include(${LWIP_HELPERS})
 # Declare lwipopts.h include
 AddLWIPConfiguration(${CMAKE_CURRENT_SOURCE_DIR}/lwip_include)
 

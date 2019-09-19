@@ -15,8 +15,9 @@ cmake_minimum_required(VERSION 3.8.2)
 project(minimal)
 
 # Include CAmkES VM helper functions
-include("../../vm/camkes_vm_helpers.cmake")
-include("../../vm-linux/vm-linux-helpers.cmake")
+include(${CAMKES_VM_HELPERS_PATH})
+find_package(camkes-vm-linux REQUIRED)
+include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0)

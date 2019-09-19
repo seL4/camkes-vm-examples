@@ -16,8 +16,8 @@ project(zmq_samples)
 
 include(ExternalProject)
 # Include CAmkES VM helper functions
-include("../../vm/camkes_vm_helpers.cmake")
-include("../../vm-linux/vm-linux-helpers.cmake")
+include(${CAMKES_VM_HELPERS_PATH})
+include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 if(CAKEML_FILTER)
     include("libs/cakeml_helpers.cmake")

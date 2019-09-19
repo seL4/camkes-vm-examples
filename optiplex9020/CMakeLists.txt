@@ -15,8 +15,9 @@ cmake_minimum_required(VERSION 3.8.2)
 project(optiplex9020)
 
 # Include CAmkES VM helper
-include("../../vm/camkes_vm_helpers.cmake")
-include("../../vm-linux/vm-linux-helpers.cmake")
+include(${CAMKES_VM_HELPERS_PATH})
+find_package(camkes-vm-linux REQUIRED)
+include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 # Retrieve Init0 extra src files
 file(GLOB init0_extra src/*.c)
@@ -40,4 +41,4 @@ AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
 AddToFileServer("rootfs.cpio" ${rootfs_file})
 
 # Initialise CAmkES Root Server with additional CPP includes
-DeclareCAmkESVMRootServer(optiplex9020.camkes CPP_INCLUDES ${CMAKE_SOURCE_DIR}/projects/vm/components/StringReverse/include)
+DeclareCAmkESVMRootServer(optiplex9020.camkes CPP_INCLUDES ${CAMKES_VM_DIR}/components/StringReverse/include)

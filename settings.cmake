@@ -18,22 +18,23 @@ get_filename_component(resolved_path ${CMAKE_CURRENT_LIST_FILE} REALPATH)
 # project_dir corresponds to the top level project directory, and
 # repo_dir is the absolute path after following the symlink.
 get_filename_component(repo_dir ${resolved_path} DIRECTORY)
-
-include(${project_dir}/projects/seL4_tools/cmake-tool/helpers/application_settings.cmake)
-
-find_file(
-    VM_SETTINGS_PATH camkes_vm_settings.cmake
-    PATHS ${project_dir}/projects/vm/
-    CMAKE_FIND_ROOT_PATH_BOTH
+set(project_dir "${CMAKE_CURRENT_LIST_DIR}/../../")
+file(GLOB project_modules ${project_dir}/projects/*)
+list(
+    APPEND
+        CMAKE_MODULE_PATH
+        ${project_dir}/kernel
+        ${project_dir}/projects/seL4_tools/cmake-tool/helpers/
+        ${project_dir}/projects/seL4_tools/elfloader-tool/
+        ${project_dir}/tools/seL4/cmake-tool/helpers/
+        ${project_dir}/tools/seL4/elfloader-tool/
+        ${project_modules}
 )
-mark_as_advanced(FORCE VM_SETTINGS_PATH)
-if("${VM_SETTINGS_PATH}" STREQUAL "VM_SETTINGS_PATH-NOTFOUND")
-    message(
-        FATAL_ERROR
-            "Failed to find camkes_vm_settings.cmake. Consider cmake -DVM_SETTINGS_PATH=/path/to/camkes_vm_settings.cmake"
-    )
-endif()
-include(${VM_SETTINGS_PATH})
+
+include(application_settings)
+
+find_package(camkes-vm REQUIRED)
+include(${CAMKES_VM_SETTINGS_PATH})
 
 if(NOT CAMKES_VM_APP)
     set(CAMKES_VM_APP "optiplex9020" CACHE INTERNAL "")
@@ -41,7 +42,8 @@ endif()
 
 include("${repo_dir}/${CAMKES_VM_APP}/app_settings.cmake")
 
-include(${project_dir}/kernel/configs/seL4Config.cmake)
+find_package(seL4 REQUIRED)
+sel4_configure_platform_settings()
 
 if(SIMULATION)
     ApplyCommonSimulationSettings(${KernelArch})
