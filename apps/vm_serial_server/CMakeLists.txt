@@ -15,14 +15,15 @@ cmake_minimum_required(VERSION 3.8.2)
 project(camkes-vm-virtio-net C)
 
 include(../../arm_vm_helpers.cmake)
-include(../../../camkes-vm-linux/vm-linux-helpers.cmake)
+find_package(camkes-vm-linux REQUIRED)
+include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 
-AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux")
+AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
 # Generate overlayed rootfs
-set(rootfs_file "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
+set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 AddFileToOverlayDir(
     "inittab"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/inittab_hvc0
@@ -42,7 +43,7 @@ AddOverlayDirToRootfs(
 AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
 # Updated dtb based on generated initrd
 UpdateDtbFromInitrd(
-    "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb-virtcon"
+    "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb-virtcon"
     ${output_overlayed_rootfs_location}
     "0x4d700000"
     dtb_gen_target

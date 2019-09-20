@@ -1,5 +1,5 @@
 #
-# Copyright 2018, Data61
+# Copyright 2019, Data61
 # Commonwealth Scientific and Industrial Research Organisation (CSIRO)
 # ABN 41 687 119 230.
 #
@@ -10,16 +10,21 @@
 # @TAG(DATA61_BSD)
 #
 
-set(project_dir "${CMAKE_CURRENT_LIST_DIR}")
-get_filename_component(resolved_path ${CMAKE_CURRENT_LIST_FILE} REALPATH)
-# repo_dir is distinct from project_dir as this file is symlinked.
-# project_dir corresponds to the top level project directory, and
-# repo_dir is the absolute path after following the symlink.
-get_filename_component(repo_dir ${resolved_path} DIRECTORY)
+cmake_minimum_required(VERSION 3.7.2)
+set(project_dir "${CMAKE_CURRENT_LIST_DIR}/../../")
+file(GLOB project_modules ${project_dir}/projects/*)
+list(
+    APPEND
+        CMAKE_MODULE_PATH
+        ${project_dir}/kernel
+        ${project_dir}/tools/seL4/cmake-tool/helpers/
+        ${project_dir}/tools/seL4/elfloader-tool/
+        ${project_modules}
+)
 
-include(${project_dir}/projects/seL4_tools/cmake-tool/helpers/application_settings.cmake)
+include(application_settings)
 
-include(${repo_dir}/easy-settings.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/easy-settings.cmake)
 
 # Kernel settings
 set(KernelArch "arm" CACHE STRING "" FORCE)
@@ -53,22 +58,11 @@ if(NOT CAMKES_VM_APP)
 endif()
 
 # Add VM application
-include("${repo_dir}/apps/${CAMKES_VM_APP}/settings.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/apps/${CAMKES_VM_APP}/settings.cmake")
 
 correct_platform_strings()
 
-include(${project_dir}/kernel/configs/seL4Config.cmake)
+find_package(seL4 REQUIRED)
+sel4_configure_platform_settings()
 
 ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelSel4Arch})
-
-# Other project settings needed for static allocation.
-# This is done early on so that it works for projects loaded before
-# options processing in camkes-tool (notably, elfloader-tool).
-include(${project_dir}/projects/capdl/capdl-loader-app/helpers.cmake)
-include(${project_dir}/projects/seL4_tools/elfloader-tool/helpers.cmake)
-if (CAmkESCapDLStaticAlloc)
-    # Need to compile the capDL loader for static alloc
-    SetCapDLLoaderStaticAlloc()
-    # Need to place the capDL loader ELF at the end of memory
-    SetElfloaderRootserversLast()
-endif()

@@ -49,19 +49,19 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
 elseif("${KernelARMPlatform}" STREQUAL "tx1")
     set(cpp_flags "-DKERNELARMPLATFORM_TX1")
 
-    AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx1/linux")
-    AddToFileServer("linux-dtb" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx1/linux-dtb")
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/tx1/linux")
+    AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/tx1/linux-dtb")
 
 elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 
-    AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux")
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
     # Generate overlayed rootfs
-    set(rootfs_file "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/rootfs.cpio.gz")
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
     UpdateDtbFromInitrd(
-        "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/exynos5422/linux-dtb"
+        "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb"
         ${rootfs_file}
         "0x4d700000"
         dtb_gen_target
@@ -72,8 +72,8 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
 elseif("${KernelARMPlatform}" STREQUAL "tx2")
     set(cpp_flags "-DKERNELARMPLATFORM_TX2")
 
-    AddToFileServer("linux" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx2/linux")
-    AddToFileServer("linux-dtb" "${CMAKE_SOURCE_DIR}/projects/camkes-vm-images/tx2/linux-dtb")
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/tx2/linux")
+    AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/tx2/linux-dtb")
 
 endif()
 
