@@ -38,4 +38,4 @@ include(${LWIP_HELPERS})
 AddLWIPConfiguration(${CMAKE_CURRENT_SOURCE_DIR}/lwip_include)
 
 # Initialise CAmkES Root Server with addition CPP includes
-DeclareCAmkESVMRootServer(cma34cr_centos.camkes CPP_INCLUDES ${CMAKE_SOURCE_DIR}/projects/vm/components/StringReverse/include ${CMAKE_SOURCE_DIR}/projects/vm/components/Ethdriver/include configurations)
+DeclareCAmkESVMRootServer(cma34cr_centos.camkes CPP_INCLUDES ${CAMKES_VM_DIR}/components/StringReverse/include ${CAMKES_VM_DIR}/components/Ethdriver/include configurations)

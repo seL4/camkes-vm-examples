@@ -17,6 +17,7 @@ project(zmq_samples)
 include(ExternalProject)
 # Include CAmkES VM helper functions
 include(${CAMKES_VM_HELPERS_PATH})
+find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 if(CAKEML_FILTER)
@@ -75,7 +76,7 @@ FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-32bit-pic")
 ExternalProject_Add(
     zmq_external
     SOURCE_DIR
-    ${CMAKE_SOURCE_DIR}/tools/libzmq
+    ${LIBZMQ_PATH}
     BINARY_DIR
     ${CMAKE_CURRENT_BINARY_DIR}/zmq_external
     BUILD_ALWAYS

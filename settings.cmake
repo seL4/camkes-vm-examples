@@ -31,6 +31,8 @@ list(
         ${project_modules}
 )
 
+set(LIBZMQ_PATH ${project_dir}/tools/libzmq CACHE INTERNAL "")
+
 include(application_settings)
 
 find_package(camkes-vm REQUIRED)
