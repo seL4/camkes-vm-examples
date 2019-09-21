@@ -71,6 +71,7 @@ foreach(i RANGE ${NumberVMsLess1})
 endforeach()
 
 set(SYSROOT "${CMAKE_CURRENT_BINARY_DIR}/sysroot")
+include(cross_compiling)
 FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-32bit-pic")
 
 ExternalProject_Add(
@@ -106,6 +107,7 @@ ExternalProject_Add(
     -DCMAKE_INSTALL_PREFIX=${SYSROOT}
 )
 
+include(external-project-helpers)
 DeclareExternalProjObjectFiles(
     demoapps_external
     ${SYSROOT}/bin
