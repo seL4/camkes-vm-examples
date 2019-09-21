@@ -53,6 +53,8 @@ elseif("${KernelARMPlatform}" STREQUAL "tx1")
     AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/tx1/linux-dtb")
 
 elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
+    find_package(camkes-vm-linux REQUIRED)
+    include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 
     AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
