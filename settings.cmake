@@ -31,7 +31,7 @@ list(
         ${project_modules}
 )
 
-set(LIBZMQ_PATH ${project_dir}/tools/libzmq CACHE INTERNAL "")
+set(LIBZMQ_PATH ${project_dir}/projects/libzmq CACHE INTERNAL "")
 
 include(application_settings)
 
