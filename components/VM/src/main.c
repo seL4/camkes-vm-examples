@@ -675,8 +675,6 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-#define FDT_MAX_SIZE 0x10000
-
 static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *initrd_name, char **paths,
                         int num_paths)
 {
@@ -753,21 +751,24 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
     if (!config_set(CONFIG_VM_DTB_FILE)) {
         camkes_io_fdt(&(_io_ops.io_fdt));
-        const void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
+        void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
 
-        void *gen_fdt = malloc(FDT_MAX_SIZE);
+        int size_gen = fdt_totalsize(fdt_ori) + 0x2000;
+
+        void *gen_fdt = calloc(size_gen, sizeof(char));
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
 
-        err = generate_fdt(fdt_ori, gen_fdt, FDT_MAX_SIZE, initrd_name, paths, num_paths);
+        err = generate_fdt(fdt_ori, gen_fdt, size_gen, initrd_name, paths, num_paths);
         if (err) {
+            ZF_LOGE("Failed to generate a fdt");
             free(gen_fdt);
             return -1;
         }
 
         uintptr_t load_addr = dtb_addr;
         size_t offset = 0;
-        int num_pages = ROUND_UP(FDT_MAX_SIZE, PAGE_SIZE_4K) >> PAGE_BITS_4K;
+        int num_pages = ROUND_UP(size_gen, PAGE_SIZE_4K) >> PAGE_BITS_4K;
         for (int i = 0; i < num_pages; i++) {
             /* Load the dtb */
             if (vm_copyout(vm, gen_fdt + offset, load_addr + offset, PAGE_SIZE_4K)) {
