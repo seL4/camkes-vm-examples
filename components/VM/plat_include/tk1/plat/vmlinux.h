@@ -180,3 +180,83 @@ static const int free_plat_interrupts[] =  { -1 };
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x02000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
+
+static const char *plat_keep_device_and_disable[] = {
+    "/host1x@50000000",
+    "/gpu@0,57000000",
+    "/timer@60005000",
+    "/flow-controller@60007000",
+    "/actmon@6000c800",
+    "/dma@60020000",
+    "/serial@70006000",
+    "/serial@70006040",
+    "/serial@70006200",
+    "/pwm@7000a000",
+    "/i2c@7000c000",
+    "/i2c@7000c400",
+    "/i2c@7000c500",
+    "/i2c@7000c700",
+    "/i2c@7000d000",
+    "/i2c@7000d000/pmic@40",
+    "/i2c@7000d100",
+    "/spi@7000d400",
+    "/spi@7000d600",
+    "/spi@7000d800",
+    "/spi@7000da00",
+    "/spi@7000dc00",
+    "/spi@7000de00",
+    "/rtc@7000e000",
+    "/pmc@7000e400",
+    "/fuse@7000f800",
+    "/memory-controller@70019000",
+    "/emc@7001b000",
+    "/sata@70020000",
+    "/hda@70030000",
+    "/padctl@7009f000",
+    "/sdhci@700b0000",
+    "/sdhci@700b0200",
+    "/sdhci@700b0400",
+    "/clock@70110000",
+    "/thermal-sensor@700e2000",
+    "/ahub@70300000",
+    "/usb-phy@7d000000",
+    "/sound",
+};
+
+static const char *plat_keep_devices[] = {
+    "/interrupt-controller@50041000",
+    "/clock@60006000",
+    "/gpio@6000d000",
+    "/apbmisc@70000800",
+    "/pinmux@70000868",
+    "/serial@70006300",
+    "/sdhci@700b0600",
+    "/usb-phy@7d004000",
+    "/usb-phy@7d008000",
+    "/cpus/cpu@0",
+    "/pmu",
+    "/timer",
+    "/aliases",
+};
+
+static const char *plat_keep_device_and_subtree[] = {
+    "/thermal-zones",
+    "/clocks",
+    "/gpio-keys",
+    "/regulators",
+    "/i2c@7000d000",
+    "/spi@7000da00",
+    "/pmc@7000e400",
+    "/padctl@7009f000",
+};
+
+static const char *plat_keep_device_and_subtree_and_disable[] = {
+    "/pcie@1003000",
+    "/host1x@50000000",
+    "/i2c@7000c000",
+};
+
+static const char *plat_linux_bootcmdline =
+    "console=ttyS0,115200n8 otf_key=c75e5bb91eb3bd947560357b64422f85 usbcore.old_scheme_first=1 tegraid=40.1.1.0.0 modem_id=0 android.kerneltype=normal commchip_id=0 usb_port_owner_info=2 lane_owner_info=1 touch_id=0@0 board_info=0x0177:0x0000:0x02:0x43:0x00 init=/sbin/init root=/dev/mmcblk0p2 rw rootwait gpt earlyprint";
+
+static const char *plat_linux_stdout = "";

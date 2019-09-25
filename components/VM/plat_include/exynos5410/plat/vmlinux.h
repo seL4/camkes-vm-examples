@@ -37,3 +37,10 @@ static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
                                            };
 
 void vusb_notify(void);
+
+static const char *plat_keep_devices[] = {};
+static const char *plat_keep_device_and_disable[] = {};
+static const char *plat_keep_device_and_subtree[] = {};
+static const char *plat_keep_device_and_subtree_and_disable[] = {};
+static const char *plat_linux_bootcmdline = "";
+static const char *plat_linux_stdout = "";

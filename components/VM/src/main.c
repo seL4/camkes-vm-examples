@@ -684,11 +684,17 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *
         return -1;
     }
 
-    /* currently hard-coded to preserve the cpu@0 in the fdt */
-    const char *list[] = {"/cpus/cpu@0"};
-    fdtgen_keep_nodes(context, list, 1);
+    fdtgen_keep_nodes(context, plat_keep_devices, ARRAY_SIZE(plat_keep_devices));
+    for (int i = 0; i < ARRAY_SIZE(plat_keep_device_and_subtree); i++) {
+        fdtgen_keep_node_subtree(context, fdt_ori, plat_keep_device_and_subtree[i]);
+    }
+    for (int i = 0; i < ARRAY_SIZE(plat_keep_device_and_subtree_and_disable); i++) {
+        fdtgen_keep_node_subtree_disable(context, fdt_ori, plat_keep_device_and_subtree_and_disable[i]);
+    }
+    fdtgen_keep_nodes_and_disable(context, plat_keep_device_and_disable, ARRAY_SIZE(plat_keep_device_and_disable));
 
     fdtgen_keep_nodes(context, paths, num_paths);
+
     err = fdtgen_generate(context, fdt_ori);
     fdtgen_free_context(context);
     if (err) {
@@ -702,12 +708,12 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *
     }
 
     /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
-    err = fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
+    err = fdt_generate_chosen_node(gen_fdt, plat_linux_stdout, plat_linux_bootcmdline);
     if (err) {
         return -1;
     }
 
-    size_t initrd_size = 0;;
+    size_t initrd_size = 0;
     if (config_set(CONFIG_VM_INITRD_FILE)) {
         initrd_size = get_initrd_size(initrd_name);
         /* linux,initrd-start = < initrd_addr >; */

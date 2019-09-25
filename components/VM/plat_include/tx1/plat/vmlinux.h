@@ -229,3 +229,64 @@ static const int free_plat_interrupts[] =  { -1 };
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x02000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
+
+static const char *plat_keep_devices[] = {
+    "/cpus/cpu@0",
+    "/interrupt-controller@50041000",
+    "/gpu@57000000",
+    "/serial@70006300",
+    "/timer@60005000",
+    "/flow-controller@60007000",
+    "/dma@60020000",
+    "/apbmisc@70000800",
+    "/pmu@7000a000",
+    "/i2c@7000c700",
+    "/fuse@7000f800",
+    "/usb@70090000",
+    "/sdhci@700b0000",
+    "/sdhci@700b0600",
+    "/mipi@700e3000",
+    "/timer",
+    "/aliases",
+};
+static const char *plat_keep_device_and_disable[] = {
+    "/serial@70006040",
+    "/serial@70006200",
+    "/serial@70006300",
+    "/i2c@7000c000",
+    "/i2c@7000c500",
+    "/i2c@7000d100",
+    "/i2c@7000d400",
+    "/i2c@7000d600",
+    "/i2c@7000d800",
+    "/i2c@7000da00",
+    "/hda@70030000",
+    "/sdhci@700b0200",
+    "/sdhci@700b0400",
+    "/spi@70410000",
+    "/usb@7d000000",
+    "/usb-phy@7d000000",
+    "/usb@7d004000",
+    "/usb-phy@7d004000",
+};
+static const char *plat_keep_device_and_subtree[] = {
+    "/pcie@1003000",
+    "/host1x@50000000",
+    "/thermal-zones",
+    "/pinmux@700008d4",
+    "/i2c@7000c400",
+    "/i2c@7000d000",
+    "/pmc@7000e400",
+    "/padctl@7009f000",
+    "/thermal-sensor@700e2000",
+    "/thermal-zones",
+    "/clocks",
+    "/regulators",
+    "/gpio-keys",
+};
+static const char *plat_keep_device_and_subtree_and_disable[] = {
+    "/aconnect@702c0000",
+};
+static const char *plat_linux_bootcmdline =
+    "console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x70006000 debug mem=100m initcall_debug user_debug=31";
+static const char *plat_linux_stdout = "serial0:115200n8";
