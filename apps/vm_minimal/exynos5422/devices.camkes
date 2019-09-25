@@ -34,10 +34,7 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi",
-            "linux_stdout" : "serial2:115200n8"
-        };
+        vm0.linux_image_config = {};
 
         vm0.dtb = dtb([{"path": "/firmware@2073000"},
                       {"path": "/soc/audss-clock-controller@3810000"},
@@ -107,11 +104,7 @@ assembly {
                       {"path": "/soc/pinctrl@14010000"},
                       {"path": "/soc/sysmmu@14650000"},
                       {"path": "/soc/i2s@3830000"},
-                      {"path": "/soc/sysmmu@14680000"},
-                      {"path": "/fixed-rate-clocks/oscclk"},
-                      {"path": "/fixed-rate-clocks/xxti"},
-                      {"path": "/timer"},
-                      ]);
+                      {"path": "/soc/sysmmu@14680000"}]);
 
         vm0.untyped_mmios = [
                     "0x10486000:12", // VCPU
