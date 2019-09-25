@@ -34,17 +34,20 @@ int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size)
     int size_cells = fdt_address_cells(fdt, root_offset);
 
     int this = fdt_add_subnode(fdt, root_offset, "memory");
+    if (this < 0) {
+        return this;
+    }
     int err = fdt_appendprop_string(fdt, this, "device_type", "memory");
     if (err) {
-        return -1;
+        return err;
     }
     err = append_prop_with_cells(fdt, this, base, address_cells, "reg");
     if (err) {
-        return -1;
+        return err;
     }
     err = append_prop_with_cells(fdt, this, size, size_cells, "reg");
     if (err) {
-        return -1;
+        return err;
     }
 
     return 0;
@@ -54,17 +57,21 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
 {
     int root_offset = fdt_path_offset(fdt, "/");
     int this = fdt_add_subnode(fdt, root_offset, "chosen");
-    int err = fdt_appendprop_string(fdt, this, "stdout-path", stdout_path);
-    if (err) {
-        return -1;
+    int err;
+
+    if (stdout_path && strlen(stdout_path) > 0) {
+        err = fdt_appendprop_string(fdt, this, "stdout-path", stdout_path);
+        if (err) {
+            return err;
+        }
+        err = fdt_appendprop_string(fdt, this, "linux,stdout-path", stdout_path);
+        if (err) {
+            return err;
+        }
     }
     err = fdt_appendprop_string(fdt, this, "bootargs", bootargs);
     if (err) {
-        return -1;
-    }
-    err = fdt_appendprop_string(fdt, this, "linux,stdout-path", stdout_path);
-    if (err) {
-        return -1;
+        return err;
     }
 
     return 0;
@@ -77,11 +84,11 @@ int fdt_append_chosen_node_with_initrd_info(void *fdt, unsigned long base, size_
     int this = fdt_path_offset(fdt, "/chosen");
     int err = append_prop_with_cells(fdt, this, base, address_cells, "linux,initrd-start");
     if (err) {
-        return -1;
+        return err;
     }
     err = append_prop_with_cells(fdt, this, base + size, address_cells, "linux,initrd-end");
     if (err) {
-        return -1;
+        return err;
     }
 
     return 0;
