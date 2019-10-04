@@ -958,14 +958,14 @@ static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie) {
 }
 
 static memory_fault_result_t
-handle_on_demand_fault_callback(vm_t *vm, uintptr_t fault_addr, size_t fault_length,
-        void *cookie, guest_memory_arch_data_t arch_data) {
+handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr, size_t fault_length,
+        void *cookie) {
     ZF_LOGE("Fault for on demand memory region: 0x%x", fault_addr);
     return FAULT_ERROR;
 }
 
-memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, uintptr_t paddr,
-        size_t len, bool is_read, seL4_Word *data, seL4_Word data_mask, void *cookie) {
+memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
+        uintptr_t paddr, size_t len, void *cookie) {
 #ifdef CONFIG_ONDEMAND_DEVICE_INSTALL
     uintptr_t addr = paddr & ~0xfff;
     int mapped;
