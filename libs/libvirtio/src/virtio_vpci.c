@@ -14,9 +14,9 @@
 #include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
 
 #include <sel4vm/guest_vm.h>
-#include <sel4vm/devices.h>
-#include <sel4vm/devices/vpci.h>
 #include <sel4vm/guest_vcpu_fault.h>
+#include <sel4vmmplatsupport/device.h>
+#include <sel4vmmplatsupport/vpci.h>
 
 #include <virtio/virtio.h>
 

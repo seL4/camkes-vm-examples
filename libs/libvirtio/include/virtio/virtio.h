@@ -13,7 +13,7 @@
 #pragma once
 
 #include <sel4vm/vm.h>
-#include <sel4vm/devices.h>
+#include <sel4vmmplatsupport/device.h>
 
 #define VIRTIO_IOPORT_SIZE      0x400
 #define VIRTIO_IOPORT_START     0x6200

@@ -22,8 +22,8 @@
 #include <camkes/dataport.h>
 
 #include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
-#include <sel4vm/devices.h>
-#include <sel4vm/devices/vpci.h>
+#include <sel4vmmplatsupport/device.h>
+#include <sel4vmmplatsupport/vpci.h>
 
 #include <platsupport/serial.h>
 #include <virtio/virtio_console.h>

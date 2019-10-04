@@ -19,14 +19,17 @@
 #include <vka/capops.h>
 #include <camkes.h>
 
-#include <sel4vm/vm.h>
+#include <sel4vm/guest_vm.h>
 #include <sel4vm/images.h>
-#include <sel4vm/plat/devices.h>
 #include <sel4vm/devices/vgic.h>
 #include <sel4vm/devices/vram.h>
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 
+#include <sel4vmmplatsupport/device.h>
+#include <sel4vmmplatsupport/device_utils.h>
+#include <sel4vmmplatsupport/plat/usb.h>
+#include <sel4vmmplatsupport/plat/devices.h>
 
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,

@@ -16,8 +16,8 @@
 #include <autoconf.h>
 
 #include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
-#include <sel4vm/devices.h>
-#include <sel4vm/devices/vpci.h>
+#include <sel4vmmplatsupport/device.h>
+#include <sel4vmmplatsupport/vpci.h>
 
 #include <virtio/virtio.h>
 #include <virtio/virtio_plat.h>

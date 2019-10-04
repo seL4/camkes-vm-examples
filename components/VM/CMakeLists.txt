@@ -188,6 +188,7 @@ DeclareCAmkESComponent(
     FileServer-client
     sel4pci
     sel4vmmcore
+    sel4vmmplatsupport
     arm_vm_Config
     sel4_autoconf
     sel4muslcsys_Config
