@@ -693,7 +693,7 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
 
 static int guest_write_address(vm_t *vm, uintptr_t paddr, void *vaddr, size_t size, size_t offset, void *cookie) {
     memcpy(vaddr, cookie + offset, size);
-    if (!config_set(CONFIG_PLAT_EXYNOS5)) {
+    if (config_set(CONFIG_PLAT_TX1)) {
         seL4_CPtr cap = vspace_get_cap(&vm->mem.vmm_vspace, vaddr);
         if (cap == seL4_CapNull) {
             /* Not sure how we would get here, something has gone pretty wrong */
