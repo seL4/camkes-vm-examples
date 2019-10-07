@@ -470,39 +470,6 @@ static int vmm_init(void)
     return 0;
 }
 
-static void map_unity_ram(vm_t *vm)
-{
-    /* Dimensions of physical memory that we'll use. Note that we do not map the entirety of RAM.
-     */
-    const uintptr_t paddr_start = linux_ram_paddr_base;
-    const uintptr_t paddr_end = paddr_start + linux_ram_size;
-
-    int err;
-
-    uintptr_t start;
-    reservation_t res;
-    unsigned int bits = seL4_PageBits;
-    res = vspace_reserve_range_at(&vm->mem.vm_vspace, (void*)(paddr_start - linux_ram_offset), paddr_end - paddr_start,
-                                  seL4_AllRights, 1);
-    assert(res.res);
-    for (start = paddr_start; start < paddr_end; start += BIT(bits)) {
-        cspacepath_t frame;
-        err = vka_cspace_alloc_path(vm->vka, &frame);
-        assert(!err);
-        seL4_Word cookie;
-        err = vka_utspace_alloc_at(vm->vka, &frame, kobject_get_type(KOBJECT_FRAME, bits), bits, start, &cookie);
-        if (err) {
-            printf("Failed to map ram page 0x%x\n", start);
-            vka_cspace_free(vm->vka, frame.capPtr);
-            break;
-        }
-        uintptr_t addr = start - linux_ram_offset;
-        err = vspace_map_pages_at_vaddr(&vm->mem.vm_vspace, &frame.capPtr, &bits, (void*)addr, 1, bits, res);
-        assert(!err);
-    }
-}
-
-
 void restart_component(void)
 {
     longjmp(restart_jmp_buf, 1);
@@ -615,7 +582,11 @@ int install_linux_devices(vm_t *vm)
     }
     err = vm_install_vgic(vm);
     assert(!err);
-    err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size);
+    if (config_set(CONFIG_PLAT_EXYNOS5) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT) || config_set(CONFIG_PLAT_TX2)) {
+        err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size, true);
+    } else {
+        err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size, false);
+    }
     assert(!err);
 
     int max_vmm_modules = (int)(__stop__vmm_module - __start__vmm_module);
@@ -1053,11 +1024,6 @@ int main_continued(void)
         }
     }
 #endif /* CONFIG_ARM_SMMU */
-
-#if defined(CONFIG_PLAT_EXYNOS5) || defined(CONFIG_PLAT_QEMU_ARM_VIRT)  || defined(CONFIG_PLAT_TX2)
-    /* HACK: See if we have a "RAM device" for 1-1 mappings */
-    map_unity_ram(&vm);
-#endif /* CONFIG_PLAT_EXYNOS5410 || CONFIG_PLAT_TX2 */
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", linux_image_config.linux_name, linux_image_config.dtb_name);
