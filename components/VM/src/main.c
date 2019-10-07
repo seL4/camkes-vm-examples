@@ -44,11 +44,11 @@
 #include <sel4vm/vm.h>
 #include <sel4vm/devices/vgic.h>
 #include <sel4vm/devices/vram.h>
-#include <sel4vm/images.h>
 #include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
 
 #include <sel4vmmplatsupport/vusb.h>
 #include <sel4vmmplatsupport/vpci.h>
+#include <sel4vmmplatsupport/guest_image.h>
 #include <sel4pci/pci_helper.h>
 
 #include <sel4utils/irq_server.h>
@@ -662,134 +662,6 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-static int guest_write_address(vm_t *vm, uintptr_t paddr, void *vaddr, size_t size, size_t offset, void *cookie) {
-    memcpy(vaddr, cookie + offset, size);
-    if (config_set(CONFIG_PLAT_TX1)) {
-        seL4_CPtr cap = vspace_get_cap(&vm->mem.vmm_vspace, vaddr);
-        if (cap == seL4_CapNull) {
-            /* Not sure how we would get here, something has gone pretty wrong */
-            ZF_LOGE("Failed to get vmm cap for vaddr: %p", vaddr);
-            return -1;
-        }
-        int error = seL4_ARM_Page_CleanInvalidate_Data(cap, 0, PAGE_SIZE_4K);
-        ZF_LOGF_IFERR(error, "seL4_ARM_Page_CleanInvalidate_Data failed");
-    }
-    return 0;
-}
-
-static int maybe_create_frame_at(vm_t *vm, uintptr_t addr) {
-    /* We check if we have previously mapped a frame and return if so */
-    seL4_CPtr cap;
-    cspacepath_t cap_path;
-    int bits;
-    int err;
-
-    cap = vspace_get_cap(&vm->mem.vm_vspace, (void *)addr);
-    if (cap == seL4_CapNull) {
-        /* Frame doesn't exit - create frame */
-        reservation_t res;
-        vka_object_t frame;
-        bits = 12;
-        /* Create a frame */
-        err = vka_alloc_frame(vm->vka, bits, &frame);
-        assert(!err);
-        if (err) {
-            return -1;
-        }
-        /* Map the frame to the dest vspace */
-        res = vspace_reserve_range_at(&vm->mem.vm_vspace, (void *)addr, BIT(bits), seL4_AllRights, 1);
-        if (!res.res) {
-            return -1;
-        }
-        err = vspace_map_pages_at_vaddr(&vm->mem.vm_vspace, &frame.cptr, NULL, (void *)addr, 1, bits, res);
-        vspace_free_reservation(&vm->mem.vm_vspace, res);
-        if (err) {
-            return -1;
-        }
-    }
-    return 0;
-}
-
-void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_type)
-{
-    int fd;
-    unsigned long size;
-    uintptr_t load_addr;
-    Elf64_Ehdr maybe_elf = {0};
-    fd = open(kernel_name, 0);
-    if (fd == -1) {
-        ZF_LOGE("Error: Unable to find kernel image \'%s\'", kernel_name);
-        return NULL;
-    }
-
-    size_t len = read(fd, &maybe_elf, sizeof(maybe_elf));
-    if (len != sizeof(maybe_elf)) {
-        ZF_LOGE("Could not read len. File is likely corrupt");
-        close(fd);
-        return NULL;
-    }
-
-    /* Determine the load address */
-    enum img_type ret_file_type = image_get_type(&maybe_elf);
-    if (file_type != ret_file_type) {
-        ZF_LOGE("file: %s is an invalid file type: %d", kernel_name, ret_file_type);
-        close(fd);
-        return NULL;
-    }
-    switch (ret_file_type) {
-    case IMG_BIN:
-        if (config_set(CONFIG_PLAT_TX1) || config_set(CONFIG_PLAT_TX2) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT)) {
-            /* This is likely an aarch64/aarch32 linux difference */
-            load_addr = linux_ram_base + 0x80000;
-        } else {
-            load_addr = linux_ram_base + 0x8000;
-        }
-        break;
-    case IMG_ZIMAGE:
-        load_addr = zImage_get_load_address(&maybe_elf, linux_ram_base);
-        break;
-    case IMG_DTB:
-        load_addr = dtb_addr;
-        break;
-    case IMG_INITRD:
-        load_addr = initrd_addr;
-        break;
-    default:
-        ZF_LOGE("Error: Unknown Linux image format for \'%s\'", kernel_name);
-        close(fd);
-        return NULL;
-    }
-
-    int error = lseek(fd, 0, SEEK_SET);
-    if (error) {
-        ZF_LOGE("Could not fseek");
-        close(fd);
-        return NULL;
-    }
-
-    char buf[PAGE_SIZE_4K] = {0};
-    for (size_t offset = 0; len != 0; offset += len) {
-        /* Load the image */
-        len = read(fd, buf, sizeof(buf));
-
-        error = maybe_create_frame_at(vm, load_addr + offset);
-        if (error) {
-            ZF_LOGE("Error: Failed to create frame for loading \'%s\'", kernel_name);
-            close(fd);
-            return NULL;
-        }
-
-        error = vm_ram_touch(vm, load_addr + offset, len, guest_write_address, (void *)buf);
-        if (error) {
-            ZF_LOGE("Error: Failed to load \'%s\'", kernel_name);
-            close(fd);
-            return NULL;
-        }
-    }
-    close(fd);
-    return (void *)load_addr;
-}
-
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
     void *entry;
@@ -808,21 +680,28 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         return -1;
     }
     /* Load kernel */
-    entry = install_vm_module(vm, kernel_name, IMG_BIN);
-    if (!entry) {
+    guest_kernel_image_t kernel_image_info;
+    err = vm_load_guest_kernel(vm, kernel_name, linux_ram_base, 0, &kernel_image_info);
+    entry = (void *)kernel_image_info.kernel_image.load_paddr;
+    if (!entry || err) {
         return -1;
     }
+
     /* Load device tree */
-    dtb = install_vm_module(vm, dtb_name, IMG_DTB);
-    if (!dtb) {
+    guest_image_t dtb_image;
+    err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
+    dtb = (void *)dtb_image.load_paddr;
+    if (!dtb || err) {
         return -1;
     }
 
     /* Attempt to load initrd if provided */
     if (config_set(CONFIG_VM_INITRD_FILE)) {
-        void *initrd = install_vm_module(vm, initrd_name, IMG_INITRD);
-        if (!initrd) {
-            ZF_LOGE("No external initrd provided (will continue booting)");
+        guest_image_t initrd_image;
+        err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
+        void *initrd = (void *)initrd_image.load_paddr;
+        if (!initrd | err) {
+            return -1;
         }
     }
 
