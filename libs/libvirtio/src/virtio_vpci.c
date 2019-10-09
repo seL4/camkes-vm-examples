@@ -10,8 +10,8 @@
  * @TAG(DATA61_BSD)
  */
 
-#include <sel4vmmcore/drivers/virtio.h>
-#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+#include <sel4vmmplatsupport/drivers/virtio.h>
+#include <sel4vmmplatsupport/drivers/virtio_net.h>
 
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/guest_vcpu_fault.h>

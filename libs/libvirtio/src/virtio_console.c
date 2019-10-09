@@ -15,7 +15,7 @@
 #include <string.h>
 #include <autoconf.h>
 
-#include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
+#include <sel4vmmplatsupport/drivers/virtio_con.h>
 #include <sel4vmmplatsupport/device.h>
 #include <sel4vmmplatsupport/vpci.h>
 

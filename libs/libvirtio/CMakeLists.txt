@@ -22,4 +22,4 @@ add_library(virtio STATIC EXCLUDE_FROM_ALL ${sources})
 
 target_include_directories(virtio PUBLIC include plat_include/${KernelPlatform})
 
-target_link_libraries(virtio muslc sel4 sel4camkes sel4vm sel4vmmcore sel4vmmplatsupport sel4_autoconf)
+target_link_libraries(virtio muslc sel4 sel4camkes sel4vm sel4vmmplatsupport sel4_autoconf)

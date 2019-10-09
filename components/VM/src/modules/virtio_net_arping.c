@@ -20,7 +20,7 @@
 #include <camkes.h>
 #include <camkes/dataport.h>
 
-#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+#include <sel4vmmplatsupport/drivers/virtio_net.h>
 #include <virtio/virtio_net.h>
 
 #include <netinet/in.h>

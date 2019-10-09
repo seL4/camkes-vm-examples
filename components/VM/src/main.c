@@ -44,12 +44,12 @@
 #include <sel4vm/vm.h>
 #include <sel4vm/devices/vgic.h>
 #include <sel4vm/devices/vram.h>
-#include <sel4vmmcore/drivers/virtio_console/virtio_con.h>
+#include <sel4vmmplatsupport/drivers/virtio_con.h>
 
 #include <sel4vmmplatsupport/vusb.h>
 #include <sel4vmmplatsupport/vpci.h>
 #include <sel4vmmplatsupport/guest_image.h>
-#include <sel4pci/pci_helper.h>
+#include <sel4vmmplatsupport/drivers/pci_helper.h>
 
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>

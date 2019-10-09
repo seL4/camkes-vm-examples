@@ -10,7 +10,7 @@
  * @TAG(DATA61_BSD)
  */
 
-#include <sel4vmmcore/drivers/virtio_net/virtio_net.h>
+#include <sel4vmmplatsupport/drivers/virtio_net.h>
 
 typedef struct virtio_net_callbacks {
     int (*tx_callback)(char *data, size_t length, virtio_net_t *virtio_net);
