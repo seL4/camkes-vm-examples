@@ -739,7 +739,7 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
         vusb_notify();
 #endif
     } else if (badge == VIRTIO_NET_BADGE) {
-        virtio_net_notify(&vm);
+        virtio_net_notify(vm);
     } else if (badge == SERIAL_BADGE) {
         handle_serial_console();
     } else {
