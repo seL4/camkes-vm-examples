@@ -25,7 +25,7 @@ irq_callback_fn_t get_custom_irq_handler(ps_irq_t irq) WEAK;
 struct irq_token {
     vm_t *vm;
     ps_irq_t irq;
-    virq_handle_t virq;
+    int virq;
     ps_irq_acknowledge_fn_t acknowledge_fn;
     void *ack_data;
 };

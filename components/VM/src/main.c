@@ -40,6 +40,7 @@
 #include <sel4vm/boot.h>
 #include <sel4vm/guest_ram.h>
 #include <sel4vm/guest_iospace.h>
+#include <sel4vm/guest_irq_controller.h>
 
 #include <sel4vm/vm.h>
 #include <sel4vm/devices/vgic.h>
@@ -534,7 +535,7 @@ static void restart_event(void *arg)
 }
 
 
-static void do_irq_server_ack(void *token)
+static void do_irq_server_ack(vm_t *vm, int irq, void *token)
 {
     assert(token);
     irq_token_t irq_token = token;
@@ -560,7 +561,7 @@ static void irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void
     token->acknowledge_fn = acknowledge_fn;
     token->ack_data = ack_data;
     int err;
-    err = vm_inject_IRQ(token->virq);
+    err = vm_inject_irq(token->vm, token->virq);
     assert(!err);
 }
 
@@ -580,7 +581,7 @@ int install_linux_devices(vm_t *vm)
         err = vm_install_vpci(vm, io_ports, pci);
         assert(!err);
     }
-    err = vm_install_vgic(vm);
+    err = vm_create_default_irq_controller(vm);
     assert(!err);
     if (config_set(CONFIG_PLAT_EXYNOS5) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT) || config_set(CONFIG_PLAT_TX2)) {
         err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size, true);
@@ -620,12 +621,12 @@ static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
         return -1;
     }
 
-    virq = vm_virq_new(vm, irq.irq.number, &do_irq_server_ack, token);
-    if (virq == NULL) {
+    int err = vm_register_irq(vm, irq.irq.number, &do_irq_server_ack, token);
+    if (err == -1) {
         return -1;
     }
 
-    token->virq = virq;
+    token->virq = irq.irq.number;
     token->irq = irq;
     token->vm = vm;
 

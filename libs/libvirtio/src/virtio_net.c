@@ -22,6 +22,8 @@
 #include <vka/capops.h>
 #include <utils/util.h>
 
+#include <sel4vm/guest_irq_controller.h>
+
 #include <sel4vmmplatsupport/drivers/virtio_net.h>
 #include <sel4vmmplatsupport/device.h>
 #include <sel4vmmplatsupport/vpci.h>
@@ -35,7 +37,7 @@
 typedef struct virtio_net_cookie {
     virtio_net_t *virtio_net;
     virtio_net_callbacks_t callbacks;
-    virq_handle_t virtio_net_irq_handle;
+    vm_t *vm;
 } virtio_net_cookie_t;
 
 /* Maximum transmission unit for Ethernet interface */
@@ -65,7 +67,11 @@ static void emul_raw_handle_irq(struct eth_driver *driver, int irq)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    vm_inject_IRQ(virtio_cookie->virtio_net_irq_handle);
+    int err = vm_inject_irq(virtio_cookie->vm, VIRTIO_NET_PLAT_INTERRUPT_LINE);
+    if (err) {
+        ZF_LOGE("Failed to inject irq");
+        return;
+    }
     if (virtio_cookie->callbacks.irq_callback) {
         virtio_cookie->callbacks.irq_callback(irq, virtio_cookie->virtio_net);
     }
@@ -122,7 +128,7 @@ static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mt
     *mtu = MTU;
 }
 
-static void virtio_net_ack(void *token) {}
+static void virtio_net_ack(vm_t *vm, int irq, void *token) {}
 
 virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
                               vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
@@ -154,7 +160,8 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
         return NULL;
     }
     driver_cookie->virtio_net = virtio_net;
-    driver_cookie->virtio_net_irq_handle = vm_virq_new(vm, VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
+    driver_cookie->vm = vm;
+    err =  vm_register_irq(vm, VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
     if (callbacks) {
         driver_cookie->callbacks.tx_callback = callbacks->tx_callback;
         driver_cookie->callbacks.irq_callback = callbacks->irq_callback;
