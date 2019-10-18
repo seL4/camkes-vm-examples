@@ -30,6 +30,7 @@
 #include <sel4vmmplatsupport/device_utils.h>
 #include <sel4vmmplatsupport/plat/usb.h>
 #include <sel4vmmplatsupport/plat/devices.h>
+#include <sel4vmmplatsupport/guest_reboot.h>
 
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,
@@ -50,15 +51,14 @@ static const struct device *linux_ram_devices[] = {
 #endif /* CONFIG_TK1_INSECURE */
 };
 
-
+extern reboot_hooks_list_t reboot_hooks_list;
 
 static void plat_init_module(vm_t *vm, void *cookie)
 {
     int err;
     int i;
 
-
-    err = vm_install_tk1_usb_passthrough_device(vm);
+    err = vm_install_tk1_usb_passthrough_device(vm, &reboot_hooks_list);
     assert(!err);
 
     /* Install pass through devices */

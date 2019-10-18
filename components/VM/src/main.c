@@ -52,6 +52,7 @@
 #include <sel4vmmplatsupport/guest_image.h>
 #include <sel4vmmplatsupport/drivers/pci_helper.h>
 #include <sel4vmmplatsupport/guest_boot_init.h>
+#include <sel4vmmplatsupport/guest_reboot.h>
 
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
@@ -93,6 +94,7 @@ irq_server_t *_irq_server;
 
 vmm_pci_space_t *pci;
 vmm_io_port_list_t *io_ports;
+reboot_hooks_list_t reboot_hooks_list;
 
 struct ps_io_ops _io_ops;
 
@@ -846,7 +848,7 @@ int main_continued(void)
 
     /* setup for restart with a setjmp */
     while (setjmp(restart_jmp_buf) != 0) {
-        err = vm_process_reboot_callbacks(&vm);
+        err = vmm_process_reboot_callbacks(&vm, &reboot_hooks_list);
         if (err) {
             ZF_LOGF("vm_process_reboot_callbacks failed: %d", err);
         }
