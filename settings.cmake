@@ -21,7 +21,9 @@ list(
         ${project_dir}/tools/seL4/elfloader-tool/
         ${project_modules}
 )
-
+set(SEL4_CONFIG_DEFAULT_ADVANCED ON)
+set(CAMKES_CONFIG_DEFAULT_ADVANCED ON)
+mark_as_advanced(CMAKE_INSTALL_PREFIX)
 include(application_settings)
 
 include(${CMAKE_CURRENT_LIST_DIR}/easy-settings.cmake)
