@@ -77,6 +77,28 @@ elseif("${KernelARMPlatform}" STREQUAL "tx2")
     AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/tx2/linux")
     AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/tx2/linux-dtb")
 
+elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+    find_package(camkes-vm-linux REQUIRED)
+    include(${CAMKES_VM_LINUX_HELPERS_PATH})
+    set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
+
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/qemu-arm-virt/linux")
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/qemu-arm-virt/rootfs.cpio.gz")
+    AddToFileServer("linux-initrd" ${rootfs_file})
+    # Updated dtb based on initrd
+    UpdateDtbFromInitrd(
+        "${CAMKES_VM_IMAGES_DIR}/qemu-arm-virt/linux-dtb"
+        ${rootfs_file}
+        "0x4d700000"
+        dtb_gen_target
+        output_dtb_location
+    )
+    AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+    include(simulation)
+    set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
+    if(SIMULATION)
+        GenerateSimulateScript()
+    endif()
 endif()
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)

@@ -715,7 +715,7 @@ void *install_vm_module(vm_t *vm, const char *kernel_name, enum img_type file_ty
     }
     switch (ret_file_type) {
     case IMG_BIN:
-        if (config_set(CONFIG_PLAT_TX1) || config_set(CONFIG_PLAT_TX2)) {
+        if (config_set(CONFIG_PLAT_TX1) || config_set(CONFIG_PLAT_TX2) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT)) {
             /* This is likely an aarch64/aarch32 linux difference */
             load_addr = linux_ram_base + 0x80000;
         } else {
@@ -867,7 +867,7 @@ int main_continued(void)
     }
 #endif /* CONFIG_ARM_SMMU */
 
-#if defined(CONFIG_PLAT_EXYNOS5) || defined(CONFIG_PLAT_TX2)
+#if defined(CONFIG_PLAT_EXYNOS5) || defined(CONFIG_PLAT_QEMU_ARM_VIRT)  || defined(CONFIG_PLAT_TX2)
     /* HACK: See if we have a "RAM device" for 1-1 mappings */
     map_unity_ram(&vm);
 #endif /* CONFIG_PLAT_EXYNOS5410 || CONFIG_PLAT_TX2 */

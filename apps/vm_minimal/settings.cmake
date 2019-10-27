@@ -10,7 +10,7 @@
 # @TAG(DATA61_BSD)
 #
 
-set(supported "tk1;tx1;tx2;exynos5422")
+set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -24,5 +24,11 @@ set(LibUSB OFF CACHE BOOL "" FORCE)
 if(${PLATFORM} STREQUAL "exynos5422")
     set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioNet ON CACHE BOOL "" FORCE)
+    set(VmInitRdFile ON CACHE BOOL "" FORCE)
+endif()
+if(${PLATFORM} STREQUAL "qemu-arm-virt")
+    # force cpu
+    set(QEMU_MEMORY "2048")
+    set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
 endif()
