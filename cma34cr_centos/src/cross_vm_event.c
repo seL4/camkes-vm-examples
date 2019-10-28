@@ -17,7 +17,7 @@
 #include <cross_vm_consumes_event.h>
 #include <cross_vm_emits_event.h>
 #include <camkes_mutex.h>
-#include <vmm/vmm.h>
+#include <sel4vm/guest_vm.h>
 #include <vspace/vspace.h>
 
 // events to forward to guest
@@ -32,17 +32,20 @@ static camkes_emit_fn emitted_events[] = {
 };
 
 // mutex to protect shared event context
-static camkes_mutex_t cross_vm_event_mutex = (camkes_mutex_t) {
+static camkes_mutex_t cross_vm_event_mutex = (camkes_mutex_t)
+{
     .lock = cross_vm_event_mutex_lock,
     .unlock = cross_vm_event_mutex_unlock,
 };
 
-int cross_vm_consumes_events_init(vmm_t *vmm, vspace_t *vspace, seL4_Word irq_badge) {
-    return cross_vm_consumes_events_init_common(vmm, vspace, &cross_vm_event_mutex,
-            consumed_events, sizeof(consumed_events)/sizeof(consumed_events[0]), irq_badge);
+int cross_vm_consumes_events_init(vm_t *vm, vspace_t *vspace, seL4_CPtr irq_notification)
+{
+    return cross_vm_consumes_events_init_common(vm, vspace, &cross_vm_event_mutex,
+                                                consumed_events, sizeof(consumed_events) / sizeof(consumed_events[0]), irq_notification);
 }
 
-int cross_vm_emits_events_init(vmm_t *vmm) {
-    return cross_vm_emits_events_init_common(vmm, emitted_events,
-            sizeof(emitted_events)/sizeof(emitted_events[0]));
+int cross_vm_emits_events_init(vm_t *vm)
+{
+    return cross_vm_emits_events_init_common(vm, emitted_events,
+                                             sizeof(emitted_events) / sizeof(emitted_events[0]));
 }

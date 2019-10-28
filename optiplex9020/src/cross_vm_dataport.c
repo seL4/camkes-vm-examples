@@ -13,18 +13,20 @@
 #include <camkes.h>
 #include <dataport_caps.h>
 #include <cross_vm_dataport.h>
-#include <vmm/vmm.h>
+#include <sel4vm/guest_vm.h>
+#include <sel4vmmplatsupport/drivers/pci_helper.h>
+#include <pci/helper.h>
 
 // these are defined in the dataport's glue code
 extern dataport_caps_handle_t dp1_handle;
 extern dataport_caps_handle_t dp2_handle;
 
 static dataport_caps_handle_t *dataports[] = {
-    NULL, // entry 0 is NULL so ids correspond with indices
     &dp1_handle,
     &dp2_handle,
 };
 
-int cross_vm_dataports_init(vmm_t *vmm) {
-    return cross_vm_dataports_init_common(vmm, dataports, sizeof(dataports)/sizeof(dataports[0]));
+int cross_vm_dataports_init(vm_t *vm, vmm_pci_space_t *pci) {
+    return cross_vm_dataports_init_common(vm, dataports, sizeof(dataports)/sizeof(dataports[0]),
+            pci);
 }
