@@ -12,6 +12,7 @@
 
 cmake_minimum_required(VERSION 3.8.2)
 include(settings.cmake)
+include(simulation)
 
 project(camkes-vm-examples C ASM)
 
