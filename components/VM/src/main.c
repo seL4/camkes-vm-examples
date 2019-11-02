@@ -879,13 +879,11 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    vm_init_arm_config_t vm_arch_params;
-    vm_arch_params.vmm_endpoint = _fault_endpoint;
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
-            &_io_ops, VM_NAME, (void *)&vm_arch_params);
+            &_io_ops, _fault_endpoint, VM_NAME);
     assert(!err);
     vm_vcpu_t *vm_vcpu;
-    vm_vcpu = vm_create_vcpu(&vm, VM_PRIO, NULL);
+    vm_vcpu = vm_create_vcpu(&vm, VM_PRIO);
     assert(vm_vcpu);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
