@@ -16,7 +16,7 @@
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/guest_vcpu_fault.h>
 #include <sel4vmmplatsupport/device.h>
-#include <sel4vmmplatsupport/vpci.h>
+#include <sel4vmmplatsupport/arch/vpci.h>
 
 #include <virtio/virtio.h>
 

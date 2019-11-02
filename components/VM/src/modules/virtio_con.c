@@ -23,7 +23,7 @@
 
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 #include <sel4vmmplatsupport/device.h>
-#include <sel4vmmplatsupport/vpci.h>
+#include <sel4vmmplatsupport/arch/vpci.h>
 
 #include <platsupport/serial.h>
 #include <virtio/virtio_console.h>

@@ -47,12 +47,12 @@
 #include <sel4vm/devices/vram.h>
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 
-#include <sel4vmmplatsupport/vusb.h>
-#include <sel4vmmplatsupport/vpci.h>
+#include <sel4vmmplatsupport/arch/vusb.h>
+#include <sel4vmmplatsupport/arch/vpci.h>
 #include <sel4vmmplatsupport/guest_image.h>
 #include <sel4vmmplatsupport/drivers/pci_helper.h>
-#include <sel4vmmplatsupport/guest_boot_init.h>
-#include <sel4vmmplatsupport/guest_reboot.h>
+#include <sel4vmmplatsupport/arch/guest_boot_init.h>
+#include <sel4vmmplatsupport/arch/guest_reboot.h>
 
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>

@@ -29,7 +29,7 @@
 #include <sel4vmmplatsupport/device_utils.h>
 #include <sel4vmmplatsupport/plat/usb.h>
 #include <sel4vmmplatsupport/plat/devices.h>
-#include <sel4vmmplatsupport/guest_reboot.h>
+#include <sel4vmmplatsupport/arch/guest_reboot.h>
 
 static const struct device *linux_pt_devices[] = {
     &dev_usb1,

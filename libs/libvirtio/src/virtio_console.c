@@ -17,7 +17,7 @@
 
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 #include <sel4vmmplatsupport/device.h>
-#include <sel4vmmplatsupport/vpci.h>
+#include <sel4vmmplatsupport/arch/vpci.h>
 
 #include <virtio/virtio.h>
 #include <virtio/virtio_plat.h>
