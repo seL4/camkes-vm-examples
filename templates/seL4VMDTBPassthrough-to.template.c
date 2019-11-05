@@ -44,13 +44,9 @@
     /*- for (paddr, size) in reg_set -*/
         /*- set paddr = macros.ROUND_DOWN(paddr, 4096) -*/
         /*- set size = macros.ROUND_UP(size, 4096) -*/
-        /*- set page_size = macros.get_page_size(size, options.architecture) -*/
-        /*- set page_size_bits = int(math.log(page_size, 2)) -*/
-        /*- set num_pages = int(size/page_size) -*/
-        /*- for i in range(0, num_pages) -*/
-            /*- set alloc_paddr = paddr + page_size*i -*/
-            /*- set cap = alloc('dtb_untyped_cap_0x%x' % alloc_paddr, seL4_UntypedObject, paddr = alloc_paddr, size_bits = page_size_bits) -*/
-            /*- do untyped_dtb_mmio.append( (alloc_paddr, page_size_bits, cap) ) -*/
+        /*- for (paddr_alloc, size_bits) in macros.get_untypeds_from_range(paddr, size) -*/
+            /*- set cap = alloc('dtb_untyped_cap_0x%x' % paddr_alloc, seL4_UntypedObject, paddr = paddr_alloc, size_bits = size_bits) -*/
+            /*- do untyped_dtb_mmio.append( (paddr_alloc, size_bits, cap) ) -*/
         /*- endfor -*/
     /*- endfor -*/
 
