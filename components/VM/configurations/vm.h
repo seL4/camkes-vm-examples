@@ -28,6 +28,62 @@
 #define __CALL_DISP_FROM(f, b,...) __CALL_CONCAT(b,__CALL_NARGS_FROM(__VA_ARGS__))(f, __VA_ARGS__)
 #define __CALL(f, args...) __CALL_DISP_FROM(f, __CALL, args)
 
+#if TK1DEVICEFWD
+#define DEF_TK1DEVICEFWD \
+    uses gen_fwd_inf uartfwd; \
+    uses gen_fwd_inf clkcarfwd; \
+
+#else
+#define DEF_TK1DEVICEFWD
+#endif
+
+#if KERNELARMPLATFORM_EXYNOS5410
+#define DEF_KERNELARMPLATFORM_EXYNOS5410 \
+    uses pwm_inf pwm; \
+    dataport Buf cmu_cpu; \
+    dataport Buf cmu_top; \
+    dataport Buf gpio_right; \
+    dataport Buf cmu_core; \
+
+#else
+#define DEF_KERNELARMPLATFORM_EXYNOS5410
+#endif
+
+#define VM_INIT_DEF() \
+    control; \
+    uses FileServerInterface fs; \
+    DEF_TK1DEVICEFWD \
+    DEF_KERNELARMPLATFORM_EXYNOS5410 \
+    maybe consumes restart restart_event; \
+    has semaphore vm_sem; \
+    maybe uses PutChar putchar; \
+    maybe uses PutChar guest_putchar; \
+    maybe uses GetChar serial_getchar; \
+    maybe uses VirtQueueDev recv; \
+    maybe uses VirtQueueDrv send; \
+    consumes HaveNotification notification_ready; \
+    emits HaveNotification notification_ready_connector; \
+    maybe uses VMDTBPassthrough dtb_self; \
+    provides VMDTBPassthrough dtb; \
+    attribute int base_prio; \
+    attribute int num_extra_frame_caps; \
+    attribute int extra_frame_map_address; \
+    attribute { \
+        string linux_ram_base; \
+        string linux_ram_paddr_base; \
+        string linux_ram_size; \
+        string linux_ram_offset; \
+        string dtb_addr; \
+        string initrd_max_size; \
+        string initrd_addr; \
+    } linux_address_config; \
+    attribute { \
+        string linux_name = "linux"; \
+        string dtb_name = "linux-dtb"; \
+        string initrd_name = "linux-initrd"; \
+    } linux_image_config; \
+
+
 #define VM_COMPONENT_DEF(num) \
     component VM vm##num; \
 
