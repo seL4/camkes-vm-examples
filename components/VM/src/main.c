@@ -42,7 +42,6 @@
 #include <sel4vm/guest_iospace.h>
 #include <sel4vm/guest_irq_controller.h>
 
-#include <sel4vm/vm.h>
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 
 #include <sel4vmmplatsupport/arch/vusb.h>
@@ -608,7 +607,6 @@ int install_linux_devices(vm_t *vm)
 static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
 {
     ps_irq_t irq = { .type = PS_INTERRUPT, .irq = { .number = irq_num }};
-    virq_handle_t virq;
     irq_callback_fn_t handler = NULL;
     if (get_custom_irq_handler) {
         handler = get_custom_irq_handler(irq);
