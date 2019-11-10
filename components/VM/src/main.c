@@ -43,7 +43,6 @@
 #include <sel4vm/guest_irq_controller.h>
 
 #include <sel4vm/vm.h>
-#include <sel4vm/devices/vram.h>
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 
 #include <sel4vmmplatsupport/arch/vusb.h>
@@ -586,9 +585,9 @@ int install_linux_devices(vm_t *vm)
     err = vm_create_default_irq_controller(vm);
     assert(!err);
     if (config_set(CONFIG_PLAT_EXYNOS5) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT) || config_set(CONFIG_PLAT_TX2)) {
-        err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size, true);
+        err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, true);
     } else {
-        err = vm_install_ram_range(vm, linux_ram_base, linux_ram_size, false);
+        err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, false);
     }
     assert(!err);
 
