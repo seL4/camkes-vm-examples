@@ -13,7 +13,8 @@
 #include <camkes.h>
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/guest_memory.h>
-#include <sel4vm/guest_memory_util.h>
+#include <sel4vm/guest_memory_helpers.h>
+#include <sel4vmmplatsupport/guest_memory_util.h>
 #include <vmlinux.h>
 extern int start_extra_frame_caps;
 
