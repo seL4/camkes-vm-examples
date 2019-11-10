@@ -43,7 +43,6 @@
 #include <sel4vm/guest_irq_controller.h>
 
 #include <sel4vm/vm.h>
-#include <sel4vm/devices/vgic.h>
 #include <sel4vm/devices/vram.h>
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 
