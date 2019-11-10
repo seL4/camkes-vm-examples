@@ -17,6 +17,14 @@ project(VM C)
 set(configure_string "")
 
 # ARM VM Configuration Options
+config_option(
+    VmOnDemandDeviceInstall
+    VM_ONDEMAND_DEVICE_INSTALL
+    "Allow the VMM to install arbitrary devices into the VM as they are accessed."
+    DEFAULT
+    ON
+)
+
 config_option(VmEmmc2NoDMA VM_EMMC2_NODMA "SD access control to prevent DMA \
     Installs SD card into the VM with read only access. Write access is \
     trapped and emulated to ensure that DMA is not used." DEFAULT OFF)

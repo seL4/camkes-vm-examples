@@ -815,7 +815,7 @@ handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr,
 
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
         uintptr_t paddr, size_t len, void *cookie) {
-#ifdef CONFIG_ONDEMAND_DEVICE_INSTALL
+#ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
     uintptr_t addr = paddr & ~0xfff;
     int mapped;
     vm_memory_reservation_t *reservation;
