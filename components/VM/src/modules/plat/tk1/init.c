@@ -20,8 +20,6 @@
 #include <camkes.h>
 
 #include <sel4vm/guest_vm.h>
-#include <sel4vm/devices/vgic.h>
-#include <sel4vm/devices/vram.h>
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 
