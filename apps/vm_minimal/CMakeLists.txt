@@ -38,6 +38,7 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
             bash -c
             "which dtc && dtc -I dts -O dtb ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src} > linux/linux-dtb"
         VERBATIM
+        DEPENDS ${CMAKE_CURRENT_LIST_DIR}/../../linux/${device_tree_src}
     )
     # Create custom target for setting the dtb
     add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
