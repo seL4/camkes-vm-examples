@@ -63,7 +63,6 @@ assembly {
                        {"path": "/ptm@9b40000"},
                        {"path": "/tegra-hsp@b150000"},
                        {"path": "/tegra-hsp@c150000"},
-                       {"path": "/aon@c160000"},
                        {"path": "/gpio@c2f0000"},
                        {"path": "/pmc@c360000"},
                        {"path": "/pmc@c370000"},
