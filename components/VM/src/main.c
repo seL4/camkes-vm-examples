@@ -50,6 +50,7 @@
 #include <sel4vmmplatsupport/drivers/pci_helper.h>
 #include <sel4vmmplatsupport/arch/guest_boot_init.h>
 #include <sel4vmmplatsupport/arch/guest_reboot.h>
+#include <sel4vmmplatsupport/arch/guest_vcpu_fault.h>
 
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
@@ -881,6 +882,7 @@ int main_continued(void)
     vm_vcpu_t *vm_vcpu;
     vm_vcpu = vm_create_vcpu(&vm, VM_PRIO);
     assert(vm_vcpu);
+    err = vm_register_unhandled_vcpu_fault_callback(vm_vcpu, vmm_handle_arm_vcpu_exception, NULL);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
     err = vm_register_notification_callback(&vm, handle_async_event, NULL);
