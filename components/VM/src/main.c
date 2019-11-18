@@ -700,7 +700,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         guest_image_t initrd_image;
         err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
         void *initrd = (void *)initrd_image.load_paddr;
-        if (!initrd | err) {
+        if (!initrd || err) {
             return -1;
         }
     }
