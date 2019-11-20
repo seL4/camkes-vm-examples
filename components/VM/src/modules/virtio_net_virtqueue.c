@@ -32,7 +32,7 @@ virtqueue_driver_t send_virtqueue;
 
 static int tx_virtqueue_forward(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
-    volatile void *buf = NULL;
+    void *buf = NULL;
     int err = camkes_virtqueue_buffer_alloc(&send_virtqueue, &buf, length);
     if (err) {
         return -1;
@@ -67,7 +67,7 @@ static void virtio_net_notify_free_send(void)
 static int virtio_net_notify_handle_recv(void)
 {
 
-    volatile void *buf = NULL;
+    void *buf = NULL;
     size_t buf_size = 0;
     vq_flags_t flag;
     virtqueue_ring_object_t handle;
