@@ -17,7 +17,7 @@
 #define VM_RAM_SIZE 0x8000000
 #define VM_RAM_OFFSET 0
 #define VM_DTB_ADDR 0xF2000000
-#define VM_INITRD_ADDR 0xF0700000
+#define VM_INITRD_ADDR 0xF7000000
 
 assembly {
 	composition {}
