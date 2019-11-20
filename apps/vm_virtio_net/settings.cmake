@@ -10,7 +10,7 @@
 # @TAG(DATA61_BSD)
 #
 
-set(supported "exynos5422")
+set(supported "exynos5422;tx2")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")

@@ -18,12 +18,21 @@ include(../../arm_vm_helpers.cmake)
 find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
-# Create our CPP Flags based on ARM VM config variables
-set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
+if("${KernelARMPlatform}" STREQUAL "exynos5422")
+    # Create our CPP Flags based on ARM VM config variables
+    set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
+    set(rootfs_address "0x4d700000")
 
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
+elseif("${KernelARMPlatform}" STREQUAL "tx2")
+    set(cpp_flags "-DKERNELARMPLATFORM_TX2")
+    set(rootfs_address "0xf7000000")
+
+endif()
+
+set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-dtb")
+set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
+
 # Generate overlayed rootfs
-set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 AddFileToOverlayDir(
     "interfaces"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/network_interfaces/interfaces
@@ -56,18 +65,21 @@ AddOverlayDirToRootfs(
     rootfs_target
     GZIP
 )
-AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+
 # Updated dtb based on generated initrd
 UpdateDtbFromInitrd(
-    "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb"
+    ${dtb_file}
     ${output_overlayed_rootfs_location}
-    "0x4d700000"
+    ${rootfs_address}
     dtb_gen_target
     output_dtb_location
     DEPENDS
     rootfs_target
 )
+
 AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
 
 AddCamkesCPPFlag(
     cpp_flags
@@ -82,7 +94,7 @@ AddCamkesCPPFlag(
 
 DefineCAmkESVMFileServer()
 
-CAmkESAddImportPath(exynos5422)
+CAmkESAddImportPath(${KernelARMPlatform})
 
 # Declare root server
 if(VIRTIO_NET_PING)
