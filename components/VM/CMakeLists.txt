@@ -40,7 +40,7 @@ config_option(
     VM_PCI_SUPPORT
     "Enable virtual pci device support"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2"
     DEFAULT
     OFF
 )
@@ -50,7 +50,7 @@ config_option(
     VM_VIRTIO_NET_ARPING
     "Enable virtio net arping module"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2;VmPCISupport"
     DEFAULT
     OFF
 )
@@ -60,7 +60,7 @@ config_option(
     VM_VIRTIO_NET_VIRTQUEUE
     "Enable virtio net virtqueue forwarding module"
     DEPENDS
-    "KernelPlatformExynos5410 OR KernelPlatformExynos5422;VmPCISupport"
+    "KernelPlatformExynos5410 OR KernelPlatformExynos5422 OR KernelPlatformTx2;VmPCISupport"
     DEFAULT
     OFF
 )
