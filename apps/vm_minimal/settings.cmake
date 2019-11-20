@@ -21,7 +21,7 @@ if(${PLATFORM} STREQUAL "tk1")
 endif()
 
 set(LibUSB OFF CACHE BOOL "" FORCE)
-if(${PLATFORM} STREQUAL "exynos5422")
+if(${PLATFORM} STREQUAL "exynos5422" OR ${PLATFORM} STREQUAL "tx2")
     set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioNet ON CACHE BOOL "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
