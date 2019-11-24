@@ -14,8 +14,8 @@
 * seL4VMDTBPassthrough
 */
 connector seL4VMDTBPassthrough {
-    from Procedure template "seL4VMDTBPassthrough-from.template.c" with 0 threads;
-    to Procedure template "seL4VMDTBPassthrough-to.template.c";
+    from Procedure with 0 threads;
+    to Procedure;
 
     attribute string isabelle_connector_spec = "\<lparr>
         connector_type = NativeConnector,

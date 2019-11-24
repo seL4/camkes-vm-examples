@@ -30,6 +30,13 @@ macro(camkes_arm_vm_setup_arm_vm_environment)
     CAmkESAddImportPath(${CAMKES_ARM_VM_DIR}/components camkes-arm-vm/components)
     CAmkESAddImportPath(${CAMKES_ARM_VM_DIR}/interfaces camkes-arm-vm/interfaces)
     CAmkESAddTemplatesPath(${CAMKES_ARM_VM_DIR}/templates camkes-arm-vm/templates)
+    DeclareCAmkESConnector(
+        seL4VMDTBPassthrough
+        FROM
+        seL4VMDTBPassthrough-from.template.c
+        TO
+        seL4VMDTBPassthrough-to.template.c
+    )
 
     # Add libraries
     add_subdirectory(${CAMKES_ARM_VM_DIR}/libs/libvirtio camkes-arm-vm/libs/libvirtio)
