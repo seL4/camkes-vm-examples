@@ -38,14 +38,14 @@ assembly {
         vm0.kernel_relocs = "bzimage";
         vm0.initrd_image = "rootfs.cpio";
         vm0.iospace_domain = 0x0f;
-        vm0_config.pci_devices_iospace = 1;
+        vm0.pci_devices_iospace = 1;
 
         // For VESA vframebuffer
         vm0.untyped_mmios = ["0xb0000000:28"];
         vm0.simple_extra_bootinfo = ["SEL4_BOOTINFO_HEADER_X86_VBE"];
         vm0.cnode_size_bits = 24;
 
-        vm0_config.pci_devices = [
+        vm0.pci_devices = [
 #ifdef USB1
         {
             "name":"USB1",
@@ -73,7 +73,7 @@ assembly {
             ],
         },
         ];
-        vm0_config.irqs = [
+        vm0.vm_irqs = [
 #ifdef USB1
             {"name":"USB1", "source":0x1c, "level_trig":1, "active_low":1, "dest":16},
 #endif
@@ -84,6 +84,6 @@ assembly {
         // These ranges are RMRR for the IOMMU and so we must exclude the from the guest
         // physical address space as we cannot overwrite the mappings that will already exist
         // in the iommu for them
-        vm0_config.exclude_paddr = [ [0xaae84000, 0x20000], [0xab800000, 0x4200000]];
+        vm0.exclude_paddr = [ [0xaae84000, 0x20000], [0xab800000, 0x4200000]];
     }
 }

@@ -125,13 +125,13 @@ assembly {
         init1.init_topology = [{ "drv" : "vm1.ether_2_send" , "dev" : "vm2.ether_1_recv"}, { "drv" : "vm2.ether_1_send" , "dev" : "vm1.ether_2_recv"},];
 
         /* Initialise vmm devices */
-        vm0_config.init_cons = [
+        vm0.init_cons = [
             VM_CONNECTION_INIT_HANDLER,
         ];
-        vm1_config.init_cons = [
+        vm1.init_cons = [
             VM_CONNECTION_INIT_HANDLER,
         ];
-        vm2_config.init_cons = [
+        vm2.init_cons = [
             VM_CONNECTION_INIT_HANDLER,
         ];
 
@@ -146,7 +146,7 @@ assembly {
         vm0.kernel_relocs = "bzimage";
         vm0.initrd_image = "vm0_rootfs.cpio";
         vm0.iospace_domain = 0x0f;
-        vm0_config.pci_devices_iospace = 1;
+        vm0.pci_devices_iospace = 1;
 
         VM_PER_VM_CONFIG_DEF(1)
         vm1.simple_untyped23_pool = 21;
@@ -158,7 +158,7 @@ assembly {
         vm1.kernel_relocs = "bzimage";
         vm1.initrd_image = "vm1_rootfs.cpio";
         vm1.iospace_domain = 0x10;
-        vm1_config.pci_devices_iospace = 2;
+        vm1.pci_devices_iospace = 2;
 
         VM_PER_VM_CONFIG_DEF(2)
         vm2.simple_untyped23_pool = 21;
@@ -170,7 +170,7 @@ assembly {
         vm2.kernel_relocs = "bzimage";
         vm2.initrd_image = "vm2_rootfs.cpio";
         vm2.iospace_domain = 0x11;
-        vm2_config.pci_devices_iospace = 3;
+        vm2.pci_devices_iospace = 3;
 
         vm2.self_global_endpoint = "vm2";
         vm2.virtqueue_wait_global_endpoint = "vm2";

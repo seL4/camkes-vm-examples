@@ -74,7 +74,7 @@ assembly {
         vm0.kernel_relocs = "bzimage";
         vm0.initrd_image = "rootfs.cpio";
         vm0.iospace_domain = 0x0f;
-        vm0_config.pci_devices_iospace = 1;
+        vm0.pci_devices_iospace = 1;
 
         vm0.dp1_id = 1;
         vm0.dp1_size = STRING_REVERSE_BUFSIZE;
@@ -92,7 +92,7 @@ assembly {
         vm1.kernel_relocs = "bzimage";
         vm1.initrd_image = "rootfs.cpio";
         vm1.iospace_domain = 0x10;
-        vm1_config.pci_devices_iospace = 2;
+        vm1.pci_devices_iospace = 2;
         vm1.affinity = 1;
     }
 }

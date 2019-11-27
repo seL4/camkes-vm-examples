@@ -184,7 +184,7 @@ assembly {
         // Specific configuration
         VM_CONNECTION_CONFIG(init.q, topology_def)
 
-        vm0_config.init_cons = [
+        vm0.init_cons = [
             /* Initialise VirtNet eth0 device in vm0 */
             VM_CONNECTION_INIT_HANDLER,
         ];
