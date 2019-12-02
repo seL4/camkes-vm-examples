@@ -767,7 +767,7 @@ static int alloc_vm_device_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_resul
     frame_result->cptr = frame.capPtr;
     frame_result->rights = seL4_AllRights;
     frame_result->vaddr = addr;
-    frame_result->size_bits = vm->mem.page_size;
+    frame_result->size_bits = seL4_PageBits;
     return 0;
 }
 
@@ -784,7 +784,7 @@ static int alloc_vm_ram_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_result) 
     frame_result->cptr = frame.capPtr;
     frame_result->rights = seL4_AllRights;
     frame_result->vaddr = addr;
-    frame_result->size_bits = vm->mem.page_size;
+    frame_result->size_bits = seL4_PageBits;
     return 0;
 }
 
