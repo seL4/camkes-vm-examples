@@ -16,6 +16,7 @@
 #include <autoconf.h>
 
 #include <sel4vm/guest_irq_controller.h>
+#include <sel4vm/boot.h>
 
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 #include <sel4vmmplatsupport/device.h>
@@ -32,7 +33,7 @@ typedef struct virtio_con_cookie {
     vm_t *vm;
 } virtio_con_cookie_t;
 
-static void virtio_console_ack(vm_t *vm, int irq, void *token) {}
+static void virtio_console_ack(vm_vcpu_t *vcpu, int irq, void *token) {}
 
 static void console_handle_irq(void *cookie)
 {
@@ -41,7 +42,7 @@ static void console_handle_irq(void *cookie)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    int err = vm_inject_irq(virtio_cookie->vm, VIRTIO_CON_PLAT_INTERRUPT_LINE);
+    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_CON_PLAT_INTERRUPT_LINE);
     if (err) {
         ZF_LOGE("Failed to inject irq");
         return;
@@ -78,7 +79,7 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_CON_PLAT_INTERRUPT_LINE, backend);
     console_cookie->virtio_con = virtio_con;
     console_cookie->vm = vm;
-    err =  vm_register_irq(vm, VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
+    err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
     if (err) {
         ZF_LOGE("Failed to register cosnolole irq");
         return NULL;

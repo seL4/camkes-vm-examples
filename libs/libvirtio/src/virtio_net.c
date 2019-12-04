@@ -23,6 +23,7 @@
 #include <utils/util.h>
 
 #include <sel4vm/guest_irq_controller.h>
+#include <sel4vm/boot.h>
 
 #include <sel4vmmplatsupport/drivers/virtio_net.h>
 #include <sel4vmmplatsupport/device.h>
@@ -67,7 +68,7 @@ static void emul_raw_handle_irq(struct eth_driver *driver, int irq)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    int err = vm_inject_irq(virtio_cookie->vm, VIRTIO_NET_PLAT_INTERRUPT_LINE);
+    int err = vm_inject_irq(virtio_cookie->vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE);
     if (err) {
         ZF_LOGE("Failed to inject irq");
         return;
@@ -128,7 +129,7 @@ static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mt
     *mtu = MTU;
 }
 
-static void virtio_net_ack(vm_t *vm, int irq, void *token) {}
+static void virtio_net_ack(vm_vcpu_t *vcpu, int irq, void *token) {}
 
 virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
                               vmm_pci_space_t *pci, vmm_io_port_list_t *io_ports)
@@ -161,7 +162,7 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
     }
     driver_cookie->virtio_net = virtio_net;
     driver_cookie->vm = vm;
-    err =  vm_register_irq(vm, VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
+    err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
     if (callbacks) {
         driver_cookie->callbacks.tx_callback = callbacks->tx_callback;
         driver_cookie->callbacks.irq_callback = callbacks->irq_callback;
