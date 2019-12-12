@@ -28,7 +28,7 @@ set(KernelSupportPCID OFF CACHE BOOL "" FORCE)
 set(LibSel4VMMIgnoreEPTViolation ON CACHE BOOL "" FORCE)
 
 # Define VMM configurations
-set(LibSel4VMMVESAFrameBuffer ON CACHE BOOL "" FORCE)
+set(LibSel4VMMPlatsupportVESAFrameBuffer ON CACHE BOOL "" FORCE)
 
 # Enable LWIP
 set(LibLwip ON CACHE BOOL "" FORCE)

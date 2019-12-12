@@ -24,4 +24,4 @@ set(KernelMultibootGFXModeDepth 0 CACHE STRING "" FORCE)
 set(KernelMultibootGFXModeHeight 0 CACHE STRING "" FORCE)
 
 # Define VMM configurations
-set(LibSel4VMMVESAFrameBuffer ON CACHE BOOL "" FORCE)
+set(LibSel4VMMPlatsupportVESAFrameBuffer ON CACHE BOOL "" FORCE)
