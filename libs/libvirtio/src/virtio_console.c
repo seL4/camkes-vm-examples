@@ -15,6 +15,8 @@
 #include <string.h>
 #include <autoconf.h>
 
+#include <sel4vm/guest_irq_controller.h>
+
 #include <sel4vmmplatsupport/drivers/virtio_con.h>
 #include <sel4vmmplatsupport/device.h>
 #include <sel4vmmplatsupport/arch/vpci.h>
@@ -27,10 +29,10 @@
 
 typedef struct virtio_con_cookie {
     virtio_con_t *virtio_con;
-    virq_handle_t virtio_con_irq_handle;
+    vm_t *vm;
 } virtio_con_cookie_t;
 
-static void virtio_console_ack(void *token) {}
+static void virtio_console_ack(vm_t *vm, int irq, void *token) {}
 
 static void console_handle_irq(void *cookie)
 {
@@ -39,7 +41,11 @@ static void console_handle_irq(void *cookie)
         ZF_LOGE("NULL virtio cookie given to raw irq handler");
         return;
     }
-    vm_inject_IRQ(virtio_cookie->virtio_con_irq_handle);
+    int err = vm_inject_irq(virtio_cookie->vm, VIRTIO_CON_PLAT_INTERRUPT_LINE);
+    if (err) {
+        ZF_LOGE("Failed to inject irq");
+        return;
+    }
 }
 
 virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
@@ -67,11 +73,15 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
         return NULL;
     }
 
-
     backend.console_data = (void *)console_cookie;
     virtio_con = common_make_virtio_con(vm, pci, io_ports, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_CON_PLAT_INTERRUPT_LINE, backend);
     console_cookie->virtio_con = virtio_con;
-    console_cookie->virtio_con_irq_handle = vm_virq_new(vm, VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
+    console_cookie->vm = vm;
+    err =  vm_register_irq(vm, VIRTIO_CON_PLAT_INTERRUPT_LINE, &virtio_console_ack, NULL);
+    if (err) {
+        ZF_LOGE("Failed to register cosnolole irq");
+        return NULL;
+    }
     return virtio_con;
 }
