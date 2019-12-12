@@ -151,6 +151,7 @@ void vusb_notify(void)
 #else /* FEATURE_VUSB */
 
 #include <platsupport/gpio.h>
+#include <platsupport/plat/gpio.h>
 #include <platsupport/mach/pmic.h>
 #include <usb/drivers/usb3503_hub.h>
 

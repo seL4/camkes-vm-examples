@@ -10,7 +10,9 @@
  * @TAG(DATA61_BSD)
  */
 #include <platsupport/mux.h>
+#include <platsupport/plat/mux.h>
 #include <platsupport/gpio.h>
+#include <platsupport/plat/gpio.h>
 #include <platsupport/irq_combiner.h>
 
 #include "utils.h"
