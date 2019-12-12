@@ -25,3 +25,19 @@ static const int linux_pt_irqs[] = {
 };
 
 static const int free_plat_interrupts[] =  { -1 };
+static const char *plat_keep_devices[] = {
+    "/timer",
+    "/apb-pclk",
+    "/platform@c000000",
+    "/pmu",
+    "/flash@0",
+};
+static const char *plat_keep_device_and_disable[] = {};
+static const char *plat_keep_device_and_subtree[] = {
+    "/cpus",
+    "/intc@8000000",
+};
+static const char *plat_keep_device_and_subtree_and_disable[] = {};
+static const char *plat_linux_bootcmdline =
+    "";
+static const char *plat_linux_stdout = "/pl011@9000000";
