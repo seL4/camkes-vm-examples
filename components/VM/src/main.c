@@ -420,7 +420,7 @@ static int vmm_init(void)
     assert(!err);
 
     /* Initialise MUX subsystem for platforms that need it */
-#ifndef CONFIG_PLAT_TK1
+#ifdef CONFIG_PLAT_EXYNOS5
     err = mux_sys_init(&_io_ops, NULL, &_io_ops.mux_sys);
     assert(!err);
 #endif
