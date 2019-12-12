@@ -182,12 +182,8 @@ static const int free_plat_interrupts[] =  { -1 };
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
 
 static const char *plat_keep_device_and_disable[] = {
-    "/host1x@50000000",
     "/gpu@0,57000000",
-    "/timer@60005000",
     "/flow-controller@60007000",
-    "/actmon@6000c800",
-    "/dma@60020000",
     "/serial@70006000",
     "/serial@70006040",
     "/serial@70006200",
@@ -205,22 +201,28 @@ static const char *plat_keep_device_and_disable[] = {
     "/spi@7000da00",
     "/spi@7000dc00",
     "/spi@7000de00",
-    "/rtc@7000e000",
     "/pmc@7000e400",
-    "/fuse@7000f800",
     "/memory-controller@70019000",
-    "/emc@7001b000",
-    "/sata@70020000",
-    "/hda@70030000",
     "/padctl@7009f000",
     "/sdhci@700b0000",
     "/sdhci@700b0200",
     "/sdhci@700b0400",
     "/clock@70110000",
     "/thermal-sensor@700e2000",
-    "/ahub@70300000",
     "/usb-phy@7d000000",
     "/sound",
+#if TK1INSECURE
+#else
+    "/timer@60005000",
+    "/actmon@6000c800",
+    "/dma@60020000",
+    "/rtc@7000e000",
+    "/fuse@7000f800",
+    "/emc@7001b000",
+    "/sata@70020000",
+    "/hda@70030000",
+    "/ahub@70300000",
+#endif
 };
 
 static const char *plat_keep_devices[] = {
@@ -237,6 +239,18 @@ static const char *plat_keep_devices[] = {
     "/pmu",
     "/timer",
     "/aliases",
+#if TK1INSECURE
+    "/timer@60005000",
+    "/actmon@6000c800",
+    "/dma@60020000",
+    "/rtc@7000e000",
+    "/fuse@7000f800",
+    "/emc@7001b000",
+    "/sata@70020000",
+    "/hda@70030000",
+    "/ahub@70300000",
+#else
+#endif
 };
 
 static const char *plat_keep_device_and_subtree[] = {
@@ -244,16 +258,26 @@ static const char *plat_keep_device_and_subtree[] = {
     "/clocks",
     "/gpio-keys",
     "/regulators",
-    "/i2c@7000d000",
     "/spi@7000da00",
     "/pmc@7000e400",
+#if TK1INSECURE
+    "/host1x@50000000",
+    "/i2c@7000c000",
+    "/i2c@7000d000",
     "/padctl@7009f000",
+#else
+#endif
 };
 
 static const char *plat_keep_device_and_subtree_and_disable[] = {
     "/pcie@1003000",
+#if TK1INSECURE
+#else
     "/host1x@50000000",
     "/i2c@7000c000",
+    "/i2c@7000d000",
+    "/padctl@7009f000",
+#endif
 };
 
 static const char *plat_linux_bootcmdline =
