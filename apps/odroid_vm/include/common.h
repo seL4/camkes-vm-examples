@@ -28,8 +28,6 @@ typedef enum{
 }OPTION;
 
 #define ROUND(a,b)		(((a) + (b) - 1) & ~((b) - 1))
-#define DIV_ROUND(n,d)		(((n) + ((d)/2)) / (d))
-#define DIV_ROUND_UP(n,d)	(((n) + (d) - 1) / (d))
 #define roundup(x, y)		((((x) + ((y) - 1)) / (y)) * (y))
 
 #endif

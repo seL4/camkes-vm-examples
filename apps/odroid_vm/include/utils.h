@@ -60,8 +60,6 @@ inline void barrier(void)
 	__sync_synchronize();
 }
 
-#define swab(x) __be32_to_cpu(x)
-
 static inline uint32_t
 __be32_to_cpu(uint32_t x){
     int i;
