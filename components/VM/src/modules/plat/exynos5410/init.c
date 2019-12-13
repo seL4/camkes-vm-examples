@@ -20,11 +20,19 @@
 
 #include <sel4vm/guest_vm.h>
 #include <sel4vm/vm.h>
-#include <sel4vm/images.h>
-#include <sel4vm/plat/devices.h>
-#include <sel4vm/devices/vgic.h>
-#include <sel4vm/devices/vram.h>
-#include <sel4vm/devices/vusb.h>
+#include <sel4vm/guest_vcpu_fault.h>
+#include <sel4vmmplatsupport/device_utils.h>
+#include <sel4vmmplatsupport/plat/devices.h>
+#include <sel4vmmplatsupport/arch/vusb.h>
+#include <sel4vmmplatsupport/plat/vuart.h>
+#include <sel4vmmplatsupport/plat/vsdhc.h>
+#include <sel4vmmplatsupport/plat/vclock.h>
+#include <sel4vmmplatsupport/plat/vmct.h>
+#include <sel4vmmplatsupport/plat/vpower.h>
+
+#include <sel4vmmplatsupport/plat/irq_combiner.h>
+
+
 #include <sel4utils/irq_server.h>
 #include <cpio/cpio.h>
 #include <utils/util.h>
@@ -51,10 +59,6 @@ static const struct device *linux_pt_devices[] = {
 #ifndef FEATURE_MMC_NODMA
     &dev_msh2,
 #endif
-#ifndef FEATURE_VUSB
-    &dev_usb2_ehci,
-    &dev_usb2_ctrl
-#endif
 };
 
 static int vm_shutdown_cb(vm_t *vm, void *token)
@@ -73,24 +77,25 @@ static int vm_reboot_cb(vm_t *vm, void *token)
 
 }
 
-static int pwmsig_device_fault_handler(struct device *d UNUSED, vm_t *vm, fault_t *fault)
+static memory_fault_result_t pwmsig_device_fault_handler(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr, size_t fault_length, void *cookie)
 {
-    uint32_t data = fault_get_data(fault);
-    ignore_fault(fault);
+    uint32_t data = get_vcpu_fault_data(vcpu);
+    advance_vcpu_fault(vcpu);
+
 //    printf("IN VM, GOT PWM SIGNAL 0x%x\n", data);
 //    fflush(stdout);
     pwm_vmsig(data);
-    return 0;
+    return FAULT_HANDLED;
 }
 
 struct device pwmsig_dev = {
-    .devid = DEV_CUSTOM,
     .name = "NICTAcopter signal",
     .pstart = 0x30000000,
     .size = 0x1000,
-    .handle_page_fault = &pwmsig_device_fault_handler,
     .priv = NULL,
 };
+
+
 
 
 #if defined FEATURE_VUSB
@@ -242,8 +247,9 @@ static void plat_init_module(vm_t *vm, void *cookie)
     assert(!err);
 
     /* Device for signalling to the VM */
-    err = vm_add_device(vm, &pwmsig_dev);
-    assert(!err);
+    vm_memory_reservation_t *reservation = vm_reserve_memory_at(vm, pwmsig_dev.pstart, pwmsig_dev.size,
+            pwmsig_device_fault_handler, &pwmsig_dev);
+    assert(reservation);
 
     /* Install pass through devices */
     for (i = 0; i < ARRAY_SIZE(linux_pt_devices); i++) {
