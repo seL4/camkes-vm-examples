@@ -114,7 +114,7 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
     endif()
 endif()
 
-AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 
 DefineCAmkESVMFileServer()
 

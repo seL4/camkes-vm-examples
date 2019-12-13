@@ -86,7 +86,6 @@ AddCamkesCPPFlag(
     CONFIG_VARS
     VmEmmc2NoDMA
     VmVUSB
-    VmVchan
     Tk1DeviceFwd
     Tk1Insecure
     VmVirtioNetVirtqueue

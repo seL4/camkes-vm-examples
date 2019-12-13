@@ -10,9 +10,6 @@
  * @TAG(DATA61_GPL)
  */
 
-#if VMVCHAN
-import <VchanInterface.idl4>;
-#endif //VMVCHAN
 import <global-connectors.camkes>;
 import <VirtQueue/VirtQueue.camkes>;
 import <seL4VMDTBPassthrough.idl4>;
@@ -49,14 +46,6 @@ component VM {
     maybe uses PutChar putchar;
     maybe uses PutChar guest_putchar;
     maybe uses GetChar serial_getchar; 
-
-#if VMVCHAN
-    include "vchan_sharemem.h";
-    has mutex vm_lock;
-    uses VchanInterface vchan_con;
-    consumes VchanEvent vevent;
-    dataport vchan_headers_t share_mem;
-#endif //VMVCHAN
 
     maybe uses VirtQueueDev recv;
     maybe uses VirtQueueDrv send;

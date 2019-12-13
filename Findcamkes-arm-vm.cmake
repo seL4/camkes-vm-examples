@@ -42,7 +42,6 @@ macro(camkes_arm_vm_setup_arm_vm_environment)
     add_subdirectory(${CAMKES_ARM_VM_DIR}/libs/libvirtio camkes-arm-vm/libs/libvirtio)
 
     # VM components
-    add_subdirectory(${CAMKES_ARM_VM_DIR}/components/Vchan camkes-arm-vm/components/Vchan)
     add_subdirectory(${CAMKES_ARM_VM_DIR}/components/VM camkes-arm-vm/components/VM)
 
 endmacro()

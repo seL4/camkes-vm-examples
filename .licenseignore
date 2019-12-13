@@ -6,4 +6,3 @@ linux/linux-secure-vusb-dtb
 linux/linux-tk1-debian
 linux/linux-tk1-initrd
 linux/rootfs-tk1.cpio
-*sel4_vchan_testsuite

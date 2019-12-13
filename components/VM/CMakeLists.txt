@@ -34,16 +34,6 @@ config_option(VmVUSB VM_VUSB "Para-virtual USB driver \
     installs the device into the VM." DEPENDS "KernelPlatformExynos5410" DEFAULT OFF)
 
 config_option(
-    VmVchan
-    VM_VCHAN
-    "Enable vchan connection"
-    DEPENDS
-    "KernelPlatformExynos5410"
-    DEFAULT
-    OFF
-)
-
-config_option(
     VmPCISupport
     VM_PCI_SUPPORT
     "Enable virtual pci device support"
@@ -145,10 +135,6 @@ if(Tk1DeviceFwd)
     list(APPEND vm_src src/modules/plat/tk1/device_fwd.c)
 endif()
 
-if(VmVchan)
-    list(APPEND vm_src src/modules/vchan.c)
-endif()
-
 # A module that is expected to exist for each platform but not required.
 # It should provide basic device intialisation required for every vm configuratoin
 set(platform_module ${CMAKE_CURRENT_LIST_DIR}/src/modules/plat/${KernelPlatform}/init.c)
@@ -207,9 +193,4 @@ endif()
 # Append the USB driver library if building for exynos
 if("${KernelARMPlatform}" STREQUAL "exynos5410")
     DeclareCAmkESComponent(VM LIBS usbdrivers)
-endif()
-
-# Append the VM VChan library is building with VmVchan
-if(VmVchan)
-    DeclareCAmkESComponent(VM LIBS sel4vchan)
 endif()

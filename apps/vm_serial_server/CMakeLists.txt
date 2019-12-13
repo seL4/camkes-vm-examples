@@ -53,7 +53,7 @@ UpdateDtbFromInitrd(
 )
 AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
-AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 
 DefineCAmkESVMFileServer()
 

@@ -32,11 +32,6 @@ import "components/timer/timer.camkes";
 import <VM/vm_common.camkes>;
 import <vm-connectors.camkes>;
 
-#if VMVCHAN
-import <Vchan/Vchan.camkes>;
-import "components/helloworld/helloworld.camkes";
-#endif //VMVCHAN
-
 #include <configurations/vm.h>
 
 component uartbase {
@@ -95,19 +90,6 @@ assembly {
         component clk      clk_obj;
         component timer	   timer_obj;
 
-
-#if VMVCHAN
-        component Vchan vchan_0;
-        component helloworld hello;
-
-        connection seL4RPCCall vchan(from vm.vchan_con, to vchan_0.vchan_com);
-        connection seL4Notification vchan_event_init(from vchan_0.vevent_cl, to vm.vevent);
-        connection seL4SharedData vchan_sharemem_0(from vm.share_mem, to vchan_0.share_mem);
-
-        connection seL4Notification vchan_event(from vchan_0.vevent_sv, to hello.vevent);
-        connection seL4SharedData hvchan_sharemem_0(from hello.share_mem, to vchan_0.share_mem);
-        connection seL4RPCCall hvchan(from hello.vchan_con, to vchan_0.vchan_com);
-#endif //VMVCHAN
 
         connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
         connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);

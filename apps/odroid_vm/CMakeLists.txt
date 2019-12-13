@@ -26,7 +26,7 @@ target_include_directories(app_include INTERFACE include)
 
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5410")
-AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
+AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 
 # Add VM components
 add_subdirectory(components/pilot)
@@ -37,10 +37,6 @@ add_subdirectory(components/can)
 add_subdirectory(components/spi)
 add_subdirectory(components/clk)
 add_subdirectory(components/timer)
-# Add Vchan helloworld component if VmVchan is enabled
-if(VmVchan)
-    add_subdirectory(components/helloworld)
-endif()
 
 set(linux_binary_name "${CMAKE_CURRENT_LIST_DIR}/../../linux/linux")
 
