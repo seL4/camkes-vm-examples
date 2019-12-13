@@ -52,6 +52,7 @@
 #include <sel4vmmplatsupport/arch/guest_reboot.h>
 #include <sel4vmmplatsupport/arch/guest_vcpu_fault.h>
 
+#include <sel4utils/process.h>
 #include <sel4utils/irq_server.h>
 #include <dma/dma.h>
 

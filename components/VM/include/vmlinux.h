@@ -12,6 +12,7 @@
 #pragma once
 
 #include <sel4utils/irq_server.h>
+#include <sel4vm/guest_vm.h>
 
 #include <plat/vmlinux.h>
 

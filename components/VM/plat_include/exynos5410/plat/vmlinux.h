@@ -11,8 +11,6 @@
  */
 #pragma once
 
-#include <sel4vm/vm.h>
-
 #define VUSB_ADDRESS         0x33330000
 #define VUSB_IRQ             198
 #define VUSB_NINDEX          5

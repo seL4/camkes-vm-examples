@@ -12,7 +12,6 @@
 
 #pragma once
 
-#include <sel4vm/vm.h>
 #include <sel4vmmplatsupport/device.h>
 
 #define VIRTIO_IOPORT_SIZE      0x400

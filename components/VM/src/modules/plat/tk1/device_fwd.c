@@ -11,7 +11,6 @@
  */
 
 #include <camkes.h>
-#include <sel4vm/vm.h>
 #include <sel4vm/plat/devices.h>
 
 #include <vmlinux.h>

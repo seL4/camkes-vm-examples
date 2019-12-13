@@ -19,7 +19,6 @@
 #include <vka/capops.h>
 
 #include <sel4vm/guest_vm.h>
-#include <sel4vm/vm.h>
 #include <sel4vm/guest_vcpu_fault.h>
 #include <sel4vmmplatsupport/device_utils.h>
 #include <sel4vmmplatsupport/plat/devices.h>

@@ -11,8 +11,6 @@
  */
 #pragma once
 
-#include <sel4vm/vm.h>
-
 #define LINUX_RAM_BASE    0x40000000
 #define LINUX_RAM_PADDR_BASE LINUX_RAM_BASE
 #define LINUX_RAM_SIZE    0x20000000
