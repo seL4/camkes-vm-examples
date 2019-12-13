@@ -33,7 +33,6 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
-        vm0.linux_image_config = {};
 
         vm0.dtb = dtb([{"path": "/interrupt-controller@60004000"},
                        {"path": "/sdhci@700b0000"},

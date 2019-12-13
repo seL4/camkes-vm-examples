@@ -33,8 +33,6 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.linux_image_config = {};
-
         vm0.dtb = dtb([
                        {"path": "/chipid@100000"},
                        {"path": "/gpio@2200000"},
