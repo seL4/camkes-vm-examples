@@ -26,7 +26,8 @@ static dataport_caps_handle_t *dataports[] = {
     &dp2_handle,
 };
 
-int cross_vm_dataports_init(vm_t *vm, vmm_pci_space_t *pci) {
-    return cross_vm_dataports_init_common(vm, dataports, sizeof(dataports)/sizeof(dataports[0]),
-            pci);
+int cross_vm_dataports_init(vm_t *vm, vmm_pci_space_t *pci)
+{
+    return cross_vm_dataports_init_common(vm, dataports, sizeof(dataports) / sizeof(dataports[0]),
+                                          pci);
 }
