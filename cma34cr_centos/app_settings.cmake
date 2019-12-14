@@ -24,9 +24,6 @@ set(KernelMultibootGFXModeHeight 0 CACHE STRING "" FORCE)
 set(KernelHugePage OFF CACHE BOOL "" FORCE)
 set(KernelSupportPCID OFF CACHE BOOL "" FORCE)
 
-# Ignore EPT violations
-set(LibSel4VMMIgnoreEPTViolation ON CACHE BOOL "" FORCE)
-
 # Define VMM configurations
 set(LibSel4VMMPlatsupportVESAFrameBuffer ON CACHE BOOL "" FORCE)
 
