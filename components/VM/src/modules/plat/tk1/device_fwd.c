@@ -19,17 +19,18 @@
 #include <sel4vm/devices/generic_forward.h>
 
 struct generic_forward_cfg camkes_uart_d = {
-  .read_fn = uartfwd_read,
-  .write_fn = uartfwd_write
+    .read_fn = uartfwd_read,
+    .write_fn = uartfwd_write
 };
 
 struct generic_forward_cfg camkes_clk_car =  {
-  .read_fn = clkcarfwd_read,
-  .write_fn = clkcarfwd_write
+    .read_fn = clkcarfwd_read,
+    .write_fn = clkcarfwd_write
 };
 
 
-static void device_fwd_init_module(vm_t *vm, void *cookie) {
+static void device_fwd_init_module(vm_t *vm, void *cookie)
+{
 
     /* Configure UART forward device */
     int err = vm_install_generic_forward_device(vm, &dev_vconsole, camkes_uart_d);

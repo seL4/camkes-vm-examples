@@ -27,8 +27,8 @@ typedef struct private_data {
     vmm_io_port_list_t *io_ports;
 } private_data_t;
 
-static memory_fault_result_t
-pci_virtio_io_fault_handler(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr, size_t fault_length, void *cookie)
+static memory_fault_result_t pci_virtio_io_fault_handler(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr,
+                                                         size_t fault_length, void *cookie)
 {
     uint16_t virtio_port = VIRTIO_IOPORT_START + (fault_addr & (VIRTIO_IOPORT_SIZE - 1));
     unsigned int value = 0;
@@ -82,7 +82,7 @@ int install_virtio_vpci_device(vm_t *vm, vmm_pci_space_t *pci, vmm_io_port_list_
     vpci_dev->priv = data;
 
     vm_memory_reservation_t *reservation = vm_reserve_memory_at(vm, vpci_dev->pstart, vpci_dev->size,
-            pci_virtio_io_fault_handler, (void *)vpci_dev);
+                                                                pci_virtio_io_fault_handler, (void *)vpci_dev);
     if (!reservation) {
         return -1;
     }

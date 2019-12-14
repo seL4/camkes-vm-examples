@@ -76,7 +76,8 @@ static int vm_reboot_cb(vm_t *vm, void *token)
 
 }
 
-static memory_fault_result_t pwmsig_device_fault_handler(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr, size_t fault_length, void *cookie)
+static memory_fault_result_t pwmsig_device_fault_handler(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr,
+                                                         size_t fault_length, void *cookie)
 {
     uint32_t data = get_vcpu_fault_data(vcpu);
     advance_vcpu_fault(vcpu);
@@ -247,7 +248,7 @@ static void plat_init_module(vm_t *vm, void *cookie)
 
     /* Device for signalling to the VM */
     vm_memory_reservation_t *reservation = vm_reserve_memory_at(vm, pwmsig_dev.pstart, pwmsig_dev.size,
-            pwmsig_device_fault_handler, &pwmsig_dev);
+                                                                pwmsig_device_fault_handler, &pwmsig_dev);
     assert(reservation);
 
     /* Install pass through devices */

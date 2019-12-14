@@ -728,7 +728,8 @@ void parse_camkes_linux_attributes(void)
     initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
-static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag, void *cookie) {
+static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag, void *cookie)
+{
     seL4_Word label = seL4_MessageInfo_get_label(tag);
     if (badge == 0) {
         if (label == IRQ_MESSAGE_LABEL) {
@@ -750,7 +751,8 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
     return 0;
 }
 
-static int alloc_vm_device_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_result) {
+static int alloc_vm_device_cap(uintptr_t addr, vm_t *vm, vm_frame_t *frame_result)
+{
     int err;
     cspacepath_t frame;
     err = vka_cspace_alloc_path(vm->vka, &frame);
@@ -761,7 +763,7 @@ static int alloc_vm_device_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_resul
     seL4_Word cookie;
     err = vka_utspace_alloc_at(vm->vka, &frame, kobject_get_type(KOBJECT_FRAME, 12), 12, addr, &cookie);
     if (err) {
-        err = simple_get_frame_cap(vm->simple, (void*)addr, 12, &frame);
+        err = simple_get_frame_cap(vm->simple, (void *)addr, 12, &frame);
         if (err) {
             return -1;
         }
@@ -773,7 +775,8 @@ static int alloc_vm_device_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_resul
     return 0;
 }
 
-static int alloc_vm_ram_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_result) {
+static int alloc_vm_ram_cap(uintptr_t addr, vm_t *vm, vm_frame_t *frame_result)
+{
     int err;
     cspacepath_t frame;
     vka_object_t frame_obj;
@@ -790,7 +793,8 @@ static int alloc_vm_ram_cap(uintptr_t addr, vm_t* vm, vm_frame_t *frame_result) 
     return 0;
 }
 
-static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie) {
+static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie)
+{
     int err;
     uintptr_t paddr = addr & ~0xfff;
     vm_frame_t frame_result = { seL4_CapNull, seL4_NoRights, 0, 0 };
@@ -808,15 +812,17 @@ static vm_frame_t on_demand_iterator(uintptr_t addr, void *cookie) {
     return frame_result;
 }
 
-static memory_fault_result_t
-handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr, size_t fault_length,
-        void *cookie) {
+static memory_fault_result_t handle_on_demand_fault_callback(vm_t *vm, vm_vcpu_t *vcpu, uintptr_t fault_addr,
+                                                             size_t fault_length,
+                                                             void *cookie)
+{
     ZF_LOGE("Fault for on demand memory region: 0x%x", fault_addr);
     return FAULT_ERROR;
 }
 
 memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
-        uintptr_t paddr, size_t len, void *cookie) {
+                                                   uintptr_t paddr, size_t len, void *cookie)
+{
 #ifdef CONFIG_VM_ONDEMAND_DEVICE_INSTALL
     uintptr_t addr = paddr & ~0xfff;
     int mapped;
@@ -826,7 +832,7 @@ memory_fault_result_t unhandled_mem_fault_callback(vm_t *vm, vm_vcpu_t *vcpu,
         return FAULT_ERROR;
     default:
         reservation = vm_reserve_memory_at(vm, addr, 0x1000,
-                handle_on_demand_fault_callback, NULL);
+                                           handle_on_demand_fault_callback, NULL);
         mapped = vm_map_reservation(vm, reservation, on_demand_iterator, (void *)vm);
         if (!mapped) {
             return FAULT_RESTART;
@@ -878,7 +884,7 @@ int main_continued(void)
 
     /* Create the VM */
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
-            &_io_ops, _fault_endpoint, VM_NAME);
+                  &_io_ops, _fault_endpoint, VM_NAME);
     assert(!err);
     vm_vcpu_t *vm_vcpu;
     vm_vcpu = vm_create_vcpu(&vm, VM_PRIO);
