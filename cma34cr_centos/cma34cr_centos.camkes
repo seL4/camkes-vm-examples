@@ -42,7 +42,6 @@ component Init0 {
 
 import <StringReverse/StringReverse.camkes>;
 import <UDPServer/UDPServer.camkes>;
-import <HelloWorld/HelloWorld.camkes>;
 import <Firewall/Firewall.camkes>;
 
 assembly {
