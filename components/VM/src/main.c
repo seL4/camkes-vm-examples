@@ -677,7 +677,7 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *initrd_name, char **paths,
+static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
                         int num_paths)
 {
     int err = 0;
@@ -715,11 +715,7 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *
         return -1;
     }
 
-    size_t initrd_size = 0;
     if (config_set(CONFIG_VM_INITRD_FILE)) {
-        initrd_size = get_initrd_size(initrd_name);
-        /* linux,initrd-start = < initrd_addr >; */
-        /* linux,initrd-end = < initrd_addr + initrd_size>; */
         err = fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
         if (err) {
             return -1;
@@ -727,7 +723,6 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *
     }
 
     fdt_pack(gen_fdt);
-
 
     return 0;
 }
@@ -764,6 +759,16 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         return -1;
     }
 
+    /* Attempt to load initrd if provided */
+    guest_image_t initrd_image;
+    if (config_set(CONFIG_VM_INITRD_FILE)) {
+        err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
+        void *initrd = (void *)initrd_image.load_paddr;
+        if (!initrd || err) {
+            return -1;
+        }
+    }
+
     if (!config_set(CONFIG_VM_DTB_FILE)) {
         camkes_io_fdt(&(_io_ops.io_fdt));
         void *fdt_ori = ps_io_fdt_get(&_io_ops.io_fdt);
@@ -773,7 +778,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
 
-        err = generate_fdt(fdt_ori, gen_fdt, size_gen, initrd_name, paths, num_paths);
+        err = generate_fdt(fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
         if (err) {
             ZF_LOGE("Failed to generate a fdt");
             return -1;
@@ -789,16 +794,6 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
         dtb = (void *)dtb_image.load_paddr;
         if (!dtb || err) {
-            return -1;
-        }
-    }
-
-    /* Attempt to load initrd if provided */
-    if (config_set(CONFIG_VM_INITRD_FILE)) {
-        guest_image_t initrd_image;
-        err = vm_load_guest_module(vm, initrd_name, initrd_addr, 0, &initrd_image);
-        void *initrd = (void *)initrd_image.load_paddr;
-        if (!initrd || err) {
             return -1;
         }
     }
