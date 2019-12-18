@@ -732,6 +732,13 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, const char *
     return 0;
 }
 
+static int load_generated_dtb(vm_t *vm, uintptr_t paddr, void *addr, size_t size, size_t offset, void *cookie)
+{
+    ZF_LOGD("paddr: 0x%lx, addr: 0x%lx, size: 0x%lx, offset: 0x%lx", paddr, (seL4_Word) addr, size, offset);
+    memcpy(addr, cookie + offset, size);
+    return 0;
+}
+
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
     void *entry;
@@ -772,19 +779,10 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
             return -1;
         }
 
-        uintptr_t load_addr = dtb_addr;
-        size_t offset = 0;
-        int num_pages = ROUND_UP(size_gen, PAGE_SIZE_4K) >> PAGE_BITS_4K;
-        for (int i = 0; i < num_pages; i++) {
-            /* Load the dtb */
-            if (vm_copyout(vm, gen_fdt + offset, load_addr + offset, PAGE_SIZE_4K)) {
-                ZF_LOGE("Error: Failed to load dtb image @ addr 0x%x", load_addr + offset);
-                return -1;
-            }
-            offset += PAGE_SIZE_4K;
-        }
+        vm_ram_mark_allocated(vm, dtb_addr, size_gen);
+        vm_ram_touch(vm, dtb_addr, size_gen, load_generated_dtb, gen_fdt);
 
-        dtb = (void *)load_addr;
+        dtb = (void *)dtb_addr;
     } else {
         /* Load device tree */
         guest_image_t dtb_image;
