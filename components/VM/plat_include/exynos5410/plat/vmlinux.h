@@ -38,9 +38,27 @@ static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
 
 void vusb_notify(void);
 
-static const char *plat_keep_devices[] = {};
+static const char *plat_keep_devices[] = {
+    "/soc/chipid@10000000",
+    "/soc/interrupt-controller@10481000",
+    "/soc/interrupt-controller@10440000",
+    "/soc/usb@12110000",
+    "/soc/phy@12130000",
+    "/soc/serial@12c00000",
+    "/soc/serial@12c10000",
+    "/soc/serial@12c20000",
+    "/xxti",
+    "/cpus/cpu@0",
+    "/soc/clock-controller@10010000",
+    "/soc/syscon@10050000",
+    "/soc/memory-controller@12250000",
+};
 static const char *plat_keep_device_and_disable[] = {};
-static const char *plat_keep_device_and_subtree[] = {};
+static const char *plat_keep_device_and_subtree[] = {
+    "/soc/mmc@12200000",
+    "/soc/mmc@12220000",
+    "/soc/system-controller@10040000",
+    "/soc/sysram@2020000",
+
+};
 static const char *plat_keep_device_and_subtree_and_disable[] = {};
-static const char *plat_linux_bootcmdline = "";
-static const char *plat_linux_stdout = "";
