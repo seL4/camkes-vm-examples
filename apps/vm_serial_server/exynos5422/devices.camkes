@@ -33,6 +33,11 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
+        vm.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+        };
+
         vm.dtb = dtb([{"path": "/firmware@02073000"},
                       {"path": "/soc/audss-clock-controller@3810000"},
                       {"path": "/soc/i2s@3830000"},

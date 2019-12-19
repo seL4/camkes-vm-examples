@@ -33,6 +33,11 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "",
+            "linux_stdout" : "/pl011@9000000",
+        };
+
         vm0.dtb = dtb([
                         {"path": "/pl011@9000000"},
                     ]);

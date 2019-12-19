@@ -38,6 +38,3 @@ static const char *plat_keep_devices[] = {
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {};
 static const char *plat_keep_device_and_subtree_and_disable[] = {};
-static const char *plat_linux_bootcmdline =
-    "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi";
-static const char *plat_linux_stdout = "serial2:115200n8";

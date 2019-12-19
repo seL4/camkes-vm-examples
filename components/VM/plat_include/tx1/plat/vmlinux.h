@@ -287,6 +287,3 @@ static const char *plat_keep_device_and_subtree[] = {
 static const char *plat_keep_device_and_subtree_and_disable[] = {
     "/aconnect@702c0000",
 };
-static const char *plat_linux_bootcmdline =
-    "console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x70006000 debug mem=100m initcall_debug user_debug=31";
-static const char *plat_linux_stdout = "serial0:115200n8";

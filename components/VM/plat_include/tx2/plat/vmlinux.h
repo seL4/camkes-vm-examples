@@ -365,10 +365,4 @@ static const char *plat_keep_device_and_subtree[] = {
     "/eeprom-manager",
     "/firmware",
 };
-static const char *plat_keep_device_and_subtree_and_disable[] = {
-
-};
-
-static const char *plat_linux_bootcmdline =
-    "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init";
-static const char *plat_linux_stdout = "/serial@3100000";
+static const char *plat_keep_device_and_subtree_and_disable[] = {};

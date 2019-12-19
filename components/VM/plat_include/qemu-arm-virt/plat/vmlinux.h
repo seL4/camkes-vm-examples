@@ -38,6 +38,3 @@ static const char *plat_keep_device_and_subtree[] = {
     "/intc@8000000",
 };
 static const char *plat_keep_device_and_subtree_and_disable[] = {};
-static const char *plat_linux_bootcmdline =
-    "";
-static const char *plat_linux_stdout = "/pl011@9000000";

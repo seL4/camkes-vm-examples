@@ -28,7 +28,6 @@ assembly {
     configuration {
         vm.num_extra_frame_caps = 0;
         vm.extra_frame_map_address = 0;
-        vm.linux_image_config = {};
 
         time_server.putchar_attributes = 0;
         time_server.timers_per_client = 1;

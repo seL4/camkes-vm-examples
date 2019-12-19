@@ -41,7 +41,6 @@ assembly {
     configuration {
         vm.num_extra_frame_caps = 0;
         vm.extra_frame_map_address = 0;
-        vm.linux_image_config = {};
 
         vm.recv_id = 0;
         vm.recv_attributes = "10";
