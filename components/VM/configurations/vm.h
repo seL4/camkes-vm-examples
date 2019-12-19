@@ -115,7 +115,6 @@
     vm##num.sem_value = 0; \
     vm##num.notification_ready_global_endpoint = VAR_STRINGIZE(vm##num); \
     vm##num.notification_ready_connector_global_endpoint = VAR_STRINGIZE(vm##num); \
-    vm##num.linux_image_config = {}; \
 
 #define VM_VIRTUAL_SERIAL_COMPONENTS_DEF() \
     component SerialServer serial; \
