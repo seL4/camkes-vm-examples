@@ -11,3 +11,4 @@
 #
 
 set(PLATFORM "exynos5410" CACHE STRING "" FORCE)
+set(VmDtbFile ON CACHE BOOL "provide dtb" FORCE)
