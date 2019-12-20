@@ -33,6 +33,8 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
         };
 
+        vm0.linux_image_config = {};
+
         vm0.dtb = dtb([{"path": "/serial@70006000"},
                        {"path": "/interrupt-controller@60004000"},
                        {"path": "/clock@60006000"},
