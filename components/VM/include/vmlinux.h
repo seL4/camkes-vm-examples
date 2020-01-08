@@ -13,6 +13,8 @@
 
 #include <sel4utils/irq_server.h>
 #include <sel4vm/guest_vm.h>
+#include <sel4vmmplatsupport/drivers/cross_vm_connection.h>
+#include <camkes/dataport_caps.h>
 
 #include <plat/vmlinux.h>
 
@@ -45,6 +47,23 @@ typedef struct vmm_module {
  * @return  -1 for error, otherwise a positive value (irq number)
  */
 int get_crossvm_irq_num(void);
+
+struct camkes_crossvm_connection {
+    dataport_caps_handle_t *handle;
+    emit_fn emit_fn;
+    seL4_Word consume_badge;
+};
+
+/**
+ * Initialise and register a series of camkes crossvm connections with a given vm
+ * @param[in] vm                    A handle to the VM
+ * @param[in] connection_base_addr  The base guest physical address to interface the crossvm connection devices through
+ * @param[in] connections           An array of camkes crossvm connections
+ * @param[in] num_connection        The number of elements in the 'connections' array (parameter)
+ * @return -1 for error, otherwise 0 for success
+ */
+int cross_vm_connections_init(vm_t *vm, uintptr_t connection_base_addr, struct camkes_crossvm_connection *connections,
+                              int num_connections);
 
 /* Declare a module.
  * For now, we put the modules in a separate elf section. */
