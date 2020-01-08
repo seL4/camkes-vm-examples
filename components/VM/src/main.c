@@ -48,6 +48,7 @@
 #include <sel4vmmplatsupport/arch/vpci.h>
 #include <sel4vmmplatsupport/guest_image.h>
 #include <sel4vmmplatsupport/drivers/pci_helper.h>
+#include <sel4vmmplatsupport/drivers/cross_vm_connection.h>
 #include <sel4vmmplatsupport/arch/guest_boot_init.h>
 #include <sel4vmmplatsupport/arch/guest_reboot.h>
 #include <sel4vmmplatsupport/arch/guest_vcpu_fault.h>
@@ -750,6 +751,8 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
         virtio_net_notify(vm);
     } else if (badge == SERIAL_BADGE) {
         handle_serial_console();
+    } else if (badge > SERIAL_BADGE) {
+        consume_connection_event(vm, badge, true);
     } else {
         ZF_LOGE("Unknown badge (%d)", badge);
     }
