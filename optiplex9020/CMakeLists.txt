@@ -24,7 +24,7 @@ file(GLOB init0_extra src/*.c)
 # Declare VM component: Init0
 DeclareCAmkESVM(Init0
     EXTRA_SOURCES ${init0_extra}
-    EXTRA_LIBS ethdrivers crossvm
+    EXTRA_LIBS ethdrivers globalcomponents
 )
 # Declare VM component: Init1
 DeclareCAmkESVM(Init1)
