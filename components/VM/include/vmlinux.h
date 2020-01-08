@@ -39,6 +39,13 @@ typedef struct vmm_module {
     void (*init_module)(vm_t *vm, void *cookie);
 } ALIGN(32) vmm_module_t;
 
+/**
+ * Get the crossvm. This being an irq not passed through to the guest
+ * such that it can be used for emulation purposes
+ * @return  -1 for error, otherwise a positive value (irq number)
+ */
+int get_crossvm_irq_num(void);
+
 /* Declare a module.
  * For now, we put the modules in a separate elf section. */
 #define DEFINE_MODULE(_name, _cookie, _init_module) \

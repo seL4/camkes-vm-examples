@@ -125,6 +125,11 @@ int WEAK handle_serial_console()
     return 0;
 }
 
+int get_crossvm_irq_num(void)
+{
+    return free_plat_interrupts[0];
+}
+
 static int _dma_morecore(size_t min_size, int cached, struct dma_mem_descriptor *dma_desc)
 {
     static uint32_t _vaddr = DMA_VSTART;
