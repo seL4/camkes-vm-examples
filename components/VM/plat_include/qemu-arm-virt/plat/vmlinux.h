@@ -23,3 +23,5 @@
 static const int linux_pt_irqs[] = {
     27,
 };
+
+static const int free_plat_interrupts[] =  { -1 };

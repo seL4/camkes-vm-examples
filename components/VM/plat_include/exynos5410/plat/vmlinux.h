@@ -15,7 +15,7 @@
 #define VUSB_IRQ             198
 #define VUSB_NINDEX          5
 #define VUSB_NBADGE          0x123
-
+#define IRQ_SPI_OFFSET 32
 
 #define LINUX_RAM_BASE    0x40000000
 #define LINUX_RAM_PADDR_BASE LINUX_RAM_BASE
@@ -29,5 +29,11 @@
 static const int linux_pt_irqs[] = {
     27,
 };
+
+static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
+                                             93 + IRQ_SPI_OFFSET,
+                                             101 + IRQ_SPI_OFFSET,
+                                             102 + IRQ_SPI_OFFSET
+                                           };
 
 void vusb_notify(void);

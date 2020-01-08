@@ -169,6 +169,7 @@ static const int linux_pt_irqs[] = {
     INTERRUPT_UARTD,
 };
 
+static const int free_plat_interrupts[] =  { -1 };
 
 #define LINUX_RAM_PADDR_BASE 0xb0000000
 #define LINUX_RAM_BASE    0x80000000

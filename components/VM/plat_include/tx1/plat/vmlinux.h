@@ -216,7 +216,7 @@ static const int linux_pt_irqs[] = {
     INTERRUPT_VTIMER
 };
 
-
+static const int free_plat_interrupts[] =  { -1 };
 
 #define LINUX_RAM_BASE    0x80000000
 #define LINUX_RAM_PADDR_BASE LINUX_RAM_BASE

@@ -19,6 +19,14 @@
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x4D700000
 
+#define IRQ_SPI_OFFSET 32
+
 static const int linux_pt_irqs[] = {
     27, // VTCNT
 };
+
+static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
+                                             93 + IRQ_SPI_OFFSET,
+                                             101 + IRQ_SPI_OFFSET,
+                                             102 + IRQ_SPI_OFFSET
+                                           };

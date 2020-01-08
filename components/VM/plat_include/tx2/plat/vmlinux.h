@@ -160,6 +160,8 @@ static const int linux_pt_irqs[] = {
     TX2_IRQ_PPI_VTIMER,
 };
 
+static const int free_plat_interrupts[] = { 220 + GIC_LIC_INTID_BASE };
+
 /* This address pertains to guest-vm@f1000000 in the overlay DTS. */
 #define LINUX_RAM_BASE    0xF1000000
 #define LINUX_RAM_PADDR_BASE LINUX_RAM_BASE
