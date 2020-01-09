@@ -196,15 +196,26 @@ AddOverlayDirToRootfs(
 )
 AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
 
+set(device_tree_src "${CMAKE_CURRENT_SOURCE_DIR}/exynos5422/crossvm_linux.dts")
+add_custom_command(
+    OUTPUT crossvm-dtb
+    COMMAND bash -c "dtc -I dts -O dtb -o crossvm-dtb ${device_tree_src}"
+    VERBATIM
+    DEPENDS ${device_tree_src}
+)
+# Create custom target for setting the dtb
+add_custom_target(gen_crossvm_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/crossvm-dtb")
+
 # Updated dtb based on generated initrd
 UpdateDtbFromInitrd(
-    "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb"
+    "${CMAKE_CURRENT_BINARY_DIR}/crossvm-dtb"
     ${output_overlayed_rootfs_location}
     "0x4d700000"
     dtb_gen_target
     output_dtb_location
     DEPENDS
     rootfs_target
+    gen_crossvm_dtb
 )
 AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
