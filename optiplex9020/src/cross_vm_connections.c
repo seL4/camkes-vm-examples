@@ -27,7 +27,9 @@ static struct camkes_crossvm_connection connections[] = {
     {&dp2_handle, NULL, { .id = 1, .reg_callback = done_reg_callback }}
 };
 
-int camkes_cross_vm_connections_init(vm_t *vm, vmm_pci_space_t *pci, seL4_CPtr irq_notification, uintptr_t connection_base_address)
+int camkes_cross_vm_connections_init(vm_t *vm, vmm_pci_space_t *pci, seL4_CPtr irq_notification,
+                                     uintptr_t connection_base_address)
 {
-   return cross_vm_connections_init(vm, connection_base_address, connections, ARRAY_SIZE(connections), pci, irq_notification);
+    return cross_vm_connections_init(vm, connection_base_address, connections, ARRAY_SIZE(connections), pci,
+                                     irq_notification);
 }
