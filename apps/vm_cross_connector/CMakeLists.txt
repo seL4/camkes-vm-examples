@@ -24,19 +24,31 @@ include(ExternalProject)
 include(external-project-helpers)
 
 # Create our CPP Flags based on ARM VM config variables
-set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
+if("${KernelARMPlatform}" STREQUAL "exynos5422")
+    set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
+    set(linux_repo "https://github.com/hardkernel/linux.git")
+    set(linux_tag "4.14.87-153")
+    set(linux_arch "arm")
+    set(linux_cross_compile "arm-linux-gnueabi-")
+elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+    set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
+    set(linux_repo "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git")
+    set(linux_tag "v4.9.189")
+    set(linux_arch "arm64")
+    set(linux_cross_compile "aarch64-linux-gnu-")
+endif()
 
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
+AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
 
 if(BUILD_CROSSVM)
-    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
     # Checkout and configure linux to build crossvm module
     ExternalProject_Add(
         checkout_linux
         GIT_REPOSITORY
-        https://github.com/hardkernel/linux.git
+        ${linux_repo}
         GIT_TAG
-        4.14.87-153
+        ${linux_tag}
         GIT_SHALLOW
         1
         GIT_PROGRESS
@@ -51,8 +63,8 @@ if(BUILD_CROSSVM)
         ${CMAKE_CURRENT_BINARY_DIR}/linux_out
     )
     # Linux config and symvers are to be copied to unpacked archive
-    set(linux_config "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux_configs/config")
-    set(linux_symvers "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux_configs/Module.symvers")
+    set(linux_config "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux_configs/config")
+    set(linux_symvers "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux_configs/Module.symvers")
     # Configure unpacked archive with config and symvers
     ConfigureLinux(
         ${CMAKE_CURRENT_BINARY_DIR}/linux_out
@@ -60,9 +72,9 @@ if(BUILD_CROSSVM)
         ${linux_symvers}
         configure_vm_linux
         ARCH
-        "arm"
+        ${linux_arch}
         CROSS_COMPILE
-        "arm-linux-gnueabi-"
+        ${linux_cross_compile}
         DEPENDS
         checkout_linux
     )
@@ -75,9 +87,9 @@ if(BUILD_CROSSVM)
         KERNEL_DIR
         ${CMAKE_CURRENT_BINARY_DIR}/linux_out
         ARCH
-        "arm"
+        ${linux_arch}
         CROSS_COMPILE
-        "arm-linux-gnueabi-"
+        ${linux_cross_compile}
         DEPENDS
         checkout_linux
         configure_vm_linux
@@ -173,7 +185,7 @@ if(BUILD_CROSSVM)
     )
 else()
     # User pre-configured rootfs file with crossvm modules and apps installed
-    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs_crossvm.cpio.gz")
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpio.gz")
 endif()
 
 # Add script to test dataport module
@@ -196,7 +208,7 @@ AddOverlayDirToRootfs(
 )
 AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
 
-set(device_tree_src "${CMAKE_CURRENT_SOURCE_DIR}/exynos5422/crossvm_linux.dts")
+set(device_tree_src "${CMAKE_CURRENT_SOURCE_DIR}/${KernelARMPlatform}/crossvm_linux.dts")
 add_custom_command(
     OUTPUT crossvm-dtb
     COMMAND bash -c "dtc -I dts -O dtb -o crossvm-dtb ${device_tree_src}"
@@ -232,7 +244,7 @@ AddCamkesCPPFlag(
 
 DefineCAmkESVMFileServer()
 
-CAmkESAddImportPath(exynos5422)
+CAmkESAddImportPath(${KernelARMPlatform})
 
 # Define our VM Component with out cross vm dataports glue code
 DeclareCAmkESComponent(VM SOURCES src/cross_vm_connections.c)
