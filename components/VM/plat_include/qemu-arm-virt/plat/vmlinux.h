@@ -23,6 +23,10 @@
 #define IRQ_SPI_OFFSET 32
 
 static const int linux_pt_irqs[] = {
+    35, // PCI IRQs
+    36,
+    37,
+    38
 };
 
 static const int free_plat_interrupts[] =  { 50 + IRQ_SPI_OFFSET };
