@@ -587,8 +587,6 @@ int install_linux_devices(vm_t *vm)
         err = vm_install_vpci(vm, io_ports, pci);
         assert(!err);
     }
-    err = vm_create_default_irq_controller(vm);
-    assert(!err);
     if (config_set(CONFIG_PLAT_EXYNOS5) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT) || config_set(CONFIG_PLAT_TX2)) {
         err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, true);
     } else {
@@ -1001,6 +999,8 @@ int main_continued(void)
     /* Create the VM */
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
                   &_io_ops, _fault_endpoint, VM_NAME);
+    assert(!err);
+    err = vm_create_default_irq_controller(&vm);
     assert(!err);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
