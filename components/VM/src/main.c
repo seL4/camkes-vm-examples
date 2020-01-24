@@ -1041,6 +1041,12 @@ int main_continued(void)
         return -1;
     }
 
+    err = vcpu_start(vm_vcpu);
+    if (err) {
+        ZF_LOGE("Failed to start Boot VCPU");
+        return -1;
+    }
+
     int vm_exit_reason;
     while (1) {
         err = vm_run(&vm);
