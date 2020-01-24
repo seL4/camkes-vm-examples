@@ -414,8 +414,8 @@ static int vmm_init(void)
             cspacepath_t path;
             vka_cspace_make_path(vka, cap, &path);
             int utType = ALLOCMAN_UT_DEV;
-            if (paddr >= LINUX_RAM_PADDR_BASE &&
-                paddr <= (LINUX_RAM_PADDR_BASE + (LINUX_RAM_SIZE - 1))) {
+            if (paddr >= linux_ram_paddr_base &&
+                paddr <= (linux_ram_paddr_base + (linux_ram_size - 1))) {
                 utType = ALLOCMAN_UT_DEV_MEM;
             }
             err = allocman_utspace_add_uts(allocman, 1, &path, &size, &paddr, utType);
