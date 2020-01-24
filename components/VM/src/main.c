@@ -568,7 +568,9 @@ static void irq_handler(void *data, ps_irq_acknowledge_fn_t acknowledge_fn, void
     token->ack_data = ack_data;
     int err;
     err = vm_inject_irq(token->vm->vcpus[BOOT_VCPU], token->virq);
-    assert(!err);
+    if (err) {
+        ZF_LOGW("IRQ %d Dropped", token->virq);
+    }
 }
 
 
