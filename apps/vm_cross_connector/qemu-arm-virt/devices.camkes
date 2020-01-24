@@ -41,7 +41,5 @@ assembly {
                     "0x8040000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
                     "0x40000000:29", // Linux kernel memory regions
                     ];
-        vm0.irqs =  [27];
-
 	}
 }

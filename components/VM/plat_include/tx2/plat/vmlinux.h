@@ -157,7 +157,6 @@ static_assert((TX2_UARTA - GIC_LIC_INTID_BASE) == 112, "tx2_irqs_page5");
 
 
 static const int linux_pt_irqs[] = {
-    TX2_IRQ_PPI_VTIMER,
 };
 
 static const int free_plat_interrupts[] = { 220 + GIC_LIC_INTID_BASE };

@@ -88,8 +88,5 @@ assembly {
             "0xF4000000:26",
             "0xF8000000:24",
         ];
-        vm.irqs = [
-            27, // TX2_IRQ_PPI_VTIMER
-        ];
 	}
 }

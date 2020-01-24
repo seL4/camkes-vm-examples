@@ -22,7 +22,6 @@
 #define IRQ_SPI_OFFSET 32
 
 static const int linux_pt_irqs[] = {
-    27, // VTCNT
 };
 
 static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,

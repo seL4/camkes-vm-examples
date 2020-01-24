@@ -52,6 +52,7 @@
 #include <sel4vmmplatsupport/arch/guest_boot_init.h>
 #include <sel4vmmplatsupport/arch/guest_reboot.h>
 #include <sel4vmmplatsupport/arch/guest_vcpu_fault.h>
+#include <sel4vmmplatsupport/guest_vcpu_util.h>
 
 #include <sel4utils/process.h>
 #include <sel4utils/irq_server.h>
@@ -1001,15 +1002,10 @@ int main_continued(void)
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
                   &_io_ops, _fault_endpoint, VM_NAME);
     assert(!err);
-    vm_vcpu_t *vm_vcpu;
-    vm_vcpu = vm_create_vcpu(&vm, VM_PRIO);
-    assert(vm_vcpu);
-    err = vm_register_unhandled_vcpu_fault_callback(vm_vcpu, vmm_handle_arm_vcpu_exception, NULL);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
     err = vm_register_notification_callback(&vm, handle_async_event, NULL);
     assert(!err);
-
 #ifdef CONFIG_ARM_SMMU
     /* install any iospaces */
     int iospace_caps;
@@ -1025,6 +1021,16 @@ int main_continued(void)
         }
     }
 #endif /* CONFIG_ARM_SMMU */
+
+    for (int i = 0; i < CONFIG_MAX_NUM_NODES; i++) {
+        vm_vcpu_t *new_vcpu = create_vmm_plat_vcpu(&vm, VM_PRIO - 1);
+        assert(new_vcpu);
+    }
+    vm_vcpu_t *vm_vcpu = vm.vcpus[BOOT_VCPU];
+    err = vm_assign_vcpu_target(vm_vcpu, 0);
+    if (err) {
+        return -1;
+    }
 
     /* Load system images */
     printf("Loading Linux: \'%s\' dtb: \'%s\'\n", linux_image_config.linux_name, linux_image_config.dtb_name);

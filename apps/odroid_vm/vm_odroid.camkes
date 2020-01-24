@@ -256,6 +256,5 @@ assembly {
                     "0x1001c000:12", // CMU_ISP
                     "0x10018000:12", // CMU_ACP
                     "0x40000000:29"]; // RAM
-        vm.irqs =  [27]; // VTCNT (arch timer)
     }
 }

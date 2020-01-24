@@ -213,7 +213,6 @@ enum IRQConstants {
 
 
 static const int linux_pt_irqs[] = {
-    INTERRUPT_VTIMER
 };
 
 static const int free_plat_interrupts[] =  { -1 };

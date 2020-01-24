@@ -106,7 +106,5 @@ assembly {
         vm.untyped_mmios = [
                     "0x10486000:12", // VCPU
                     "0x40000000:28"]; // RAM //:29
-
-        vm.irqs =  [27]; // VTCNT (arch timer)
 	}
 }

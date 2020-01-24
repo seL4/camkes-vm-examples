@@ -27,7 +27,6 @@
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x4D700000
 
 static const int linux_pt_irqs[] = {
-    27,
 };
 
 static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,

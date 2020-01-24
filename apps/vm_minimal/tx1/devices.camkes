@@ -48,7 +48,5 @@ assembly {
                        {"path": "/fuse@7000f800"}]);
 
         vm0.untyped_mmios = ["0x50046000:12"]; // Interrupt Controller Virtual CPU interface (Virtual Machine view)
-
-        vm0.irqs = [27]; // INTERRUPT_VTIMER
 	}
 }

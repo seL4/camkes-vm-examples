@@ -164,7 +164,6 @@
 #define ARDPAUX                         191
 
 static const int linux_pt_irqs[] = {
-    INTERRUPT_VTIMER,
     INTERRUPT_SDMMC4,
     INTERRUPT_UARTD,
 };

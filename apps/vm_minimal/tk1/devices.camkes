@@ -82,7 +82,7 @@ assembly {
                     "0x01001000:12", // PCIe Controller 1 config registers
 #endif
                     ];
-        vm0.irqs =  [27, // INTERRUPT_VGPT (INTERRUPT_PPI_11)
+        vm0.irqs =  [
                     63, // INTERRUPT_SDMMC4
                     122, // INTERRUPT_UARTD
                     ];
