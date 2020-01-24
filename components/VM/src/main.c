@@ -608,7 +608,7 @@ int install_linux_devices(vm_t *vm)
 
 }
 
-static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
+static int route_irq(int irq_num, vm_vcpu_t *vcpu, irq_server_t *irq_server)
 {
     ps_irq_t irq = { .type = PS_INTERRUPT, .irq = { .number = irq_num }};
     irq_callback_fn_t handler = NULL;
@@ -624,14 +624,14 @@ static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
         return -1;
     }
 
-    int err = vm_register_irq(vm, irq.irq.number, &do_irq_server_ack, token);
+    int err = vm_register_irq(vcpu, irq.irq.number, &do_irq_server_ack, token);
     if (err == -1) {
         return -1;
     }
 
     token->virq = irq.irq.number;
     token->irq = irq;
-    token->vm = vm;
+    token->vm = vcpu->vm;
 
     irq_id_t irq_id = irq_server_register_irq(irq_server, irq, handler, token);
     if (irq_id < 0) {
@@ -641,13 +641,13 @@ static int route_irq(int irq_num, vm_t *vm, irq_server_t *irq_server)
     return 0;
 }
 
-static int route_irqs(vm_t *vm, irq_server_t *irq_server)
+static int route_irqs(vm_vcpu_t *vcpu, irq_server_t *irq_server)
 {
     int err;
     int i;
     for (i = 0; i < ARRAY_SIZE(linux_pt_irqs); i++) {
         int irq_num = linux_pt_irqs[i];
-        err = route_irq(irq_num, vm, irq_server);
+        err = route_irq(irq_num, vcpu, irq_server);
         if (err) {
             return err;
         }
@@ -657,7 +657,7 @@ static int route_irqs(vm_t *vm, irq_server_t *irq_server)
         int *dtb_irqs = camkes_dtb_get_irqs(&num_dtb_irqs);
         for (i = 0; i < num_dtb_irqs; i++) {
             int irq_num = dtb_irqs[i];
-            err = route_irq(irq_num, vm, irq_server);
+            err = route_irq(irq_num, vcpu, irq_server);
             if (err) {
                 return err;
             }
@@ -733,11 +733,6 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     err = install_linux_devices(vm);
     if (err) {
         printf("Error: Failed to install Linux devices\n");
-        return -1;
-    }
-    /* Route IRQs */
-    err = route_irqs(vm, _irq_server);
-    if (err) {
         return -1;
     }
     /* Load kernel */
@@ -1028,6 +1023,12 @@ int main_continued(void)
     }
     vm_vcpu_t *vm_vcpu = vm.vcpus[BOOT_VCPU];
     err = vm_assign_vcpu_target(vm_vcpu, 0);
+    if (err) {
+        return -1;
+    }
+
+    /* Route IRQs */
+    err = route_irqs(vm_vcpu, _irq_server);
     if (err) {
         return -1;
     }
