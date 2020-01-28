@@ -701,7 +701,8 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, size_t initr
     }
 
     /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
-    err = fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline);
+    err = fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline,
+                                   CONFIG_MAX_NUM_NODES);
     if (err) {
         return -1;
     }

@@ -27,9 +27,10 @@ int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size);
 * @param fdt
 * @param stdout_path, the path of the stdout
 * @param bootargs
+* @param maxcpus
 * @return -1 on error, 0 otherwise
 */
-int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *bootargs);
+int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *bootargs, const unsigned int maxcpus);
 
 /**
 * append the chosen node with initrd info

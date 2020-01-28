@@ -53,7 +53,7 @@ int fdt_generate_memory_node(void *fdt, unsigned long base, size_t size)
     return 0;
 }
 
-int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *bootargs)
+int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *bootargs, const unsigned int maxcpus)
 {
     int root_offset = fdt_path_offset(fdt, "/");
     int this = fdt_add_subnode(fdt, root_offset, "chosen");
@@ -69,10 +69,31 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
             return err;
         }
     }
-    err = fdt_appendprop_string(fdt, this, "bootargs", bootargs);
-    if (err) {
+
+    size_t bootargs_len = strlen(bootargs);
+    /*  +3*sizeof(int) is a cheap approximated formula for maximum number of characters in a UINT_MAX
+     *  +1 for null character, +9 for ' maxcpus='
+     */
+    size_t updated_bootargs_len = bootargs_len + 9 + (3*sizeof(unsigned int) + 1);
+    char *updated_bootargs = calloc(1, updated_bootargs_len);
+    if (!updated_bootargs) {
+        ZF_LOGE("Failed to generate chosen node: Unable to allocate updated bootargs");
         return err;
     }
+    int res = snprintf(updated_bootargs, updated_bootargs_len, "%s maxcpus=%u", bootargs, maxcpus);
+    if (res < 0) {
+        ZF_LOGE("Failed to generate chosen node: Unable to allocate updated bootargs");
+        free(updated_bootargs);
+        return -1;
+    }
+
+    err = fdt_appendprop_string(fdt, this, "bootargs", updated_bootargs);
+    if (err) {
+        ZF_LOGE("Failed to generate chosen node: Unable to create updated bootargs");
+        free(updated_bootargs);
+        return err;
+    }
+    free(updated_bootargs);
 
     return 0;
 }
