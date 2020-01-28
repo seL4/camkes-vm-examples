@@ -363,5 +363,6 @@ static const char *plat_keep_device_and_subtree[] = {
     "/plugin-manager",
     "/eeprom-manager",
     "/firmware",
+    "/psci"
 };
 static const char *plat_keep_device_and_subtree_and_disable[] = {};

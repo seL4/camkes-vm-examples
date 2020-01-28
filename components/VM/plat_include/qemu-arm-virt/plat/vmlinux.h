@@ -32,6 +32,7 @@ static const char *plat_keep_devices[] = {
     "/platform@c000000",
     "/pmu",
     "/flash@0",
+    "/psci",
 };
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {

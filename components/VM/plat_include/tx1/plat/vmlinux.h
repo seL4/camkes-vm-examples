@@ -230,7 +230,6 @@ static const int free_plat_interrupts[] =  { -1 };
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
 
 static const char *plat_keep_devices[] = {
-    "/cpus/cpu@0",
     "/interrupt-controller@50041000",
     "/gpu@57000000",
     "/serial@70006300",
@@ -247,6 +246,7 @@ static const char *plat_keep_devices[] = {
     "/mipi@700e3000",
     "/timer",
     "/aliases",
+    "/psci",
 };
 static const char *plat_keep_device_and_disable[] = {
     "/serial@70006040",
@@ -269,6 +269,7 @@ static const char *plat_keep_device_and_disable[] = {
     "/usb-phy@7d004000",
 };
 static const char *plat_keep_device_and_subtree[] = {
+    "/cpus",
     "/pcie@1003000",
     "/host1x@50000000",
     "/thermal-zones",
