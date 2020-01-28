@@ -34,7 +34,7 @@ assembly {
         };
 
         vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
+            "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug init=/sbin/init",
             "linux_stdout" : "/serial@3100000",
         };
 
