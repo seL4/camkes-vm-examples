@@ -81,14 +81,10 @@ assembly {
         connection seL4Ethdriver eth_driver1(from udpserver1.ethdriver, to ethdriver.client);
         connection seL4UDPRecv udp_echo_recv(from echo.echo_recv, to udpserver0.client_recv);
         connection seL4UDPSend udp_echo_send(from echo.echo_send, to udpserver0.client_send);
-        connection seL4MultiSharedData udp_echo_send_buf(from echo.echo_send_buf, to udpserver0.client_send_buf);
-        connection seL4MultiSharedData udp_echo_recv_buf(from echo.echo_recv_buf, to udpserver0.client_recv_buf);
         connection seL4GlobalAsynchCallback udp_echo_recv_ready(from udpserver0.client_recv_ready, to echo.echo_recv_ready);
 
         connection seL4UDPRecv udp_echo2_recv(from echo.echo2_recv, to udpserver1.client_recv);
         connection seL4UDPSend udp_echo2_send(from echo.echo2_send, to udpserver1.client_send);
-        connection seL4MultiSharedData udp_echo2_send_buf(from echo.echo2_send_buf, to udpserver1.client_send_buf);
-        connection seL4MultiSharedData udp_echo2_recv_buf(from echo.echo2_recv_buf, to udpserver1.client_recv_buf);
         connection seL4GlobalAsynchCallback udp_echo2_recv_ready(from udpserver1.client_recv_ready, to echo.echo2_recv_ready);
 
         /* Connect vm0 ethernet to the firewall */
@@ -171,15 +167,11 @@ assembly {
         ];
 
 #ifndef PASSTHROUGH_ETHERNET
-        /* The attributes for the receive buffer represent the client ID
-         * this needs to match the the 'echo_recv_attributes' to indicate that
-         * the this is the buffer for that client */
-        echo.echo_recv_buf_attributes = "1";
-        echo.echo_recv_buf_shmem_size = 0x1000;
 
         /* attributes for echo receive RPC indicate a client ID. This needs
          * to be unique across all of the RPC connections to the udpserver0.client_recv */
         echo.echo_recv_attributes = "1";
+        echo.echo_recv_shmem_size = 0x1000;
         /* The UDP port that this interface will receive packets on */
         echo.echo_recv_port = 7;
         /* Provide a name for the endpoint used to notify when there are new packets
@@ -198,15 +190,11 @@ assembly {
          * recv and them also being 1 is purely coincidental and not required
          */
         echo.echo_send_attributes= "1";
+        echo.echo_send_shmem_size = 0x1000;
 
-        echo.echo_send_buf_attributes = "1";
-        echo.echo_send_buf_shmem_size = 0x1000;
-
-        echo.echo2_recv_buf_attributes = "2";
-        echo.echo2_recv_buf_shmem_size = 0x1000;
 
         echo.echo2_recv_attributes = "2";
-        echo.echo2_send_buf_shmem_size = 0x1000;
+        echo.echo2_recv_shmem_size = 0x1000;
 
         echo.echo2_recv_port = 7;
         echo.echo2_recv_global_endpoint = "echo2_recv_endpoint";
@@ -214,8 +202,7 @@ assembly {
 
         echo.echo2_send_ports = { "source" : 7, "dest" : 7};
         echo.echo2_send_attributes= "2";
-
-        echo.echo2_send_buf_attributes = "2";
+        echo.echo2_send_shmem_size = 0x1000;
 
         echo.timer_attributes = 5;
         echo.timer_global_endpoint = "echo_timer";
