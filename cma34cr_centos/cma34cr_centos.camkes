@@ -81,11 +81,10 @@ assembly {
         connection seL4Ethdriver eth_driver1(from udpserver1.ethdriver, to ethdriver.client);
         connection seL4UDPRecv udp_echo_recv(from echo.echo_recv, to udpserver0.client_recv);
         connection seL4UDPSend udp_echo_send(from echo.echo_send, to udpserver0.client_send);
-        connection seL4GlobalAsynchCallback udp_echo_recv_ready(from udpserver0.client_recv_ready, to echo.echo_recv_ready);
+        connection seL4GlobalAsynchCallback echo_global_callback(from echo.dummy, to echo.recv_ready);
 
         connection seL4UDPRecv udp_echo2_recv(from echo.echo2_recv, to udpserver1.client_recv);
         connection seL4UDPSend udp_echo2_send(from echo.echo2_send, to udpserver1.client_send);
-        connection seL4GlobalAsynchCallback udp_echo2_recv_ready(from udpserver1.client_recv_ready, to echo.echo2_recv_ready);
 
         /* Connect vm0 ethernet to the firewall */
         connection seL4Ethdriver firewall_con(from vm0.ethdriver, to firewall.client);
