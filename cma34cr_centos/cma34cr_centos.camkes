@@ -81,7 +81,6 @@ assembly {
         connection seL4Ethdriver eth_driver1(from udpserver1.ethdriver, to ethdriver.client);
         connection seL4UDPRecv udp_echo_recv(from echo.echo_recv, to udpserver0.client_recv);
         connection seL4UDPSend udp_echo_send(from echo.echo_send, to udpserver0.client_send);
-        connection seL4GlobalAsynchCallback echo_global_callback(from echo.dummy, to echo.recv_ready);
 
         connection seL4UDPRecv udp_echo2_recv(from echo.echo2_recv, to udpserver1.client_recv);
         connection seL4UDPSend udp_echo2_send(from echo.echo2_send, to udpserver1.client_send);
@@ -177,8 +176,7 @@ assembly {
          * to poll for. This needs to be a valid C symbol, should match what is given
          * in 'echo_recv_ready_global_endpoint' and should otherwise be unqiue in the
          * whole system */
-        echo.echo_recv_global_endpoint = "echo_recv_endpoint";
-        echo.echo_recv_ready_global_endpoint = "echo_recv_endpoint";
+        echo.echo_recv_global_endpoint = "echo_global_endpoint";
 
         /* Set the port this UDP interface will send on over the network.
          * 'dest' is the port to send to, and 'source' is the 'return address'
@@ -196,8 +194,7 @@ assembly {
         echo.echo2_recv_shmem_size = 0x1000;
 
         echo.echo2_recv_port = 7;
-        echo.echo2_recv_global_endpoint = "echo2_recv_endpoint";
-        echo.echo2_recv_ready_global_endpoint = "echo2_recv_endpoint";
+        echo.echo2_recv_global_endpoint = "echo_global_endpoint";
 
         echo.echo2_send_ports = { "source" : 7, "dest" : 7};
         echo.echo2_send_attributes= "2";
