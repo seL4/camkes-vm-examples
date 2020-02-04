@@ -857,8 +857,6 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
 #endif
     } else if (badge == VIRTIO_NET_BADGE) {
         virtio_net_notify(vm);
-    } else if (badge > SERIAL_BADGE) {
-        consume_connection_event(vm, badge, true);
     } else {
         bool found_handler = false;
         for (int i = 0; i < callback_len; i++) {

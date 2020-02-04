@@ -25,12 +25,23 @@ extern dataport_caps_handle_t crossvm_dp_0_handle;
 extern dataport_caps_handle_t crossvm_dp_1_handle;
 
 static struct camkes_crossvm_connection connections[] = {
-    {&crossvm_dp_0_handle, ready_emit, (1 << 3)},
+    {&crossvm_dp_0_handle, ready_emit, -1},
     {&crossvm_dp_1_handle, NULL, -1}
 };
 
+static int consume_callback(vm_t *vm, void *cookie)
+{
+    consume_connection_event(vm, connections[0].consume_badge, true);
+    return 0;
+}
+
+extern seL4_Word done_notification_badge(void);
 void init_cross_vm_connections(vm_t *vm, void *cookie)
 {
+    connections[0].consume_badge = done_notification_badge();
+    int err = register_async_event_handler(connections[0].consume_badge, consume_callback, NULL);
+    ZF_LOGF_IF(err, "Failed to register_async_event_handler for init_cross_vm_connections.");
+
     cross_vm_connections_init(vm, CONNECTION_BASE_ADDRESS, connections, ARRAY_SIZE(connections));
 }
 

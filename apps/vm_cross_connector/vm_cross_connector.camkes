@@ -73,6 +73,7 @@ assembly {
         crossvm_init.done_global_endpoint = "vm0";
         crossvm_init.done_badge = FIRST_CROSS_VM_BADGE;
         vm0.done_global_endpoint = "vm0";
+        vm0.done_badge = FIRST_CROSS_VM_BADGE;
 
     }
 }
