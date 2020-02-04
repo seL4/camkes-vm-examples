@@ -819,6 +819,34 @@ void parse_camkes_linux_attributes(void)
     initrd_addr = strtoul(linux_address_config.initrd_addr, NULL, 0);
 }
 
+/* Async event handling registration implementation */
+typedef struct async_event_handler {
+    seL4_Word badge;
+    void (*callback)(vm_t *, void *);
+    void *cookie;
+} async_event_handler_t;
+
+static int callback_len = 0;
+static async_event_handler_t *callback_arr = NULL;
+
+int register_async_event_handler(seL4_Word badge, async_event_handler_fn_t callback, void *cookie)
+{
+    if (callback_arr == NULL) {
+        callback_arr = calloc(1, sizeof(*callback_arr));
+    } else {
+        callback_arr = realloc(callback_arr, callback_len + 1 * sizeof(*callback_arr));
+    }
+    if (callback_arr == NULL) {
+        ZF_LOGE("Failed to allocate memory for callback_arr");
+        return -1;
+    }
+
+    async_event_handler_t handler = {.badge = badge, .callback = callback, .cookie = cookie};
+    callback_arr[callback_len] = handler;
+    callback_len++;
+    return 0;
+}
+
 static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag, void *cookie)
 {
     seL4_Word label = seL4_MessageInfo_get_label(tag);
@@ -839,7 +867,17 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
     } else if (badge > SERIAL_BADGE) {
         consume_connection_event(vm, badge, true);
     } else {
-        ZF_LOGE("Unknown badge (%d)", badge);
+        bool found_handler = false;
+        for (int i = 0; i < callback_len; i++) {
+            assert(callback_arr);
+            if ((badge & callback_arr[i].badge) == callback_arr[i].badge) {
+                callback_arr[i].callback(vm, callback_arr[i].cookie);
+                found_handler = true;
+            }
+        }
+        if (!found_handler) {
+            ZF_LOGE("Unknown badge (%d)", badge);
+        }
     }
     return 0;
 }
