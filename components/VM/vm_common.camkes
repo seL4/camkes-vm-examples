@@ -28,7 +28,6 @@ assembly {
     }
     configuration {
         fserv.heap_size = 165536;
-        vm.fs_attributes = "0";
         vm.fs_shmem_size = 0x1000;
 
         vm.asid_pool = true;
@@ -42,7 +41,5 @@ assembly {
         vm._priority = 101;
         vm.sem_value = 0;
 
-        vm.notification_ready_global_endpoint = "vm";
-        vm.notification_ready_connector_global_endpoint = "vm";
     }
 }

@@ -69,11 +69,6 @@ assembly {
         vm0.crossvm_dp_1_id = 0;
         vm0.crossvm_dp_1_size = 4096;
 
-        crossvm_init.done_attributes = "1";
-        crossvm_init.done_global_endpoint = "vm0";
-        crossvm_init.done_badge = FIRST_CROSS_VM_BADGE;
-        vm0.done_global_endpoint = "vm0";
-        vm0.done_badge = FIRST_CROSS_VM_BADGE;
 
     }
 }

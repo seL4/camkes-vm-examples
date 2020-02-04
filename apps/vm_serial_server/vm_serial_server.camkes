@@ -29,22 +29,12 @@ assembly {
         vm.num_extra_frame_caps = 0;
         vm.extra_frame_map_address = 0;
 
-        time_server.putchar_attributes = 0;
         time_server.timers_per_client = 1;
         /* Put the entire time server at the highest priority */ 
         time_server.priority = 255;
         time_server.simple = true;
         
-        vm.putchar_attributes = 1;
-        vm.serial_getchar_global_endpoint = "vm";
-        vm.serial_getchar_badge = "4";
-        vm.serial_getchar_attributes = "0";
         vm.serial_getchar_shmem_size = 0x1000;
-        vm.serial_wait_global_endpoint = "vm";
-        vm.self_global_endpoint = "vm";
 
-        serial.timeout_attributes = 1;
-        serial.serial_wait_global_endpoint = "serial";
-        serial.self_global_endpoint = "serial";
     }
 }

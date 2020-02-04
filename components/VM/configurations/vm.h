@@ -112,9 +112,7 @@
     vm##num.simple_untyped24_pool = 12; \
     vm##num.base_prio = 100; \
     vm##num._priority = 101; \
-    vm##num.sem_value = 0; \
-    vm##num.notification_ready_global_endpoint = VAR_STRINGIZE(vm##num); \
-    vm##num.notification_ready_connector_global_endpoint = VAR_STRINGIZE(vm##num); \
+    vm##num.sem_value = 0;
 
 #define VM_VIRTUAL_SERIAL_COMPONENTS_DEF() \
     component SerialServer serial; \
@@ -130,19 +128,11 @@
     __CALL(PER_VM_VIRTUAL_SERIAL_CONNECTIONS_DEF, vm_ids) \
 
 #define VM_VIRTUAL_SERIAL_GENERAL_CONFIGURATION_DEF() \
-    time_server.putchar_attributes = 0; \
     time_server.timers_per_client = 1; \
     time_server.priority = 255; \
-    time_server.simple = true; \
-    serial.timeout_attributes = 1; \
-    serial.serial_wait_global_endpoint = "serial"; \
-    serial.self_global_endpoint = "serial"; \
+    time_server.simple = true;
 
 #define PER_VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(num) \
-    vm##num.putchar_attributes = VAR_STRINGIZE(num); \
-    vm##num.serial_getchar_global_endpoint = VAR_STRINGIZE(vm##num); \
-    vm##num.serial_getchar_badge = "4"; \
-    vm##num.serial_getchar_attributes = VAR_STRINGIZE(num); \
     vm##num.serial_getchar_shmem_size = 0x1000; \
 
 #define VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(vm_ids...) \
