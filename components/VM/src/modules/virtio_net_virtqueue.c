@@ -23,8 +23,6 @@
 #include <camkes/virtqueue.h>
 #include <virtio/virtio_net.h>
 
-#include "virtio_net_virtqueue.h"
-
 static virtio_net_t *virtio_net = NULL;
 
 virtqueue_device_t recv_virtqueue;
@@ -93,7 +91,7 @@ static int virtio_net_notify_handle_recv(void)
     recv_virtqueue.notify();
 }
 
-void virtio_net_notify(vm_t *vm)
+static int virtio_net_notify(vm_t *vmm, void *cookie)
 {
     if (VQ_DEV_POLL(&recv_virtqueue)) {
         int err = virtio_net_notify_handle_recv();
@@ -105,6 +103,7 @@ void virtio_net_notify(vm_t *vm)
     if (VQ_DRV_POLL(&send_virtqueue)) {
         virtio_net_notify_free_send();
     }
+    return 0;
 }
 
 void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
@@ -113,18 +112,24 @@ void make_virtqueue_virtio_net(vm_t *vm, void *cookie)
     callbacks.tx_callback = tx_virtqueue_forward;
     callbacks.irq_callback = NULL;
     virtio_net = virtio_net_init(vm, &callbacks, pci, io_ports);
+    seL4_CPtr recv_notif;
+    seL4_CPtr recv_badge;
 
     /* Initialise recv virtqueue */
-    int err = camkes_virtqueue_device_init(&recv_virtqueue, 0);
+    int err = camkes_virtqueue_device_init_with_recv(&recv_virtqueue, 0, &recv_notif, &recv_badge);
     if (err) {
         ZF_LOGF("Unable to initialise recv virtqueue");
     }
+    err = register_async_event_handler(recv_badge, virtio_net_notify, NULL);
+    ZF_LOGF_IF(err, "Failed to register_async_event_handler for make_virtio_con.");
 
     /* Initialise send virtqueue */
-    err = camkes_virtqueue_driver_init(&send_virtqueue, 1);
+    err = camkes_virtqueue_driver_init_with_recv(&send_virtqueue, 1, &recv_notif, &recv_badge);
     if (err) {
         ZF_LOGF("Unable to initialise send virtqueue");
     }
+    err = register_async_event_handler(recv_badge, virtio_net_notify, NULL);
+    ZF_LOGF_IF(err, "Failed to register_async_event_handler for make_virtqueue_virtio_net.");
 
 }
 

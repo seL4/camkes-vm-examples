@@ -123,11 +123,6 @@ simple_get_IRQ_handler_fn original_simple_get_irq_fn;
 int *WEAK camkes_dtb_get_irqs(int *num_irqs);
 char **WEAK camkes_dtb_get_node_paths(int *num_nodes);
 
-int WEAK virtio_net_notify(vm_t *vm)
-{
-    return 0;
-}
-
 int get_crossvm_irq_num(void)
 {
     return free_plat_interrupts[0];
@@ -855,8 +850,6 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
     } else if (badge == VUSB_NBADGE) {
         vusb_notify();
 #endif
-    } else if (badge == VIRTIO_NET_BADGE) {
-        virtio_net_notify(vm);
     } else {
         bool found_handler = false;
         for (int i = 0; i < callback_len; i++) {
