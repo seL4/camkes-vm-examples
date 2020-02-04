@@ -38,7 +38,7 @@ char txbuf[BUFSIZE];
 extern vmm_pci_space_t *pci;
 extern vmm_io_port_list_t *io_ports;
 
-void handle_serial_console()
+static int handle_serial_console(vm_t *vmm, void *cookie UNUSED)
 {
     struct {
         uint32_t head;
@@ -53,6 +53,7 @@ void handle_serial_console()
         count += 1 % BUFSIZE;
     }
     virtio_console_putchar(virtio_con->emul, txbuf, count);
+    return 0;
 }
 
 static void emulate_console_putchar(char c)
@@ -60,8 +61,11 @@ static void emulate_console_putchar(char c)
     putchar_putchar(c);
 }
 
+extern seL4_Word serial_getchar_notification_badge(void);
 void make_virtio_con(vm_t *vm, void *cookie)
 {
+    int err = register_async_event_handler(serial_getchar_notification_badge(), handle_serial_console, NULL);
+    ZF_LOGF_IF(err, "Failed to register_async_event_handler for make_virtio_con.");
     virtio_con = virtio_console_init(vm, emulate_console_putchar, pci, io_ports);
     if (!virtio_con) {
         ZF_LOGF("Failed to initialise virtio console");
