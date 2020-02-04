@@ -83,43 +83,27 @@ assembly {
 
         vm0.ether_2_send_id = 0;
         vm0.ether_2_send_attributes = "02";
-        vm0.ether_2_send_global_endpoint = "vm2";
-        vm0.ether_2_send_badge = CONNECTION_BADGE;
         vm0.ether_2_recv_id = 1;
         vm0.ether_2_recv_attributes = "20";
-        vm0.ether_2_recv_global_endpoint = "vm2";
-        vm0.ether_2_recv_badge = CONNECTION_BADGE;
         vm0.vswitch_mac_address = "02:00:00:00:AA:01";
         vm0.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:02", "send_id": 0, "recv_id":1},];
 
         vm1.ether_2_send_id = 0;
         vm1.ether_2_send_attributes = "12";
-        vm1.ether_2_send_global_endpoint = "vm2";
-        vm1.ether_2_send_badge = CONNECTION_BADGE;
         vm1.ether_2_recv_id = 1;
         vm1.ether_2_recv_attributes = "21";
-        vm1.ether_2_recv_global_endpoint = "vm2";
-        vm1.ether_2_recv_badge = CONNECTION_BADGE;
         vm1.vswitch_mac_address = "02:00:00:00:AA:02";
         vm1.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "send_id": 0, "recv_id":1},];
 
         vm2.ether_0_send_id = 0;
         vm2.ether_0_send_attributes = "20";
-        vm2.ether_0_send_global_endpoint = "vm0";
-        vm2.ether_0_send_badge = CONNECTION_BADGE;
         vm2.ether_0_recv_id = 1;
         vm2.ether_0_recv_attributes = "02";
-        vm2.ether_0_recv_global_endpoint = "vm0";
-        vm2.ether_0_recv_badge = CONNECTION_BADGE;
 
         vm2.ether_1_send_id = 2;
         vm2.ether_1_send_attributes = "21";
-        vm2.ether_1_send_global_endpoint = "vm1";
-        vm2.ether_1_send_badge = CONNECTION_BADGE;
         vm2.ether_1_recv_id = 3;
         vm2.ether_1_recv_attributes = "12";
-        vm2.ether_1_recv_global_endpoint = "vm1";
-        vm2.ether_1_recv_badge = CONNECTION_BADGE;
 
         init0.init_topology = [{ "drv" : "vm0.ether_2_send" , "dev" : "vm2.ether_0_recv"}, { "drv" : "vm2.ether_0_send" , "dev" : "vm0.ether_2_recv"},];
         init1.init_topology = [{ "drv" : "vm1.ether_2_send" , "dev" : "vm2.ether_1_recv"}, { "drv" : "vm2.ether_1_send" , "dev" : "vm1.ether_2_recv"},];
@@ -172,8 +156,6 @@ assembly {
         vm2.iospace_domain = 0x11;
         vm2.pci_devices_iospace = 3;
 
-        vm2.self_global_endpoint = "vm2";
-        vm2.virtqueue_wait_global_endpoint = "vm2";
         vm2.environment = "cakeml";
 
     }

@@ -139,16 +139,9 @@ assembly {
         HWEthdriver.irq_irq_ioapic_pin = 18;
         HWEthdriver.irq_irq_vector = 18;
 
-        vm0.ethdriver_attributes = "1";
-        vm0.ethdriver_global_endpoint = "vm0";
-        vm0.ethdriver_badge = "134479872";
         vm0.ethdriver_mac = [6, 0, 0, 11, 12, 13];
 
-        firewall.ethdriver_attributes = "1";
-        firewall.ethdriver_global_endpoint = "firewall";
-        firewall.ethdriver_badge = "134217729";
         firewall.ethdriver_mac = [6, 0, 0, 11, 12, 13];
-        firewall.ethdriver_has_data_global_endpoint = "firewall";
 #endif
 
 #ifndef PASSTHROUGH_SATA
@@ -157,7 +150,7 @@ assembly {
 
         vm0.init_cons = [
 #ifndef PASSTHROUGH_ETHERNET
-            {"init":"make_virtio_net", "badge":134479872, "irq":"virtio_net_notify"},
+            {"init":"make_virtio_net", "badge":"ethdriver_notification_badge()", "irq":"virtio_net_notify"},
 #endif
 #ifndef PASSTHROUGH_SATA
             // virtio block device init function
@@ -168,15 +161,9 @@ assembly {
 
         /* attributes for echo receive RPC indicate a client ID. This needs
          * to be unique across all of the RPC connections to the udpserver0.client_recv */
-        echo.echo_recv_attributes = "1";
         echo.echo_recv_shmem_size = 0x1000;
         /* The UDP port that this interface will receive packets on */
         echo.echo_recv_port = 7;
-        /* Provide a name for the endpoint used to notify when there are new packets
-         * to poll for. This needs to be a valid C symbol, should match what is given
-         * in 'echo_recv_ready_global_endpoint' and should otherwise be unqiue in the
-         * whole system */
-        echo.echo_recv_global_endpoint = "echo_global_endpoint";
 
         /* Set the port this UDP interface will send on over the network.
          * 'dest' is the port to send to, and 'source' is the 'return address'
@@ -186,40 +173,29 @@ assembly {
          * as for echo_recv. In this case they are a different namespace as
          * recv and them also being 1 is purely coincidental and not required
          */
-        echo.echo_send_attributes= "1";
         echo.echo_send_shmem_size = 0x1000;
 
 
-        echo.echo2_recv_attributes = "2";
         echo.echo2_recv_shmem_size = 0x1000;
 
         echo.echo2_recv_port = 7;
-        echo.echo2_recv_global_endpoint = "echo_global_endpoint";
 
         echo.echo2_send_ports = { "source" : 7, "dest" : 7};
-        echo.echo2_send_attributes= "2";
         echo.echo2_send_shmem_size = 0x1000;
 
-        echo.timer_attributes = 5;
-        echo.timer_global_endpoint = "echo_timer";
-        echo.timer_complete_global_endpoint = "echo_timer";
         echo.heap_size = 0;
 
         udpserver0.num_client_recv_bufs = 8;
         udpserver0.udp_ip_addr = "192.168.0.2";
         udpserver0.multicast_addr = "0.0.0.0";
-        udpserver0.ethdriver_attributes = "2";
         udpserver0.ethdriver_shmem_size = 0x1000;
-        udpserver0.ethdriver_global_endpoint = "udpserver0_endpoint";
         udpserver0.ethdriver_mac = [6, 0, 0, 12, 13, 14];
         udpserver0.heap_size = 0;
 
         udpserver1.num_client_recv_bufs = 8;
         udpserver1.udp_ip_addr = "192.168.0.3";
         udpserver1.multicast_addr = "0.0.0.0";
-        udpserver1.ethdriver_attributes = "3";
         udpserver1.ethdriver_shmem_size = 0x1000;
-        udpserver1.ethdriver_global_endpoint = "udpserver1_endpoint";
         udpserver1.ethdriver_mac = [6, 0, 0, 13, 14, 15];
         udpserver1.heap_size = 0;
 #endif
