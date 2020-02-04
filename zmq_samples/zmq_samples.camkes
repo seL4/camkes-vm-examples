@@ -68,13 +68,13 @@ assembly {
 
         /* Initialise vmm devices */
         vm0.init_cons = [
-            VM_CONNECTION_INIT_HANDLER,
+            VM_CONNECTION_INIT_HANDLER(0,topology_def),
         ];
         vm1.init_cons = [
-            VM_CONNECTION_INIT_HANDLER,
+            VM_CONNECTION_INIT_HANDLER(1,topology_def),
         ];
         vm2.init_cons = [
-            VM_CONNECTION_INIT_HANDLER,
+            VM_CONNECTION_INIT_HANDLER(2,topology_def),
         ];
 
         VM_CONFIGURATION_DEF()
