@@ -42,22 +42,7 @@ typedef struct virtio_net_cookie {
 /* Maximum transmission unit for Ethernet interface */
 #define MTU 1500
 
-#define MAC_ADDR_B1 6
-#define MAC_ADDR_B2 0
-#define MAC_ADDR_B3 0
-#define MAC_ADDR_B4 11
-#define MAC_ADDR_B5 12
-#define MAC_ADDR_B6 13
-
-void ethdriver_mac(uint8_t *b1, uint8_t *b2, uint8_t *b3, uint8_t *b4, uint8_t *b5, uint8_t *b6)
-{
-    *b1 = MAC_ADDR_B1;
-    *b2 = MAC_ADDR_B2;
-    *b3 = MAC_ADDR_B3;
-    *b4 = MAC_ADDR_B4;
-    *b5 = MAC_ADDR_B5;
-    *b6 = MAC_ADDR_B6;
-}
+static void (*get_mac_addr_callback)(uint8_t *mac) = NULL;
 
 static void emul_raw_handle_irq(struct eth_driver *driver, int irq)
 {
@@ -123,7 +108,7 @@ int virtio_net_rx(char *data, size_t length, virtio_net_t *virtio_net)
 
 static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mtu)
 {
-    ethdriver_mac(&mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]);
+    get_mac_addr_callback(mac);
     *mtu = MTU;
 }
 
@@ -134,6 +119,8 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
 {
     virtio_net_cookie_t *driver_cookie;
     virtio_net_t *virtio_net;
+
+    get_mac_addr_callback = callbacks->get_mac_addr_callback;
 
     struct raw_iface_funcs backend = virtio_net_default_backend();
     backend.raw_tx = emul_raw_tx;

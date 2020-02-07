@@ -15,6 +15,7 @@
 typedef struct virtio_net_callbacks {
     int (*tx_callback)(char *data, size_t length, virtio_net_t *virtio_net);
     void (*irq_callback)(int irq, virtio_net_t *virtio_net);
+    void (*get_mac_addr_callback)(uint8_t *mac);
 } virtio_net_callbacks_t;
 
 int virtio_net_rx(char *data, size_t length, virtio_net_t *virtio_net);
