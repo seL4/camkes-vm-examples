@@ -669,7 +669,7 @@ static int route_irqs(vm_vcpu_t *vcpu, irq_server_t *irq_server)
     return 0;
 }
 
-static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
+static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, size_t initrd_size, char **paths,
                         int num_paths)
 {
     int err = 0;
@@ -710,6 +710,13 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, size_t initr
 
     if (config_set(CONFIG_VM_INITRD_FILE)) {
         err = fdt_append_chosen_node_with_initrd_info(gen_fdt, initrd_addr, initrd_size);
+        if (err) {
+            return -1;
+        }
+    }
+
+    if (config_set(CONFIG_VM_PCI_SUPPORT)) {
+        err = fdt_generate_vpci_node(vm, pci, gen_fdt, 0x1);
         if (err) {
             return -1;
         }
@@ -766,12 +773,11 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         int num_paths;
         char **paths = camkes_dtb_get_node_paths(&num_paths);
 
-        err = generate_fdt(fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
+        err = generate_fdt(vm, fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
         if (err) {
             ZF_LOGE("Failed to generate a fdt");
             return -1;
         }
-
         vm_ram_mark_allocated(vm, dtb_addr, size_gen);
         vm_ram_touch(vm, dtb_addr, size_gen, load_generated_dtb, gen_fdt);
 
