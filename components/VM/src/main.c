@@ -770,8 +770,11 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
 
         void *gen_fdt = linux_gen_dtb_buf;
         int size_gen = PLAT_LINUX_DTB_SIZE;
-        int num_paths;
-        char **paths = camkes_dtb_get_node_paths(&num_paths);
+        int num_paths = 0;
+        char **paths = NULL;
+        if (camkes_dtb_get_node_paths) {
+            paths = camkes_dtb_get_node_paths(&num_paths);
+        }
 
         err = generate_fdt(vm, fdt_ori, gen_fdt, size_gen, initrd_image.size, paths, num_paths);
         if (err) {
