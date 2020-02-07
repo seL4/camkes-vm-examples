@@ -1,0 +1,124 @@
+/*
+ * Copyright 2020, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_RAM_OFFSET 0
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+
+#define VM0_RAM_BASE 0x40000000
+#define VM0_RAM_SIZE 0x8000000
+#define VM0_DTB_ADDR 0x47000000 //VM0_RAM_BASE + 0x7000000
+#define VM0_INITRD_ADDR 0x45700000 //VM0_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+#define VM1_RAM_BASE 0x48000000
+#define VM1_RAM_SIZE 0x8000000
+#define VM1_DTB_ADDR 0x4f000000 //VM1_RAM_BASE + 0x7000000
+#define VM1_INITRD_ADDR 0x4d700000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+#define VM2_RAM_BASE 0x50000000
+#define VM2_RAM_SIZE 0x8000000
+#define VM2_DTB_ADDR 0x57000000 //VM2_RAM_BASE + 0x7000000
+#define VM2_INITRD_ADDR 0x55700000 //VM2_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM0_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
+        };
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm0",
+        };
+        vm0.mmios = [
+                    "0x10000000:0x1000:12", // CHIP ID
+                    "0x10486000:0x1000:12"  // VCPU
+        ];
+        vm0.untyped_mmios = [
+                    "0x40000000:27"  //RAM
+        ];
+        vm0.irqs =  [];
+        vm0.dtb = dtb([{"path": "/soc/phy@12100000"},
+                       {"path": "/soc/phy@12130000"},
+                       {"path": "/soc/phy@12500000"},
+                       {"path": "/soc/usb3-0/dwc3@12000000"},
+                       {"path": "/soc/usb3-1/dwc3@12400000"},
+                       {"path": "/soc/phy@12100000"},
+                       {"path": "/soc/usb@12110000"},
+                       {"path": "/soc/usb@12120000"},
+                       {"path": "/soc/clock-controller@10010000"},
+                       {"path": "/soc/rtc@101e0000"},
+                       {"path": "/soc/system-controller@10040000"},
+                      ]);
+
+        vm1.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
+        };
+        vm1.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm-client",
+        };
+        vm1.mmios = [
+                    "0x10000000:0x1000:12", // CHIP ID
+                    "0x10486000:0x1000:12"  // VCPU
+        ];
+        vm1.untyped_mmios = [
+                    "0x48000000:27"  //RAM
+        ];
+        vm1.irqs =  [];
+        vm1.dtb = dtb([{}]);
+
+        vm2.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
+        };
+        vm2.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm-client",
+        };
+        vm2.mmios = [
+                    "0x10000000:0x1000:12", // CHIP ID
+                    "0x10486000:0x1000:12"  // VCPU
+        ];
+        vm2.untyped_mmios = [
+                    "0x50000000:27"  //RAM
+        ];
+        vm2.irqs =  [];
+        vm2.dtb = dtb([{}]);
+
+    }
+}
