@@ -48,6 +48,8 @@ assembly {
         vm.send_id = 1;
         vm.send_attributes = "10";
         vm.send_shmem_size = 32768;
+        vm.cnode_size_bits = 23;
+        vm.simple_untyped24_pool = 12;
 
         ping_client.recv_id = 0;
         ping_client.recv_attributes = "10";

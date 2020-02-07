@@ -22,5 +22,7 @@ assembly {
     configuration {
         vm.num_extra_frame_caps = 0;
         vm.extra_frame_map_address = 0;
+        vm.cnode_size_bits = 23;
+        vm.simple_untyped24_pool = 12;
     }
 }

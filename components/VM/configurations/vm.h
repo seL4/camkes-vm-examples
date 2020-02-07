@@ -110,8 +110,6 @@
     vm##num.global_endpoint_base = 1 << 27; \
     vm##num.asid_pool = true; \
     vm##num.simple = true; \
-    vm##num.cnode_size_bits = 23; \
-    vm##num.simple_untyped24_pool = 12; \
     vm##num.base_prio = 100; \
     vm##num._priority = 101; \
     vm##num.sem_value = 0;
