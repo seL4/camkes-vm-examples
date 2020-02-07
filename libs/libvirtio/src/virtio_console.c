@@ -26,8 +26,6 @@
 #include <virtio/virtio_plat.h>
 #include <virtio/virtio_console.h>
 
-#include "virtio_vpci.h"
-
 typedef struct virtio_con_cookie {
     virtio_con_t *virtio_con;
     vm_t *vm;
@@ -64,13 +62,6 @@ virtio_con_t *virtio_console_init(vm_t *vm, console_putchar_fn_t putchar,
     console_cookie = (virtio_con_cookie_t *)calloc(1, sizeof(struct virtio_con_cookie));
     if (console_cookie == NULL) {
         ZF_LOGE("Failed to allocated virtio console cookie");
-        return NULL;
-    }
-
-    err = install_virtio_vpci_device(vm, pci, io_ports);
-    if (err) {
-        ZF_LOGE("Failed to install virtio vpci device");
-        free(console_cookie);
         return NULL;
     }
 

@@ -33,8 +33,6 @@
 #include <virtio/virtio_net.h>
 #include <virtio/virtio_plat.h>
 
-#include "virtio_vpci.h"
-
 typedef struct virtio_net_cookie {
     virtio_net_t *virtio_net;
     virtio_net_callbacks_t callbacks;
@@ -148,12 +146,6 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
         return NULL;
     }
 
-    int err = install_virtio_vpci_device(vm, pci, io_ports);
-    if (err) {
-        ZF_LOGE("Failed to install virtio vpci device");
-        return NULL;
-    }
-
     virtio_net = common_make_virtio_net(vm, pci, io_ports, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend, false);
     if (virtio_net == NULL) {
@@ -162,7 +154,7 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
     }
     driver_cookie->virtio_net = virtio_net;
     driver_cookie->vm = vm;
-    err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
+    int err =  vm_register_irq(vm->vcpus[BOOT_VCPU], VIRTIO_NET_PLAT_INTERRUPT_LINE, &virtio_net_ack, NULL);
     if (callbacks) {
         driver_cookie->callbacks.tx_callback = callbacks->tx_callback;
         driver_cookie->callbacks.irq_callback = callbacks->irq_callback;

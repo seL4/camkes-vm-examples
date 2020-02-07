@@ -16,7 +16,7 @@ project(libvirtio C)
 
 add_compile_options(-std=gnu99)
 
-set(sources src/virtio_net.c src/virtio_console.c src/virtio_vpci.c)
+set(sources src/virtio_net.c src/virtio_console.c)
 
 add_library(virtio STATIC EXCLUDE_FROM_ALL ${sources})
 
