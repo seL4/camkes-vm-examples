@@ -203,7 +203,7 @@ DeclareCAmkESComponent(
 )
 
 if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
-    DeclareCAmkESComponent(VM LIBS virtio)
+    DeclareCAmkESComponent(VM LIBS virtio vswitch)
 endif()
 
 # Append the USB driver library if building for exynos
