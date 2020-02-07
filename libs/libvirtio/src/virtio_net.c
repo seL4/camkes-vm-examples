@@ -146,7 +146,8 @@ virtio_net_t *virtio_net_init(vm_t *vm, virtio_net_callbacks_t *callbacks,
         return NULL;
     }
 
-    virtio_net = common_make_virtio_net(vm, pci, io_ports, VIRTIO_IOPORT_START, VIRTIO_IOPORT_SIZE,
+    ioport_range_t virtio_port_range = {0, 0, VIRTIO_IOPORT_SIZE};
+    virtio_net = common_make_virtio_net(vm, pci, io_ports, virtio_port_range, IOPORT_FREE,
                                         VIRTIO_INTERRUPT_PIN, VIRTIO_NET_PLAT_INTERRUPT_LINE, backend, false);
     if (virtio_net == NULL) {
         ZF_LOGE("Failed to initialise virtio net driver");

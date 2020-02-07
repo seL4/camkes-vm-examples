@@ -995,7 +995,7 @@ int main_continued(void)
         return err;
     }
 
-    err = vmm_io_port_init(&io_ports);
+    err = vmm_io_port_init(&io_ports, FREE_IOPORT_START);
     if (err) {
         ZF_LOGE("Failed to initialise VM ioports");
         return err;

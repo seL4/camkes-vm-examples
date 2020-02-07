@@ -15,5 +15,4 @@
 #include <sel4vmmplatsupport/device.h>
 
 #define VIRTIO_IOPORT_SIZE      0x400
-#define VIRTIO_IOPORT_START     0x6200
 #define VIRTIO_INTERRUPT_PIN    1
