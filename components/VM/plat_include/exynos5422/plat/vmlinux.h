@@ -32,6 +32,8 @@ static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
 static const char *plat_keep_devices[] = {
     "/fixed-rate-clocks/oscclk",
     "/timer",
+    "/soc/chipid@10000000",
+    "/soc/interrupt-controller@10481000"
 };
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {};
