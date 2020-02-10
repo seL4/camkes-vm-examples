@@ -30,7 +30,6 @@ static const int free_plat_interrupts[] =  { 92 + IRQ_SPI_OFFSET,
                                              102 + IRQ_SPI_OFFSET
                                            };
 static const char *plat_keep_devices[] = {
-    "/cpus/cpu@0",
     "/fixed-rate-clocks/oscclk",
     "/timer",
 };

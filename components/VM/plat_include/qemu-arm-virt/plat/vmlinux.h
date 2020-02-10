@@ -36,7 +36,6 @@ static const char *plat_keep_devices[] = {
 };
 static const char *plat_keep_device_and_disable[] = {};
 static const char *plat_keep_device_and_subtree[] = {
-    "/cpus",
     "/intc@8000000",
 };
 static const char *plat_keep_device_and_subtree_and_disable[] = {};

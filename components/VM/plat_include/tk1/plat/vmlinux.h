@@ -234,7 +234,6 @@ static const char *plat_keep_devices[] = {
     "/sdhci@700b0600",
     "/usb-phy@7d004000",
     "/usb-phy@7d008000",
-    "/cpus/cpu@0",
     "/pmu",
     "/timer",
     "/aliases",

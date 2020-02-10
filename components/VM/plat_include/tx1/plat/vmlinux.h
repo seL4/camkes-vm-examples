@@ -269,7 +269,6 @@ static const char *plat_keep_device_and_disable[] = {
     "/usb-phy@7d004000",
 };
 static const char *plat_keep_device_and_subtree[] = {
-    "/cpus",
     "/pcie@1003000",
     "/host1x@50000000",
     "/thermal-zones",

@@ -694,6 +694,10 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     if (err) {
         return -1;
     }
+    err = fdt_generate_plat_vcpu_node(vm, gen_fdt);
+    if (err) {
+        return -1;
+    }
 
     /* generate a memory node (linux_ram_base and linux_ram_size) */
     err = fdt_generate_memory_node(gen_fdt, linux_ram_base, linux_ram_size);

@@ -293,7 +293,6 @@ static const char *plat_keep_devices[] = {
 static const char *plat_keep_device_and_disable[] = {
 };
 static const char *plat_keep_device_and_subtree[] = {
-    "/cpus",
     "/sdhci@3460000",
     "/sdhci@3440000",
     "/sdhci@3420000",
