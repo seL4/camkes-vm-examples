@@ -1012,8 +1012,6 @@ int main_continued(void)
     err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
                   &_io_ops, _fault_endpoint, VM_NAME);
     assert(!err);
-    err = vm_create_default_irq_controller(&vm);
-    assert(!err);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
     err = vm_register_notification_callback(&vm, handle_async_event, NULL);
@@ -1033,6 +1031,9 @@ int main_continued(void)
         }
     }
 #endif /* CONFIG_ARM_SMMU */
+
+    err = vm_create_default_irq_controller(&vm);
+    assert(!err);
 
     for (int i = 0; i < NUM_VCPUS; i++) {
         vm_vcpu_t *new_vcpu = create_vmm_plat_vcpu(&vm, VM_PRIO - 1);
