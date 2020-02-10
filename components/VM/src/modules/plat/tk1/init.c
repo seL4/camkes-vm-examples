@@ -38,7 +38,6 @@ static const struct device *linux_pt_devices[] = {
 static const struct device *linux_ram_devices[] = {
 #ifndef CONFIG_TK1_INSECURE
     &dev_rtc_kbc_pmc,
-    &dev_data_memory,
     &dev_exception_vectors,
     &dev_system_registers,
     &dev_ictlr,
@@ -46,6 +45,7 @@ static const struct device *linux_ram_devices[] = {
     &dev_fuse,
     &dev_gpios,
 #endif /* CONFIG_TK1_INSECURE */
+    &dev_data_memory,
 };
 
 extern reboot_hooks_list_t reboot_hooks_list;
