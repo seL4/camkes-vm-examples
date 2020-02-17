@@ -824,7 +824,7 @@ int register_async_event_handler(seL4_Word badge, async_event_handler_fn_t callb
     if (callback_arr == NULL) {
         callback_arr = calloc(1, sizeof(*callback_arr));
     } else {
-        callback_arr = realloc(callback_arr, callback_len + 1 * sizeof(*callback_arr));
+        callback_arr = realloc(callback_arr, (callback_len + 1) * sizeof(*callback_arr));
     }
     if (callback_arr == NULL) {
         ZF_LOGE("Failed to allocate memory for callback_arr");
