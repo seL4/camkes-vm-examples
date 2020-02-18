@@ -39,9 +39,6 @@ typedef struct virtio_net_cookie {
     vm_t *vm;
 } virtio_net_cookie_t;
 
-/* Maximum transmission unit for Ethernet interface */
-#define MTU 1500
-
 static void (*get_mac_addr_callback)(uint8_t *mac) = NULL;
 
 static void emul_raw_handle_irq(struct eth_driver *driver, int irq)
@@ -72,9 +69,9 @@ static int emul_raw_tx(struct eth_driver *driver, unsigned int num, uintptr_t *p
     }
 
     for (int i = 0; i < num; i++) {
-        char ethbuffer[MTU];
-        if (len[i] > MTU) {
-            ZF_LOGE("TX data exceeds MTU (%d) - truncating remaining data", MTU);
+        char ethbuffer[MAX_MTU];
+        if (len[i] > MAX_MTU) {
+            ZF_LOGE("TX data exceeds MTU (%d) - truncating remaining data", MAX_MTU);
             complete = false;
             break;
         }
@@ -109,7 +106,7 @@ int virtio_net_rx(char *data, size_t length, virtio_net_t *virtio_net)
 static void emul_low_level_init(struct eth_driver *driver, uint8_t *mac, int *mtu)
 {
     get_mac_addr_callback(mac);
-    *mtu = MTU;
+    *mtu = MAX_MTU_DATA;
 }
 
 static void virtio_net_ack(vm_vcpu_t *vcpu, int irq, void *token) {}

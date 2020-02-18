@@ -25,8 +25,6 @@
 #include <camkes/virtqueue.h>
 #include <virtio/virtio_net.h>
 
-#define MAX_MTU 1500
-
 static virtio_net_t *virtio_net = NULL;
 static vswitch_t virtio_vswitch;
 
