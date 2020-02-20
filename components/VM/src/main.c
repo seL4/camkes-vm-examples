@@ -75,6 +75,7 @@ extern void *fs_buf;
 int start_extra_frame_caps;
 
 int VM_PRIO = 100;
+int NUM_VCPUS = 1;
 #define VIRTIO_NET_BADGE    (1U << 1)
 #define SERIAL_BADGE        (1U << 2)
 #define VM_NAME             "Linux"
@@ -702,7 +703,7 @@ static int generate_fdt(void *fdt_ori, void *gen_fdt, int buf_size, size_t initr
 
     /* generate a chosen node (linux_image_config.linux_bootcmdline, linux_stdout) */
     err = fdt_generate_chosen_node(gen_fdt, linux_image_config.linux_stdout, linux_image_config.linux_bootcmdline,
-                                   CONFIG_MAX_NUM_NODES);
+                                   NUM_VCPUS);
     if (err) {
         return -1;
     }
@@ -1020,7 +1021,7 @@ int main_continued(void)
     }
 #endif /* CONFIG_ARM_SMMU */
 
-    for (int i = 0; i < CONFIG_MAX_NUM_NODES; i++) {
+    for (int i = 0; i < NUM_VCPUS; i++) {
         vm_vcpu_t *new_vcpu = create_vmm_plat_vcpu(&vm, VM_PRIO - 1);
         assert(new_vcpu);
     }
@@ -1064,8 +1065,9 @@ int main_continued(void)
     return 0;
 }
 
-/* base_prio is an optional attribute of the VM component. */
+/* base_prio and num_vcpus are optional attributes of the VM component. */
 extern const int __attribute__((weak)) base_prio;
+extern const int __attribute__((weak)) num_vcpus;
 
 int run(void)
 {
@@ -1073,6 +1075,19 @@ int run(void)
     if (&base_prio != NULL) {
         VM_PRIO = base_prio;
     }
+    /* if the num_vcpus attribute is set, try to use it */
+    if (&num_vcpus != NULL) {
+        if (num_vcpus > CONFIG_MAX_NUM_NODES) {
+            ZF_LOGE("Invalid 'num_vcpus' attribute setting: Exceeds maximum number of supported nodes. Capping value to CONFIG_MAX_NUM_NODES (%d)",
+                    CONFIG_MAX_NUM_NODES);
+            NUM_VCPUS = CONFIG_MAX_NUM_NODES;
+        } else if (num_vcpus <= 0) {
+            ZF_LOGE("Invalid 'num_vcpus' attribute setting: Can't have 0 or negative amount of vcpus. Capping value to 1 vcpu (default value)");
+        } else {
+            NUM_VCPUS = num_vcpus;
+        }
+    }
+
     return main_continued();
 }
 

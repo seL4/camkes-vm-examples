@@ -32,6 +32,7 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
         };
+        vm0.num_vcpus = 4;
 
         vm0.linux_image_config = {
             "linux_bootcmdline" : "console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x70006000 debug mem=100m initcall_debug user_debug=31",

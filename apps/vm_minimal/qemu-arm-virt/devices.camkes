@@ -37,6 +37,7 @@ assembly {
             "linux_bootcmdline" : "",
             "linux_stdout" : "/pl011@9000000",
         };
+        vm0.num_vcpus = 2;
 
         vm0.dtb = dtb([
                         {"path": "/pl011@9000000"},
