@@ -74,7 +74,7 @@ int fdt_generate_chosen_node(void *fdt, const char *stdout_path, const char *boo
     /*  +3*sizeof(int) is a cheap approximated formula for maximum number of characters in a UINT_MAX
      *  +1 for null character, +9 for ' maxcpus='
      */
-    size_t updated_bootargs_len = bootargs_len + 9 + (3*sizeof(unsigned int) + 1);
+    size_t updated_bootargs_len = bootargs_len + 9 + (3 * sizeof(unsigned int) + 1);
     char *updated_bootargs = calloc(1, updated_bootargs_len);
     if (!updated_bootargs) {
         ZF_LOGE("Failed to generate chosen node: Unable to allocate updated bootargs");
