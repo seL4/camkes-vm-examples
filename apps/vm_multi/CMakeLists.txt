@@ -15,7 +15,8 @@ cmake_minimum_required(VERSION 3.8.2)
 project(vm-multi C)
 
 include(../../arm_vm_helpers.cmake)
-include(../../../camkes-vm-linux/vm-linux-helpers.cmake)
+find_package(camkes-vm-linux REQUIRED)
+include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
