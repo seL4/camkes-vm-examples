@@ -39,6 +39,17 @@
 extern vmm_pci_space_t *pci;
 extern vmm_io_port_list_t *io_ports;
 
+void self_mac(uint8_t *mac)
+{
+    struct ether_addr res;
+    struct ether_addr *resp;
+    resp = ether_aton_r(vswitch_mac_address, &res);
+    if (resp == NULL) {
+        ZF_LOGF("Failed to get MAC address");
+    }
+    memcpy(mac, res.ether_addr_octet, ETH_ALEN);
+}
+
 static int arping_reply(char *eth_buffer, size_t length, virtio_net_t *virtio_net)
 {
     int err;
@@ -87,6 +98,7 @@ void make_arping_virtio_net(vm_t *vm, void *cookie)
     virtio_net_callbacks_t callbacks;
     callbacks.tx_callback = arping_reply;
     callbacks.irq_callback = NULL;
+    callbacks.get_mac_addr_callback = self_mac;
     virtio_net = virtio_net_init(vm, &callbacks, pci, io_ports);
 }
 
