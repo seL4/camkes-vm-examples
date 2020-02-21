@@ -14,9 +14,18 @@
 
 import <std_connector.camkes>;
 import <global-connectors.camkes>;
+import <seL4VMDTBPassthrough.idl4>;
+import <FileServerInterface.camkes>;
+import <FileServer/FileServer.camkes>;
+import <SerialServer/SerialServer.camkes>;
+import <TimeServer/TimeServer.camkes>;
 import <vm-connectors.camkes>;
-import <VM/VM.camkes>;
 import <devices.camkes>;
+
+component VM {
+    VM_INIT_DEF()
+    attribute string vswitch_mac_address = "";
+}
 
 assembly {
     composition {
@@ -31,5 +40,6 @@ assembly {
         vm0.extra_frame_map_address = 0;
         vm0.cnode_size_bits = 23;
         vm0.simple_untyped24_pool = 12;
+        vm0.vswitch_mac_address = "02:00:00:00:AA:01";
     }
 }
