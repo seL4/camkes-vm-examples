@@ -14,17 +14,8 @@ set(CAMKES_ARM_VM_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "")
 set(CAMKES_ARM_VM_HELPERS_PATH "${CMAKE_CURRENT_LIST_DIR}/arm_vm_helpers.cmake" CACHE STRING "")
 mark_as_advanced(CAMKES_ARM_VM_DIR CAMKES_ARM_VM_HELPERS_PATH)
 
-macro(camkes_arm_vm_setup_arm_vm_environment)
 
-    find_package(camkes-tool REQUIRED)
-    find_package(global-components REQUIRED)
-    find_package(camkes-vm REQUIRED)
-    find_package(camkes-vm-images REQUIRED)
-    find_package(sel4_projects_libs REQUIRED)
-    camkes_tool_setup_camkes_build_environment()
-    sel4_projects_libs_import_libraries()
-    global_components_import_project()
-
+macro(camkes_arm_vm_import_project)
     include(${CAMKES_VM_HELPERS_PATH})
     # Common build definitions
     CAmkESAddImportPath(${CAMKES_ARM_VM_DIR}/components camkes-arm-vm/components)
@@ -44,6 +35,20 @@ macro(camkes_arm_vm_setup_arm_vm_environment)
     # VM components
     add_subdirectory(${CAMKES_ARM_VM_DIR}/components/VM camkes-arm-vm/components/VM)
 
+endmacro()
+
+macro(camkes_arm_vm_setup_arm_vm_environment)
+
+    find_package(camkes-tool REQUIRED)
+    find_package(global-components REQUIRED)
+    find_package(camkes-vm REQUIRED)
+    find_package(camkes-vm-images REQUIRED)
+    find_package(sel4_projects_libs REQUIRED)
+    camkes_tool_setup_camkes_build_environment()
+    sel4_projects_libs_import_libraries()
+    global_components_import_project()
+
+    camkes_arm_vm_import_project()
 endmacro()
 
 include(FindPackageHandleStandardArgs)
