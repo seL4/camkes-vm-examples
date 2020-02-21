@@ -23,7 +23,7 @@
 assembly {
 	composition {}
 	configuration {
-        vm.linux_address_config = {
+        vm0.linux_address_config = {
             "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
@@ -33,12 +33,12 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm.linux_image_config = {
+        vm0.linux_image_config = {
             "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=7 earlyprintk=serial pci=nomsi",
             "linux_stdout" : "serial2:115200n8",
         };
 
-        vm.dtb = dtb([{"path": "/firmware@02073000"},
+        vm0.dtb = dtb([{"path": "/firmware@02073000"},
                       {"path": "/soc/audss-clock-controller@3810000"},
                       {"path": "/soc/i2s@3830000"},
                       {"path": "/soc/pinctrl@3860000"},
@@ -108,7 +108,7 @@ assembly {
                       {"path": "/soc/i2s@3830000"},
                       {"path": "/soc/sysmmu@14680000"}]);
 
-        vm.untyped_mmios = [
+        vm0.untyped_mmios = [
                     "0x10486000:12", // VCPU
                     "0x40000000:28"]; // RAM //:29
 	}

@@ -10,13 +10,29 @@
  * @TAG(DATA61_BSD)
  */
 
-import <std_connector.camkes>;
-import <vm-connectors.camkes>;
-import <VM/vm_common.camkes>;
-import <devices.camkes>;
-import <VirtQueue/VirtQueue.camkes>;
+#include <configurations/vm.h>
 
-#define VIRTQUEUE_BADGE 2
+import <std_connector.camkes>;
+import <global-connectors.camkes>;
+import <seL4VMDTBPassthrough.idl4>;
+import <FileServerInterface.camkes>;
+import <FileServer/FileServer.camkes>;
+import <SerialServer/SerialServer.camkes>;
+import <TimeServer/TimeServer.camkes>;
+import <vm-connectors.camkes>;
+import <devices.camkes>;
+
+struct vswitch_mapping {
+       string mac_addr;
+       int send_id;
+       int recv_id;
+};
+
+component VM {
+    VM_INIT_DEF()
+    attribute vswitch_mapping vswitch_layout[] = [];
+    attribute string vswitch_mac_address = "";
+}
 
 component PingClient {
     control;
@@ -29,36 +45,38 @@ component PingClient {
 
 assembly {
     composition {
+        VM_GENERAL_COMPOSITION_DEF()
+        VM_COMPOSITION_DEF(0)
+
         component PingClient ping_client;
         component VirtQueueInit ping_vqinit0;
         component VirtQueueInit ping_vqinit1;
 
-        connection seL4VirtQueues ping_virtq_conn0(to ping_vqinit0.init, from ping_client.send, from vm.recv);
-        connection seL4VirtQueues ping_virtq_conn1(to ping_vqinit1.init, from ping_client.recv, from vm.send);
+        connection seL4VirtQueues ping_virtq_conn0(to ping_vqinit0.init, from ping_client.send, from vm0.recv);
+        connection seL4VirtQueues ping_virtq_conn1(to ping_vqinit1.init, from ping_client.recv, from vm0.send);
         connection seL4GlobalAsynchCallback ping_global_callback(from ping_client.self, to ping_client.ping_wait);
-        connection seL4VMDTBPassthrough vm_dtb(from vm.dtb_self, to vm.dtb);
+        connection seL4VMDTBPassthrough vm_dtb(from vm0.dtb_self, to vm0.dtb);
     }
     configuration {
-        vm.num_extra_frame_caps = 0;
-        vm.extra_frame_map_address = 0;
+        VM_GENERAL_CONFIGURATION_DEF()
+        VM_CONFIGURATION_DEF(0)
 
-        vm.recv_id = 0;
-        vm.recv_attributes = "10";
-        vm.recv_shmem_size = 32768;
-        vm.send_id = 1;
-        vm.send_attributes = "10";
-        vm.send_shmem_size = 32768;
-        vm.cnode_size_bits = 23;
-        vm.simple_untyped24_pool = 12;
+        vm0.num_extra_frame_caps = 0;
+        vm0.extra_frame_map_address = 0;
+        vm0.cnode_size_bits = 23;
+        vm0.simple_untyped24_pool = 12;
+
+        vm0.recv_id = 0;
+        vm0.recv_shmem_size = 32768;
+        vm0.send_id = 1;
+        vm0.send_shmem_size = 32768;
+        vm0.vswitch_mac_address = "02:00:00:00:AA:01";
+        vm0.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:02", "recv_id": 0, "send_id":1}];
 
         ping_client.recv_id = 0;
-        ping_client.recv_attributes = "10";
         ping_client.recv_shmem_size = 32768;
         ping_client.send_id = 1;
-        ping_client.send_attributes = "10";
         ping_client.send_shmem_size = 32768;
-
-        ping_vqinit0.init_topology = [{ "drv" : "ping_client.send", "dev" : "vm.recv"}];
-        ping_vqinit1.init_topology = [{ "drv" : "vm.send", "dev" : "ping_client.recv"}];
+        ping_client.vswitch_mac_address = "02:00:00:00:AA:02";
     }
 }

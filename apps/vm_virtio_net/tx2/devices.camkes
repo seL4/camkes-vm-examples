@@ -23,7 +23,7 @@ assembly {
 	composition {}
 	configuration {
 
-        vm.linux_address_config = {
+        vm0.linux_address_config = {
             "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
@@ -33,12 +33,12 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm.linux_image_config = {
+        vm0.linux_image_config = {
             "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
             "linux_stdout" : "/serial@3100000",
         };
 
-        vm.dtb = dtb([
+        vm0.dtb = dtb([
                        {"path": "/chipid@100000"},
                        {"path": "/gpio@2200000"},
                        {"path": "/pinmux@2430000"},
@@ -74,7 +74,7 @@ assembly {
                        /* bpmp node */
                        {"properties" : {"compatible[0]" : "nvidia,tegra186-bpmp"}}]);
 
-        vm.untyped_mmios = [
+        vm0.untyped_mmios = [
             "0x3886000:12", // GICV Iface.
             /* The purpose of these untyped regions is to force the untyped
              * allocator to treat this memory region as reserved so that when we
