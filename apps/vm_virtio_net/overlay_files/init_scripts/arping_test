@@ -11,7 +11,12 @@
 # @TAG(DATA61_BSD)
 #
 
-set -e
-
 echo "Testing arping on virtual interface:"
-arping 192.168.1.2 -c 5
+arping 192.168.1.2 -c 5 -w 2
+# Success code for arping: 0 (arping returns non-zero value if packet count and timeout is not met)
+if [ $? -eq 0 ]
+then
+    echo "arping test was successful"
+else
+    echo "arping test failed"
+fi
