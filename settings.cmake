@@ -67,15 +67,19 @@ sel4_configure_platform_settings()
 
 ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelSel4Arch})
 
+if(NUM_NODES MATCHES "^[0-9]+$")
+    set(KernelMaxNumNodes ${NUM_NODES} CACHE STRING "" FORCE)
+else()
+    set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
+endif()
+
 # We dont support SMP configurations on the exynos5422, exynos5410 or TK1
-if(${KernelMaxNumNodes})
-    if(
-        ("${KernelARMPlatform}" STREQUAL "exynos5422"
-         OR "${KernelARMPlatform}" STREQUAL "exynos5410"
-         OR "${KernelARMPlatform}" STREQUAL "tk1"
-         )
-        AND (${KernelMaxNumNodes} GREATER 1)
-    )
-        message(FATAL_ERROR "${KernelARMPlatform} does not support SMP VMs")
-    endif()
+if(
+    ("${KernelARMPlatform}" STREQUAL "exynos5422"
+     OR "${KernelARMPlatform}" STREQUAL "exynos5410"
+     OR "${KernelARMPlatform}" STREQUAL "tk1"
+     )
+    AND (${KernelMaxNumNodes} GREATER 1)
+)
+    message(FATAL_ERROR "${KernelARMPlatform} does not support SMP VMs")
 endif()
