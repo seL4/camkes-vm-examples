@@ -720,7 +720,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     }
 
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
-        err = fdt_generate_vpci_node(vm, pci, gen_fdt, 0x1);
+        err = fdt_generate_vpci_node(vm, pci, gen_fdt, GIC_IRQ_PHANDLE);
         if (err) {
             return -1;
         }

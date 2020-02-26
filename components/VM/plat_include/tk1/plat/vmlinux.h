@@ -179,6 +179,7 @@ static const int free_plat_interrupts[] =  { -1 };
 #define DTB_ADDR          (LINUX_RAM_BASE + 0x02000000)
 #define INITRD_MAX_SIZE   0x1900000 //25 MB
 #define INITRD_ADDR       (DTB_ADDR - INITRD_MAX_SIZE) //0x80700000
+#define GIC_IRQ_PHANDLE 0x1
 
 static const char *plat_keep_device_and_disable[] = {
     "/gpu@0,57000000",
