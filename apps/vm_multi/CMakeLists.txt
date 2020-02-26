@@ -18,13 +18,20 @@ include(../../arm_vm_helpers.cmake)
 find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
+if("${PLATFORM}" STREQUAL "exynos5422")
 # Create our CPP Flags based on ARM VM config variables
-set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
-
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
+    set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
+elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
+    set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
+    set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
+    include(simulation)
+    if(SIMULATION)
+        GenerateSimulateScript()
+    endif()
+endif()
 
 # Generate our overlayed rootfs images
-set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
+set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 
 # Setup our passthrough vm overlay
 AddFileToOverlayDir(
@@ -84,6 +91,8 @@ AddToFileServer(
     DEPENDS
     rootfs_target_client_vm
 )
+
+AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
