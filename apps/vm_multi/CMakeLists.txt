@@ -29,7 +29,7 @@ set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 # Setup our passthrough vm overlay
 AddFileToOverlayDir(
     "inittab"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/inittab_hvc0
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
     "etc"
     overlay_vm0
 )
@@ -52,7 +52,7 @@ AddOverlayDirToRootfs(
 # Setup our client vm overlays
 AddFileToOverlayDir(
     "inittab"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/inittab_hvc0
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
     "etc"
     overlay_client_vm
 )
