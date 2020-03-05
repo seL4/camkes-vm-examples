@@ -1009,8 +1009,7 @@ int main_continued(void)
     assert(!err);
 
     /* Create the VM */
-    err = vm_init(&vm, &_vka, &_simple, allocman, _vspace,
-                  &_io_ops, _fault_endpoint, VM_NAME);
+    err = vm_init(&vm, &_vka, &_simple, _vspace, &_io_ops, _fault_endpoint, VM_NAME);
     assert(!err);
     err = vm_register_unhandled_mem_fault_callback(&vm, unhandled_mem_fault_callback, NULL);
     assert(!err);
