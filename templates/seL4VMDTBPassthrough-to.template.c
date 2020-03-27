@@ -65,6 +65,14 @@
     /*- do dtb_node_paths.append(dtb_path) -*/
 /*- endfor -*/
 
+/*- for irq in configuration[me.instance.name].get('dtb_irqs', []) -*/
+    /*- if irq not in dtb_irqs_map -*/
+        /*- set irq_cap = alloc('%s_irq_%d' % (me.interface.name, irq), seL4_IRQHandler, number=irq) -*/
+        /*- do dtb_irqs.append( (irq, irq_cap) ) -*/
+        /*- do dtb_irqs_map.update({irq: irq_cap}) -*/
+    /*- endif -*/
+/*- endfor -*/
+
 /*- set self_cnode = alloc_cap('cnode', my_cnode, write=true) -*/
 
 static int camkes_dtb_irqs[] = {
