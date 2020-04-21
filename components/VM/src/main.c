@@ -355,6 +355,25 @@ static seL4_Error vm_simple_get_irq(void *data, int irq, seL4_CNode cnode, seL4_
     }
 }
 
+
+/* First try and allocate TCBs from the CAmkES static pool before retyping from Untypeds */
+static vka_utspace_alloc_maybe_device_fn utspace_alloc_copy;
+
+static int camkes_vm_utspace_alloc_maybe_device_fn(void *data, const cspacepath_t *dest, seL4_Word type,
+                                                   seL4_Word size_bits, bool can_use_dev, seL4_Word *res)
+{
+    if (type == seL4_TCBObject) {
+        seL4_CPtr cap = camkes_alloc(type, 0, 0);
+        if (cap != seL4_CapNull) {
+            cspacepath_t src;
+            vka_cspace_make_path(&_vka, cap, &src);
+            return vka_cnode_copy(dest, &src, seL4_AllRights);
+        }
+    }
+    return utspace_alloc_copy(data, dest, type, size_bits, can_use_dev, res);
+}
+
+
 static int vmm_init(void)
 {
     vka_object_t fault_ep_obj;
@@ -390,6 +409,10 @@ static int vmm_init(void)
     assert(allocman);
 
     allocman_make_vka(vka, allocman);
+
+    /* Overwrite alloc function with a custom wrapper for statically allocated TCBs. */
+    utspace_alloc_copy = vka->utspace_alloc_maybe_device;
+    vka->utspace_alloc_maybe_device = camkes_vm_utspace_alloc_maybe_device_fn;
 
     for (int i = 0; i < simple_get_untyped_count(simple); i++) {
         size_t size;
