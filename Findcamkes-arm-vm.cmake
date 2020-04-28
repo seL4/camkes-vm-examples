@@ -14,9 +14,9 @@ set(CAMKES_ARM_VM_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE STRING "")
 set(CAMKES_ARM_VM_HELPERS_PATH "${CMAKE_CURRENT_LIST_DIR}/arm_vm_helpers.cmake" CACHE STRING "")
 mark_as_advanced(CAMKES_ARM_VM_DIR CAMKES_ARM_VM_HELPERS_PATH)
 
-
 macro(camkes_arm_vm_import_project)
     include(${CAMKES_VM_HELPERS_PATH})
+    include(${CAMKES_ARM_VM_HELPERS_PATH})
     # Common build definitions
     CAmkESAddImportPath(${CAMKES_ARM_VM_DIR}/components camkes-arm-vm/components)
     CAmkESAddImportPath(${CAMKES_ARM_VM_DIR}/interfaces camkes-arm-vm/interfaces)

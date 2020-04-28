@@ -11,6 +11,7 @@
 #
 
 cmake_minimum_required(VERSION 3.8.2)
+set(ARM_VM_PROJECT_DIR "${CMAKE_CURRENT_LIST_DIR}" CACHE INTERNAL "")
 
 # Function appends a given list of CMake config variables as CAmkES CPP flags
 # 'configure_string': The variable to append the CPP flags onto
@@ -35,3 +36,100 @@ function(AddCamkesCPPFlag configure_string)
     # Update the configure_string value
     set(${configure_string} "${${configure_string}}" PARENT_SCOPE)
 endfunction(AddCamkesCPPFlag)
+
+function(DeclareCAmkESARMVM init_component)
+    cmake_parse_arguments(
+        PARSE_ARGV
+        1
+        VM_COMP
+        ""
+        ""
+        "EXTRA_SOURCES;EXTRA_INCLUDES;EXTRA_LIBS;EXTRA_C_FLAGS;EXTRA_LD_FLAGS"
+    )
+    file(
+        GLOB
+            vm_src
+            ${ARM_VM_PROJECT_DIR}/components/VM/src/main.c
+            ${ARM_VM_PROJECT_DIR}/components/VM/src/fdt_manipulation.c
+            ${ARM_VM_PROJECT_DIR}/components/VM/src/crossvm.c
+    )
+
+    list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/map_frame_hack.c)
+
+    if(Tk1DeviceFwd)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/plat/tk1/device_fwd.c)
+    endif()
+
+    # A module that is expected to exist for each platform but not required.
+    # It should provide basic device intialisation required for every vm configuratoin
+    set(
+        platform_module
+        ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/plat/${KernelPlatform}/init.c
+    )
+    if(EXISTS ${platform_module})
+        list(APPEND vm_src ${platform_module})
+    endif()
+
+    # Append virtio net sources if the virtio net config is enabled
+    if(VmVirtioNetArping)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/virtio_net_arping.c)
+    endif()
+
+    if(VmVirtioNetVirtqueue)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/virtio_net_virtqueue.c)
+    endif()
+
+    if(VmVirtioConsole)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/virtio_con.c)
+    endif()
+
+    if(KernelPlatformExynos5410)
+        list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/plat/exynos5410/init.c)
+        set(vm_plat_include "${ARM_VM_PROJECT_DIR}/components/VM/plat_include/exynos5410")
+    elseif(KernelPlatformExynos5422)
+        set(vm_plat_include "${ARM_VM_PROJECT_DIR}/components/VM/plat_include/exynos5422")
+    else()
+        set(vm_plat_include "${ARM_VM_PROJECT_DIR}/components/VM/plat_include/${KernelPlatform}")
+    endif()
+    # Declare the CAmkES VM component
+    DeclareCAmkESComponent(
+        ${init_component}
+        SOURCES
+        ${vm_src}
+        ${VM_COMP_EXTRA_SOURCES}
+        INCLUDES
+        ${ARM_VM_PROJECT_DIR}/components/VM/include
+        ${vm_plat_include}
+        ${VM_COMP_EXTRA_INCLUDES}
+        LIBS
+        sel4allocman
+        elf
+        sel4simple
+        sel4simple-default
+        cpio
+        sel4vm
+        sel4dma
+        FileServer-client
+        sel4vmmplatsupport
+        arm_vm_Config
+        sel4_autoconf
+        sel4muslcsys_Config
+        fdt
+        fdtgen
+        ${VM_COMP_EXTRA_LIBS}
+        LD_FLAGS
+        ${VM_COMP_EXTRA_LD_FLAGS}
+        C_FLAGS
+        ${VM_COMP_EXTRA_C_FLAGS}
+    )
+
+    if(VmVirtioNetArping OR VmVirtioNetVirtqueue OR VmVirtioConsole)
+        DeclareCAmkESComponent(${init_component} LIBS virtio vswitch)
+    endif()
+
+    # Append the USB driver library if building for exynos
+    if("${KernelARMPlatform}" STREQUAL "exynos5410")
+        DeclareCAmkESComponent(${init_component} LIBS usbdrivers)
+    endif()
+
+endfunction()
