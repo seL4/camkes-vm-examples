@@ -105,7 +105,7 @@
     fserv.heap_size = 165536; \
 
 #define VM_CONFIGURATION_DEF(num) \
-    vm##num.fs_shmem_size = 0x1000; \
+    vm##num.fs_shmem_size = 0x100000; \
     vm##num.global_endpoint_base = 1 << 27; \
     vm##num.asid_pool = true; \
     vm##num.simple = true; \
