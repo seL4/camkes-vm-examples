@@ -58,7 +58,11 @@ static int handle_serial_console(vm_t *vmm, void *cookie UNUSED)
 
 static void emulate_console_putchar(char c)
 {
+#if CONFIG_NUM_DOMAINS > 1 && CONFIG_PRINTING
+    seL4_DebugPutChar(c);
+#else
     putchar_putchar(c);
+#endif
 }
 
 extern seL4_Word serial_getchar_notification_badge(void);
