@@ -113,6 +113,11 @@
     vm##num._priority = 101; \
     vm##num.sem_value = 0;
 
+#define VM_DOMAIN_CONFIGURATION_DEF(num, domain) \
+    vm##num._domain = domain; \
+    vm##num.tcb_pool = 2; \
+    vm##num.tcb_pool_domains = [domain, domain];
+
 #define VM_VIRTUAL_SERIAL_COMPONENTS_DEF() \
     component SerialServer serial; \
     component TimeServer time_server; \
