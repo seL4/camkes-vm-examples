@@ -11,17 +11,19 @@
  */
 import "../../interfaces/timer.idl4"; 
 
-component timerbase{
-	hardware;
-	dataport Buf timer_reg;
-	emits DataAvailable irq;
-}
 
 component timer {
-        dataport Buf 		timerbase;
-        consumes DataAvailable  irq;
+    emits Dummy dummy_source;
+    consumes Dummy pmu;
+    provides timer_inf tm;
+    emits timer_evt timer_update;
 
-    	provides timer_inf 	tm;
-	emits timer_evt         timer_update;
+    composition {
+        connection seL4DTBHardware pmu_conn(from dummy_source, to pmu);
+    }
+    configuration {
+        pmu.dtb = dtb({ "path" : "/soc/pwm@12dd0000" });
+        pmu.generate_interrupts = 1;
+    }
 }
 

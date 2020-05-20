@@ -13,40 +13,33 @@
 
 #include <utils/time.h>
 #include <platsupport/mach/pwm.h>
+#include <camkes/io.h>
 
 #include <camkes.h>
-
 pwm_t pwm;
 pwm_t *timer_drv = NULL;
+static ps_io_ops_t io_ops;
 
-void irq_handle(void)
+void timer_handle_event(void *token, ltimer_event_t event)
 {
-    /* Hardware routine. */
-    pwm_handle_irq(timer_drv, PWM_T4_INTERRUPT);
 
     /* Signal other components. */
     timer_update_emit();
 
-    irq_acknowledge();
 }
 
 void pre_init()
 {
-    pwm_config_t config;
+    int error = camkes_io_ops(&io_ops);
+    ZF_LOGF_IF(error, "Failed to get camkes_io_ops");
 
-    /*
-     * Provide hardware info to platsupport.
-     */
-    config.vaddr = (void*)timerbase;
-
-    int error = pwm_init(&pwm, config);
+    error = pwm_init(&pwm, io_ops, PWM_TIMER_PATH, timer_handle_event, NULL);
     if (error) {
         printf("PWM timer does not exist.\n");
     }
     timer_drv = &pwm;
 
     /* Run in periodic mode and start the timer. */
-    pwm_start(timer_drv);
     pwm_set_timeout(timer_drv, NS_IN_S, true);
 }
 

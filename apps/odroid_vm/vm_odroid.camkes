@@ -78,7 +78,6 @@ assembly {
         component i2c0     i2c0_obj;
         component spibase  spibase_obj;
         component clkbase   clkbase_obj;
-        component timerbase timerbase_obj;
 
         component gpio     gpio_obj;
         component uart     uart_gcs;
@@ -148,9 +147,6 @@ assembly {
         connection seL4Notification pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
         connection seL4Notification pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
 
-	/* PWM timer connections */
-        connection seL4HardwareMMIO timer_mem(from timer_obj.timerbase, to timerbase_obj.timer_reg);
-        connection seL4HardwareInterrupt timer_irq(from timerbase_obj.irq, to timer_obj.irq);
 
 	/* VM to PWM */
         connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
@@ -217,11 +213,7 @@ assembly {
 
         i2c0_obj.integrity_label = "pwm_obj";
 
-        timerbase_obj.timer_reg_paddr = 0x12DD0000;
-        timerbase_obj.timer_reg_size = 0x1000;
-        timerbase_obj.irq_irq_number	       = 72;			//Timer interrupt
 
-        timerbase_obj.integrity_label = "timer_obj";
 
         uart_gcs.ID = 1;
         uart_px4.ID = 3;
