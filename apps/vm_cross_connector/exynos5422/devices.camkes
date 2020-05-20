@@ -32,6 +32,11 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "serial2:115200n8",
+
+        };
 
         vm0.dtb = dtb([{"path": "/firmware@02073000"},
                       {"path": "/soc/audss-clock-controller@3810000"},

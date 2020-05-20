@@ -32,6 +32,10 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "/pl011@9000000",
+        };
 
         vm0.dtb = dtb([
                         {"path": "/pl011@9000000"},

@@ -62,7 +62,6 @@ assembly {
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
-        vm0.linux_image_config = {};
         vm0.cnode_size_bits = 23;
         vm0.simple_untyped24_pool = 12;
 
