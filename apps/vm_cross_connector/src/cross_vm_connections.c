@@ -18,7 +18,11 @@
 #include <sel4vmmplatsupport/drivers/pci_helper.h>
 #include <pci/helper.h>
 
+#ifdef CONFIG_PLAT_QEMU_ARM_VIRT
+#define CONNECTION_BASE_ADDRESS 0xDF000000
+#else
 #define CONNECTION_BASE_ADDRESS 0x3F000000
+#endif
 
 // these are defined in the dataport's glue code
 extern dataport_caps_handle_t crossvm_dp_0_handle;

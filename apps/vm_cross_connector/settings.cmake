@@ -18,3 +18,8 @@ endif()
 set(VmPCISupport ON CACHE BOOL "" FORCE)
 set(LibUSB OFF CACHE BOOL "" FORCE)
 set(VmInitRdFile ON CACHE BOOL "" FORCE)
+if(${PLATFORM} STREQUAL "qemu-arm-virt")
+    # force cpu
+    set(QEMU_MEMORY "2048")
+    set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
+endif()
