@@ -131,9 +131,10 @@ seL4_Error WEAK camkes_dtb_get_irq_cap(int irq, seL4_CNode cnode, seL4_Word inde
 simple_get_IRQ_handler_fn original_simple_get_irq_fn;
 int *WEAK camkes_dtb_get_irqs(int *num_irqs);
 char **WEAK camkes_dtb_get_node_paths(int *num_nodes);
+#ifdef CONFIG_ARM_SMMU
 seL4_CPtr camkes_get_smmu_cb_cap();
 seL4_CPtr camkes_get_smmu_sid_cap();
-
+#endif
 int get_crossvm_irq_num(void)
 {
     return free_plat_interrupts[0];
