@@ -54,10 +54,14 @@
     /*? dtb_macros.parse_dtb_node_interrupts(node, -1) ?*/
     /*- set irq_set = pop('irq_set') -*/
     /*- for irq in irq_set -*/
-        /*- if irq not in dtb_irqs_map -*/
-            /*- set irq_cap = alloc('%s_irq_%d' % (me.interface.name, irq), seL4_IRQHandler, number=irq) -*/
-            /*- do dtb_irqs.append( (irq, irq_cap) ) -*/
-            /*- do dtb_irqs_map.update({irq: irq_cap}) -*/
+        /*- if irq['irq'] not in dtb_irqs_map -*/
+            /*- if irq['trigger'] -*/
+                /*- set irq_cap = alloc('%s_irq_%d' % (me.interface.name, irq['irq']), seL4_IRQHandler, number=irq['irq'], trigger=irq['trigger']) -*/
+            /*- else -*/
+                /*- set irq_cap = alloc('%s_irq_%d' % (me.interface.name, irq['irq']), seL4_IRQHandler, number=irq['irq']) -*/
+            /*- endif -*/
+            /*- do dtb_irqs.append( (irq['irq'], irq_cap) ) -*/
+            /*- do dtb_irqs_map.update({irq['irq']: irq_cap}) -*/
         /*- endif -*/
     /*- endfor -*/
 

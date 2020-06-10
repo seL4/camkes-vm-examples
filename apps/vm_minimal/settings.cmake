@@ -10,7 +10,7 @@
 # @TAG(DATA61_BSD)
 #
 
-set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt")
+set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -25,6 +25,10 @@ if(${PLATFORM} STREQUAL "exynos5422" OR ${PLATFORM} STREQUAL "tx2")
     set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioNet ON CACHE BOOL "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
+endif()
+if(${PLATFORM} STREQUAL "odroidc2")
+    set(VmInitRdFile ON CACHE BOOL "" FORCE)
+    set(VmDtbFile ON CACHE BOOL "" FORCE)
 endif()
 if(${PLATFORM} STREQUAL "qemu-arm-virt")
     # force cpu
