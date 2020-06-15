@@ -20,7 +20,7 @@ assembly {
         /* Connect all the components to use the serial server */
         component SerialServer serial;
         component TimeServer time_server;
-        connection seL4RPCCall serial_vm(from vm.putchar, to serial.processed_putchar);
+        connection seL4SerialServer serial_vm(from vm.batch, to serial.processed_batch);
         connection seL4SerialServer serial_input(from vm.serial_getchar, to serial.getchar);
         connection seL4TimeServer serialserver_timer(from serial.timeout, to time_server.the_timer);
         connection seL4VMDTBPassthrough vm_dtb(from vm.dtb_self, to vm.dtb);
@@ -35,6 +35,7 @@ assembly {
         time_server.simple = true;
 
         vm.serial_getchar_shmem_size = 0x1000;
+        vm.batch_shmem_size = 0x1000;
 
     }
 }

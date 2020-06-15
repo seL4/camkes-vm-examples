@@ -56,7 +56,7 @@
     DEF_KERNELARMPLATFORM_EXYNOS5410 \
     maybe consumes restart restart_event; \
     has semaphore vm_sem; \
-    maybe uses PutChar putchar; \
+    maybe uses Batch batch; \
     maybe uses PutChar guest_putchar; \
     maybe uses GetChar serial_getchar; \
     maybe uses VirtQueueDev recv; \
@@ -125,7 +125,7 @@
     connection seL4TimeServer serialserver_timer(from serial.timeout, to time_server.the_timer); \
 
 #define PER_VM_VIRTUAL_SERIAL_CONNECTIONS_DEF(num) \
-    connection seL4RPCCall serial_vm##num(from vm##num.putchar, to serial.processed_putchar); \
+    connection seL4SerialServer serial_vm##num(from vm##num.batch, to serial.processed_batch); \
     connection seL4SerialServer serial_input_vm##num(from vm##num.serial_getchar, to serial.getchar);
 
 #define VM_VIRTUAL_SERIAL_COMPOSITION_DEF(vm_ids...) \
@@ -139,6 +139,7 @@
 
 #define PER_VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(num) \
     vm##num.serial_getchar_shmem_size = 0x1000; \
+    vm##num.batch_shmem_size = 0x1000; \
 
 #define VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(vm_ids...) \
     VM_VIRTUAL_SERIAL_GENERAL_CONFIGURATION_DEF() \

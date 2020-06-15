@@ -38,6 +38,12 @@ char txbuf[BUFSIZE];
 extern vmm_pci_space_t *pci;
 extern vmm_io_port_list_t *io_ports;
 
+struct {
+    uint32_t head;
+    uint32_t tail;
+    char buf[BUFSIZE];
+} extern volatile *batch_buf;
+
 static int handle_serial_console(vm_t *vmm, void *cookie UNUSED)
 {
     struct {
@@ -61,7 +67,11 @@ static void emulate_console_putchar(char c)
 #if CONFIG_NUM_DOMAINS > 1 && CONFIG_PRINTING
     seL4_DebugPutChar(c);
 #else
-    putchar_putchar(c);
+    batch_buf->buf[batch_buf->tail] = c;
+    batch_buf->tail = (batch_buf->tail + 1) % BUFSIZE;
+    if (c == '\n' || batch_buf->tail + 1 == batch_buf->head) {
+        batch_batch();
+    }
 #endif
 }
 
