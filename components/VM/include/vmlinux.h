@@ -54,6 +54,7 @@ struct camkes_crossvm_connection {
     dataport_caps_handle_t *handle;
     emit_fn emit_fn;
     seL4_Word consume_badge;
+    const char *connection_name;
 };
 
 /**

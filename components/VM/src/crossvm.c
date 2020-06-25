@@ -43,6 +43,7 @@ int cross_vm_connections_init(vm_t *vm, uintptr_t connection_base_addr, struct c
         crossvm_connections[i].dataport = dp_handle;
         crossvm_connections[i].emit_fn = connections[i].emit_fn;
         crossvm_connections[i].consume_id = connections[i].consume_badge;
+        crossvm_connections[i].connection_name = connections[i].connection_name;
     }
     int ret = cross_vm_connections_init_common(vm, connection_base_addr, crossvm_connections, num_connections,
                                                pci, get_crossvm_irq_num);
