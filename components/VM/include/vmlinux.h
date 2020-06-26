@@ -57,6 +57,8 @@ struct camkes_crossvm_connection {
     const char *connection_name;
 };
 
+typedef struct camkes_crossvm_connection camkes_crossvm_connection_t;
+
 /**
  * Initialise and register a series of camkes crossvm connections with a given vm
  * @param[in] vm                    A handle to the VM
@@ -77,6 +79,9 @@ int cross_vm_connections_init(vm_t *vm, uintptr_t connection_base_addr, struct c
     .init_module = _init_module, \
 };
 
+#define CROSS_VM_CONNECTION(connection_name, connection_symbol) \
+    __attribute__((used)) __attribute__((section("_vmm_cross_connector_definition"))) \
+    camkes_crossvm_connection_t *connection_name##def = &connection_symbol;
 
 /**
  * Callback handler to be called when a certain badged event is received.
