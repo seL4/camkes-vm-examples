@@ -358,6 +358,7 @@ static seL4_Error vm_simple_get_irq(void *data, int irq, seL4_CNode cnode, seL4_
 
 /* First try and allocate TCBs from the CAmkES static pool before retyping from Untypeds */
 static vka_utspace_alloc_maybe_device_fn utspace_alloc_copy;
+static vka_utspace_alloc_at_fn utspace_alloc_at_copy;
 
 static int camkes_vm_utspace_alloc_maybe_device_fn(void *data, const cspacepath_t *dest, seL4_Word type,
                                                    seL4_Word size_bits, bool can_use_dev, seL4_Word *res)
@@ -373,6 +374,27 @@ static int camkes_vm_utspace_alloc_maybe_device_fn(void *data, const cspacepath_
     return utspace_alloc_copy(data, dest, type, size_bits, can_use_dev, res);
 }
 
+static int camkes_vm_utspace_alloc_at(void *data, const cspacepath_t *dest, seL4_Word type,
+                                      seL4_Word size_bits, uintptr_t paddr, seL4_Word *res)
+{
+    if (type == seL4_ARM_SmallPageObject) {
+        for (dataport_frame_t *frame = __start__dataport_frames;
+             frame < __stop__dataport_frames; frame++) {
+            if (frame->paddr == paddr) {
+                if (frame->size == BIT(size_bits)) {
+                    cspacepath_t src;
+                    vka_cspace_make_path(&_vka, frame->cap, &src);
+                    return vka_cnode_copy(dest, &src, seL4_AllRights);
+                } else {
+                    ZF_LOGF("ERROR: found mapping for %p, wrong size %zu, expected %zu", (void *) paddr, frame->size, BIT(size_bits));
+                }
+            }
+        }
+
+    }
+    return utspace_alloc_at_copy(data, dest, type, size_bits, paddr, res);
+
+}
 
 static int vmm_init(void)
 {
@@ -413,6 +435,8 @@ static int vmm_init(void)
     /* Overwrite alloc function with a custom wrapper for statically allocated TCBs. */
     utspace_alloc_copy = vka->utspace_alloc_maybe_device;
     vka->utspace_alloc_maybe_device = camkes_vm_utspace_alloc_maybe_device_fn;
+    utspace_alloc_at_copy = vka->utspace_alloc_at;
+    vka->utspace_alloc_at = camkes_vm_utspace_alloc_at;
 
     for (int i = 0; i < simple_get_untyped_count(simple); i++) {
         size_t size;
