@@ -44,6 +44,7 @@
 #define MEM_SIZE                        16000
 
 #define ETHARP_SUPPORT_STATIC_ENTRIES   1
+#define SYS_LIGHTWEIGHT_PROT            0
 
 /* Get lwip to queue any packets whilst waiting for ARP response. Otherwise lwip will
  * only hold the latest packet until the ARP is resolved. */
