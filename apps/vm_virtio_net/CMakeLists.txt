@@ -18,6 +18,9 @@ include(../../arm_vm_helpers.cmake)
 find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
+set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-dtb")
+set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
+
 if("${KernelARMPlatform}" STREQUAL "exynos5422")
     # Create our CPP Flags based on ARM VM config variables
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
@@ -26,11 +29,9 @@ if("${KernelARMPlatform}" STREQUAL "exynos5422")
 elseif("${KernelARMPlatform}" STREQUAL "tx2")
     set(cpp_flags "-DKERNELARMPLATFORM_TX2")
     set(rootfs_address "0xf7000000")
-
+    set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-pci-dtb")
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpio.gz")
 endif()
-
-set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-dtb")
-set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 
 # Generate overlayed rootfs
 AddFileToOverlayDir(
