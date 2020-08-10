@@ -71,6 +71,12 @@
 #include <fdtgen.h>
 #include "fdt_manipulation.h"
 
+/* Do - Include prototypes to surpress compiler warnings */
+seL4_CPtr notification_ready_notification(void);
+int camkes_io_fdt(ps_io_fdt_t *io_fdt);
+seL4_CPtr camkes_alloc(seL4_ObjectType type, size_t size, unsigned flags);
+/* Done */
+
 extern void *fs_buf;
 int start_extra_frame_caps;
 
@@ -581,7 +587,7 @@ static seL4_CPtr restart_tcb;
 
 static void restart_event(void *arg)
 {
-    restart_event_reg_callback(restart_event, NULL);
+    int ret UNUSED = restart_event_reg_callback(restart_event, NULL);
     seL4_UserContext context = {
         .pc = (seL4_Word)restart_component,
     };
@@ -734,7 +740,7 @@ static int generate_fdt(vm_t *vm, void *fdt_ori, void *gen_fdt, int buf_size, si
     }
     fdtgen_keep_nodes_and_disable(context, plat_keep_device_and_disable, ARRAY_SIZE(plat_keep_device_and_disable));
 
-    fdtgen_keep_nodes(context, paths, num_paths);
+    fdtgen_keep_nodes(context, (const char **)paths, num_paths);
 
     err = fdtgen_generate(context, fdt_ori);
     fdtgen_free_context(context);
@@ -787,8 +793,8 @@ static int load_generated_dtb(vm_t *vm, uintptr_t paddr, void *addr, size_t size
 
 static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, const char *initrd_name)
 {
-    void *entry;
-    void *dtb;
+    seL4_Word entry;
+    seL4_Word dtb;
     int err;
 
     /* Install devices */
@@ -800,7 +806,7 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
     /* Load kernel */
     guest_kernel_image_t kernel_image_info;
     err = vm_load_guest_kernel(vm, kernel_name, linux_ram_base, 0, &kernel_image_info);
-    entry = (void *)kernel_image_info.kernel_image.load_paddr;
+    entry = kernel_image_info.kernel_image.load_paddr;
     if (!entry || err) {
         return -1;
     }
@@ -835,19 +841,19 @@ static int load_linux(vm_t *vm, const char *kernel_name, const char *dtb_name, c
         vm_ram_mark_allocated(vm, dtb_addr, size_gen);
         vm_ram_touch(vm, dtb_addr, size_gen, load_generated_dtb, gen_fdt);
 
-        dtb = (void *)dtb_addr;
+        dtb = dtb_addr;
     } else {
         /* Load device tree */
         guest_image_t dtb_image;
         err = vm_load_guest_module(vm, dtb_name, dtb_addr, 0, &dtb_image);
-        dtb = (void *)dtb_image.load_paddr;
+        dtb = dtb_image.load_paddr;
         if (!dtb || err) {
             return -1;
         }
     }
 
     /* Set boot arguments */
-    err = vcpu_set_bootargs(vm->vcpus[BOOT_VCPU], entry, MACH_TYPE, (uint32_t) dtb);
+    err = vcpu_set_bootargs(vm->vcpus[BOOT_VCPU], entry, MACH_TYPE, dtb);
     if (err) {
         printf("Error: Failed to set boot arguments\n");
         return -1;
@@ -870,11 +876,11 @@ void parse_camkes_linux_attributes(void)
 /* Async event handling registration implementation */
 typedef struct async_event_handler {
     seL4_Word badge;
-    void (*callback)(vm_t *, void *);
+    async_event_handler_fn_t callback;
     void *cookie;
 } async_event_handler_t;
 
-static int callback_len = 0;
+static int callback_idx = 0;
 static async_event_handler_t *callback_arr = NULL;
 
 int register_async_event_handler(seL4_Word badge, async_event_handler_fn_t callback, void *cookie)
@@ -882,7 +888,7 @@ int register_async_event_handler(seL4_Word badge, async_event_handler_fn_t callb
     if (callback_arr == NULL) {
         callback_arr = calloc(1, sizeof(*callback_arr));
     } else {
-        callback_arr = realloc(callback_arr, (callback_len + 1) * sizeof(*callback_arr));
+        callback_arr = realloc(callback_arr, (callback_idx + 1) * sizeof(*callback_arr));
     }
     if (callback_arr == NULL) {
         ZF_LOGE("Failed to allocate memory for callback_arr");
@@ -890,8 +896,8 @@ int register_async_event_handler(seL4_Word badge, async_event_handler_fn_t callb
     }
 
     async_event_handler_t handler = {.badge = badge, .callback = callback, .cookie = cookie};
-    callback_arr[callback_len] = handler;
-    callback_len++;
+    callback_arr[callback_idx] = handler;
+    callback_idx++;
     return 0;
 }
 
@@ -910,7 +916,7 @@ static int handle_async_event(vm_t *vm, seL4_Word badge, seL4_MessageInfo_t tag,
 #endif
     } else {
         bool found_handler = false;
-        for (int i = 0; i < callback_len; i++) {
+        for (int i = 0; i < callback_idx; i++) {
             assert(callback_arr);
             if ((badge & callback_arr[i].badge) == callback_arr[i].badge) {
                 callback_arr[i].callback(vm, callback_arr[i].cookie);
@@ -1032,7 +1038,7 @@ int main_continued(void)
         reset_resources();
     }
     restart_tcb = camkes_get_tls()->tcb_cap;
-    restart_event_reg_callback(restart_event, NULL);
+    int ret UNUSED = restart_event_reg_callback(restart_event, NULL);
 
     /* install custom open/close/read implementations to redirect I/O from the VMM to
      * our file server */
