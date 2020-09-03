@@ -31,11 +31,11 @@ if("${KernelARMPlatform}" STREQUAL "exynos5422")
     set(linux_cross_compile "arm-linux-gnueabi-")
 
     find_package(camkes-vm-linux REQUIRED)
-    
+
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
-    
+
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
-    
+
     # Generate overlayed rootfs
     set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 
@@ -103,7 +103,6 @@ AddFileToOverlayDir(
     overlay
 )
 
-
 # Construct new rootfs
 AddOverlayDirToRootfs(
     overlay
@@ -117,7 +116,6 @@ AddOverlayDirToRootfs(
 
 AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
 
-# AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 AddCamkesCPPFlag(
     cpp_flags
     CONFIG_VARS
@@ -134,12 +132,7 @@ DefineCAmkESVMFileServer()
 CAmkESAddImportPath(${KernelARMPlatform})
 
 # Define our VM Component with out cross vm dataports glue code
-DeclareCAmkESComponent(
-    VM 
-    SOURCES 
-    src/cross_vm_connection.c
-    src/init_dataport_ram.c
-)
+DeclareCAmkESComponent(VM SOURCES src/cross_vm_connection.c src/init_dataport_ram.c)
 
 DeclareCAmkESComponent(introspect_memdev SOURCES component/introspect_component.c)
 

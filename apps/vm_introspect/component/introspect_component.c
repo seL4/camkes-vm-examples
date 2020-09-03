@@ -24,17 +24,17 @@ int run(void)
         ready_wait();
         printf("introspect: Got an event\n");
 
-        seL4_Word paddr = *(seL4_Word*)introspect_data;
+        seL4_Word paddr = *(seL4_Word *)introspect_data;
         printf("paddr in component 0x%x\n", paddr);
-        
+
         seL4_Word offset = paddr - RAM_BASE;
 
         printf("offset in component 0x%x\n", offset);
 
         memcpy(fib_buf, ((char *)memdev + offset), sizeof(uint32_t) * N);
-        
+
         //print data from inside linux process
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             printf("camkes_fib[%d]@%p = %d, ", i, (fib_buf + i), fib_buf[i]);
         }
 

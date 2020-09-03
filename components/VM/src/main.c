@@ -71,7 +71,8 @@
 #include <fdtgen.h>
 #include "fdt_manipulation.h"
 
-/* Do - Include prototypes to surpress compiler warnings */
+/* Do - Include prototypes to surpress compiler warnings
+ * TODO: Add these to a template header */
 seL4_CPtr notification_ready_notification(void);
 int camkes_io_fdt(ps_io_fdt_t *io_fdt);
 seL4_CPtr camkes_alloc(seL4_ObjectType type, size_t size, unsigned flags);
@@ -633,11 +634,10 @@ static USED SECTION("_vmm_module") struct {} dummy_module;
 extern vmm_module_t __start__vmm_module[];
 extern vmm_module_t __stop__vmm_module[];
 
-
 int install_linux_devices(vm_t *vm)
 {
     int err;
-    int i;
+
     /* Install virtual devices */
     if (config_set(CONFIG_VM_PCI_SUPPORT)) {
         err = vm_install_vpci(vm, io_ports, pci);
