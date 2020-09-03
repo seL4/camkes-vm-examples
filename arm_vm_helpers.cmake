@@ -55,6 +55,7 @@ function(DeclareCAmkESARMVM init_component)
     )
 
     list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/map_frame_hack.c)
+    list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/init_ram.c)
 
     if(Tk1DeviceFwd)
         list(APPEND vm_src ${ARM_VM_PROJECT_DIR}/components/VM/src/modules/plat/tk1/device_fwd.c)

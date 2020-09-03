@@ -643,12 +643,6 @@ int install_linux_devices(vm_t *vm)
         err = vm_install_vpci(vm, io_ports, pci);
         assert(!err);
     }
-    if (config_set(CONFIG_PLAT_EXYNOS5) || config_set(CONFIG_PLAT_QEMU_ARM_VIRT) || config_set(CONFIG_PLAT_TX2)) {
-        err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, true);
-    } else {
-        err = vm_ram_register_at(vm, linux_ram_base, linux_ram_size, false);
-    }
-    assert(!err);
 
     int max_vmm_modules = (int)(__stop__vmm_module - __start__vmm_module);
     vmm_module_t *test_types[max_vmm_modules];
