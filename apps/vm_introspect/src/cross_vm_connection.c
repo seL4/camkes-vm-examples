@@ -25,7 +25,7 @@
 #endif
 
 //example going from linux to native component
-static void sys_ipa_to_pa(void *cookie)
+static void sys_ipa_to_pa(void)
 {
     printf("address from linux is %x\n", *(seL4_Word *)introspect_data);
 
