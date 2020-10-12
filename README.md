@@ -9,6 +9,8 @@
 
      @TAG(DATA61_BSD)
 -->
+* Depreciated: please use https://github.com/SEL4PROJ/camkes-vm-manifest
+
 # camkes-vm-examples
 
 This repo contains a collection of example CAmkES applications that use the CAmkES VM project. This is a short description of the example applications and how to build them.
