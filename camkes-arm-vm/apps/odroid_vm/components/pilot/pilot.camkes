@@ -1,0 +1,28 @@
+/*
+ * Copyright 2017, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+import "../../interfaces/uart.idl4"; 
+import "../../interfaces/pwm.idl4";
+
+component pilot {
+	uses uart_inf uart_gcs;
+        dataport Buf  gcs_buf;
+
+	uses uart_inf uart_px4;
+        dataport Buf  px4_buf;
+
+        uses pwm_inf pwm;
+	emits pwm_signal signal;
+
+	provides pilot_inf mavlink;
+
+	emits restart restart_vm;
+}

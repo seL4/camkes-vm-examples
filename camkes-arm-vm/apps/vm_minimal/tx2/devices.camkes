@@ -1,0 +1,93 @@
+/*
+ * Copyright 2019, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+#define VM_RAM_BASE 0xF1000000
+#define VM_RAM_SIZE 0x8000000
+#define VM_RAM_OFFSET 0
+#define VM_DTB_ADDR 0xF2000000
+#define VM_INITRD_ADDR 0xF7000000
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug init=/sbin/init",
+            "linux_stdout" : "/serial@3100000",
+        };
+        vm0.num_vcpus = 4;
+
+        vm0.dtb = dtb([
+                       {"path": "/chipid@100000"},
+                       {"path": "/gpio@2200000"},
+                       {"path": "/pinmux@2430000"},
+                       {"path": "/mc_sid@2c00000"},
+                       {"path": "/mc"},
+                       {"path": "/timer@3020000"},
+                       {"path": "/efuse@3820000"},
+                       {"path": "/serial@3100000"},
+                       {"path": "/serial@3110000"},
+                       {"path": "/serial@3130000"},
+                       {"path": "/serial@3140000"},
+                       {"path": "/serial@3150000"},
+                       {"path": "/tachometer@39c0000"},
+                       {"path": "/tegra-hsp@3c00000"},
+                       {"path": "/clock@5000000"},
+                       {"path": "/funnel_major@8010000"},
+                       {"path": "/etf@8030000"},
+                       {"path": "/etr@8050000"},
+                       {"path": "/tpiu@8060000"},
+                       {"path": "/stm@8070000"},
+                       {"path": "/funnel_minor@8820000"},
+                       {"path": "/ptm_bpmp@8a1c000"},
+                       {"path": "/funnel_bccplex@9010000"},
+                       {"path": "/ptm@9840000"},
+                       {"path": "/ptm@9940000"},
+                       {"path": "/ptm@9a40000"},
+                       {"path": "/ptm@9b40000"},
+                       {"path": "/tegra-hsp@b150000"},
+                       {"path": "/tegra-hsp@c150000"},
+                       {"path": "/gpio@c2f0000"},
+                       {"path": "/pmc@c360000"},
+                       {"path": "/pmc@c370000"},
+                       /* bpmp node */
+                       {"properties" : {"compatible[0]" : "nvidia,tegra186-bpmp"}}]);
+
+        vm0.untyped_mmios = [
+            "0x3886000:12", // GICV Iface.
+            /* The purpose of these untyped regions is to force the untyped
+             * allocator to treat this memory region as reserved so that when we
+             * try to ensure that the VMM is placed into this region in RAM, it
+             * will definitely be available for placement.
+             *
+             * This address pertains to guest-vm@f1000000 in the overlay DTS
+             */
+            "0xF1000000:24",
+            "0xF2000000:25",
+            "0xF4000000:26",
+            "0xF8000000:24",
+        ];
+	}
+}

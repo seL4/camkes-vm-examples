@@ -1,0 +1,103 @@
+/*
+ * Copyright 2018, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+#define VM_PADDR_RAM_BASE 0xB0000000
+#define VM_RAM_BASE 0x80000000
+#define VM_RAM_SIZE 0x40000000
+#define VM_RAM_OFFSET 0x30000000
+#define VM_DTB_ADDR 0x82000000
+#define VM_INITRD_ADDR 0x80700000
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_PADDR_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttyS0,115200n8 otf_key=c75e5bb91eb3bd947560357b64422f85 usbcore.old_scheme_first=1 tegraid=40.1.1.0.0 modem_id=0 android.kerneltype=normal commchip_id=0 usb_port_owner_info=2 lane_owner_info=1 touch_id=0@0 board_info=0x0177:0x0000:0x02:0x43:0x00 init=/sbin/init root=/dev/mmcblk0p2 rw rootwait gpt earlyprint",
+            "linux_stdout" : "/pl011@9000000",
+        };
+
+        vm0.dtb = dtb([{"path": "/interrupt-controller@60004000"},
+                       {"path": "/sdhci@700b0000"},
+                       {"path": "/usb@7d000000"},
+                       {"path": "/usb@7d004000"},
+                       {"path": "/usb@7d008000"},
+#if TK1DEVICEFWD == 0
+                       {"path": "/clock@60006000"},
+                       {"path": "/serial@70006000"},
+#endif
+#if TK1INSECURE
+                       {"path": "/pcie@1003000"},
+                       {"path": "/host1x@50000000"},
+                       {"path": "/host1x@50000000/dc@54200000"},
+                       {"path": "/host1x@50000000/dc@54240000"},
+                       {"path": "/timer@60005000"},
+                       {"path": "/actmon@6000c800"},
+                       {"path": "/gpio@6000d000"},
+                       {"path": "/dma@60020000"},
+                       {"path": "/pinmux@70000868"},
+                       {"path": "/i2c@7000c000"},
+                       {"path": "/i2c@7000d000"},
+                       {"path": "/rtc@7000e000"},
+                       {"path": "/fuse@7000f800"},
+                       {"path": "/clock@70110000"},
+                       {"path": "/emc@7001b000"},
+                       {"path": "/sata@70020000"},
+                       {"path": "/hda@70030000"},
+                       {"path": "/padctl@7009f000"},
+                       {"path": "/ahub@70300000"},
+                       {"path": "/ahub@70300000/i2s@70301000"},
+#endif
+]);
+
+        vm0.untyped_mmios = [
+                    "0x50046000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
+                    "0xb0000000:28", // Linux kernel memory regions
+                    "0xc0000000:29", // Linux kernel memory regions
+                    "0xe0000000:28", // Linux kernel memory regions
+#if TK1INSECURE
+                    "0x01000000:12", // PCIe Controller 0 config registers
+                    "0x01001000:12", // PCIe Controller 1 config registers
+#endif
+                    ];
+        vm0.irqs =  [
+                    63, // INTERRUPT_SDMMC4
+                    122, // INTERRUPT_UARTD
+                    ];
+
+#if TK1INSECURE
+       /* See
+        * .../kernel/include/plat/tk1/plat/machine/smmu.h
+        * ASID IDs, minus one
+        * Each additional ASID here represents an entire page table;
+        * make sure you have enough RAM.
+        */
+       vm0.smmu = [0,5,6,10,11,12,15,16,21,23,24,25,26,27];
+#else
+       vm0.smmu = [10, 23];
+#endif
+
+	}
+}

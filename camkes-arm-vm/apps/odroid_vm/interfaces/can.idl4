@@ -1,0 +1,21 @@
+/*
+ * Copyright 2017, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+procedure can_inf {
+	include "can_inf.h";
+	int setup(in int baudrate);
+	void send(in can_frame_t frame);
+	void recv(out can_frame_t frame);
+	int try_recv(out can_frame_t frame);
+	int set_filter(in can_id_t ident, in unsigned int mask);
+	void clear_filter(in int filter_id);
+	void disable_filtering(void);
+};

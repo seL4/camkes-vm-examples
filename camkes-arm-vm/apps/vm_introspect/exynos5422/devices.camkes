@@ -1,0 +1,118 @@
+/*
+ * Copyright 2020, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_INITRD_MAX_SIZE 0x1400000
+#define VM_RAM_BASE        0x40000000
+#define VM_RAM_SIZE        0x8001000                                                            
+#define VM_RAM_OFFSET      0x00000000
+#define VM_DTB_ADDR        0x45801000
+#define VM_INITRD_ADDR     0x46c01000
+
+assembly {
+	composition {}
+	configuration {
+
+        vm_memdev.paddr = VM_RAM_BASE;
+        vm_memdev.size = VM_RAM_SIZE;
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi",
+            "linux_stdout" : "serial2:115200n8",
+        };
+
+        vm0.dtb = dtb([{"path": "/firmware@2073000"},
+                      {"path": "/soc/audss-clock-controller@3810000"},
+                      {"path": "/soc/i2s@3830000"},
+                      {"path": "/soc/pinctrl@3860000"},
+                      {"path": "/soc/amba/adma@3880000"},
+                      {"path": "/soc/chipid@10000000"},
+                      {"path": "/soc/clock-controller@10010000"},
+                      {"path": "/soc/system-controller@10040000"},
+                      {"path": "/soc/syscon@10050000"},
+                      {"path": "/soc/tmu@10060000"},
+                      {"path": "/soc/tmu@10064000"},
+                      {"path": "/soc/tmu@10068000"},
+                      {"path": "/soc/tmu@1006c000"},
+                      {"path": "/soc/watchdog@101d0000"},
+                      {"path": "/soc/rtc@101e0000"},
+                      {"path": "/soc/interrupt-controller@10440000"},
+                      {"path": "/soc/amba/mdma@10800000"},
+                      {"path": "/soc/sysmmu@10a60000"},
+                      {"path": "/soc/sysmmu@10a70000"},
+                      {"path": "/soc/cci@10d20000"},
+                      {"path": "/soc/nocp@10ca1000"},
+                      {"path": "/soc/sysmmu@1120000"},
+                      {"path": "/soc/sysmmu@11210000"},
+                      {"path": "/soc/sysmmu@14640000"},
+                      {"path": "/soc/sysmmu@128d0000"},
+                      {"path": "/soc/sysmmu@11d40000"},
+                      {"path": "/soc/sysmmu@11f10000"},
+                      {"path": "/soc/sysmmu@11f20000"},
+                      {"path": "/soc/usb3-0/dwc3@12000000"},
+                      {"path": "/soc/phy@12100000"},
+                      {"path": "/soc/usb@12110000"},
+                      {"path": "/soc/usb@12120000"},
+                      {"path": "/soc/phy@12130000"},
+                      {"path": "/soc/amba/pdma@121a0000"},
+                      {"path": "/soc/amba/pdma@121b0000"},
+                      {"path": "/soc/mmc@12200000"},
+                      {"path": "/soc/mmc@12210000"},
+                      {"path": "/soc/mmc@12220000"},
+                      {"path": "/soc/usb3-1/dwc3@12400000"},
+                      {"path": "/soc/phy@12500000"},
+                      {"path": "/soc/sysmmu@12880000"},
+                      {"path": "/soc/sysmmu@12890000"},
+                      {"path": "/soc/sysmmu@128a0000"},
+                      {"path": "/soc/sysmmu@128c0000"},
+                      {"path": "/soc/sysmmu@128d0000"},
+                      {"path": "/soc/sysmmu@128e0000"},
+                      {"path": "/soc/serial@12c00000"},
+                      {"path": "/soc/serial@12c10000"},
+                      {"path": "/soc/serial@12c20000"},
+                      {"path": "/soc/serial@12c30000"},
+                      {"path": "/soc/i2c@12c60000"},
+                      {"path": "/soc/i2c@12c70000"},
+                      {"path": "/soc/i2c@12c80000"},
+                      {"path": "/soc/i2c@12c90000"},
+                      {"path": "/soc/i2c@12ca0000"},
+                      {"path": "/soc/i2c@12cb0000"},
+                      {"path": "/soc/i2c@12cc0000"},
+                      {"path": "/soc/adc@12d10000"},
+                      {"path": "/soc/pwm@12dd0000"},
+                      {"path": "/soc/pinctrl@13400000"},
+                      {"path": "/soc/pinctrl@13410000"},
+                      {"path": "/soc/video-scaler@13e00000"},
+                      {"path": "/soc/video-scaler@13e10000"},
+                      {"path": "/soc/sysmmu@13e80000"},
+                      {"path": "/soc/sysmmu@13e90000"},
+                      {"path": "/soc/pinctrl@14010000"},
+                      {"path": "/soc/sysmmu@14650000"},
+                      {"path": "/soc/i2s@3830000"},
+                      {"path": "/soc/sysmmu@14680000"}]);
+
+        vm0.untyped_mmios = [
+                    "0x10486000:12", // VCPU
+                    ];
+    }
+}
