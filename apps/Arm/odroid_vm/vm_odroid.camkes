@@ -1,0 +1,252 @@
+/*
+ * Copyright 2017, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+
+#define VM_RAM_OFFSET 0
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+
+#define VM_RAM_BASE 0x40000000
+#define VM_RAM_SIZE 0x20000000
+#define VM_DTB_ADDR 0x4F000000
+#define VM_INITRD_ADDR 0x4D700000
+
+import <std_connector.camkes>;
+
+import "components/uart/uart.camkes";
+import "components/gpio/gpio.camkes";
+import "components/pilot/pilot.camkes";
+import "components/pwm/pwm.camkes";
+import "components/spi/spi.camkes";
+import "components/can/can.camkes";
+import "components/clk/clk.camkes";
+import "components/timer/timer.camkes";
+import <VM_Arm/vm_common.camkes>;
+import <vm-connectors.camkes>;
+
+#include <configurations/vm.h>
+
+component uartbase {
+    hardware;
+    dataport Buf mem;
+    emits DataAvailable	irq;
+}
+
+component gpiobase {
+    hardware;
+    dataport Buf gpio1base;
+    dataport Buf gpio2base;
+    dataport Buf irqcbase;
+    emits IRQGroup26 irq_grp26_int;
+    emits IRQGroup28 irq_grp28_int;
+    emits IRQGroup31 irq_grp31_int;
+    emits EXINT16_31 xint16_31_int;
+}
+
+component i2c0 {
+    hardware;
+    dataport Buf i2c0_reg;
+    emits DataAvailable i2c0_int;
+}
+
+component clkbase {
+    hardware;
+    dataport Buf cmu_cpu_clk;
+    dataport Buf	   cmu_core_clk;
+    dataport Buf cmu_top_clk;
+}
+
+component spibase {
+	hardware;
+	dataport Buf spi1_reg;
+	emits DataAvailable spi1_int;
+}
+
+assembly {
+    composition {
+        component uartbase uartbase_gcs;
+        component uartbase uartbase_px4;
+        component gpiobase gpiobase_obj;
+        component i2c0     i2c0_obj;
+        component spibase  spibase_obj;
+        component clkbase   clkbase_obj;
+
+        component gpio     gpio_obj;
+        component uart     uart_gcs;
+        component uart     uart_px4;
+        component pilot    pilot_obj;
+        component pwm      pwm_obj;
+        component spi      spi_obj;
+        component can      can_obj;
+        component clk      clk_obj;
+        component timer	   timer_obj;
+
+
+        connection seL4HardwareMMIO gpio_mem1(from gpio_obj.gpio1base, to gpiobase_obj.gpio1base);
+        connection seL4HardwareMMIO gpio_mem2(from gpio_obj.gpio2base, to gpiobase_obj.gpio2base);
+        connection seL4HardwareMMIO gpio_mem3(from gpio_obj.irqcbase, to gpiobase_obj.irqcbase);
+        connection seL4HardwareMMIO gpio_clk(from gpio_obj.clk_tree, to clkbase_obj.cmu_top_clk);
+
+        connection seL4HardwareMMIO clk_cmu_cpu_mem(from clk_obj.cmu_cpu_clk, to clkbase_obj.cmu_cpu_clk);
+        connection seL4HardwareMMIO clk_cmu_top_mem(from clk_obj.cmu_top_clk, to clkbase_obj.cmu_top_clk);
+        connection seL4HardwareMMIO clk_cmu_core_mem(from clk_obj.cmu_core_clk, to clkbase_obj.cmu_core_clk);
+
+        connection seL4HardwareMMIO vm_cmu_cpu_mem(from vm.cmu_cpu, to clkbase_obj.cmu_cpu_clk);
+        connection seL4HardwareMMIO vm_cmu_top_mem(from vm.cmu_top, to clkbase_obj.cmu_top_clk);
+        connection seL4HardwareMMIO vm_cmu_core_mem(from vm.cmu_core, to clkbase_obj.cmu_core_clk);
+        connection seL4HardwareMMIO vm_gpio_right_mem(from vm.gpio_right, to gpiobase_obj.gpio1base);
+        /* Interrupts */
+        connection seL4HardwareInterrupt spi1_irq(from spibase_obj.spi1_int, to spi_obj.spi1_int);
+        connection seL4HardwareInterrupt gpio_grp28_irq(from gpiobase_obj.irq_grp28_int, to gpio_obj.irq_grp28_int);
+        connection seL4HardwareInterrupt gpio_grp26_irq(from gpiobase_obj.irq_grp26_int, to gpio_obj.irq_grp26_int);
+        connection seL4HardwareInterrupt gpio_grp31_irq(from gpiobase_obj.irq_grp31_int, to gpio_obj.irq_grp31_int);
+        connection seL4HardwareInterrupt gpio_xint16_31_irq(from gpiobase_obj.xint16_31_int, to gpio_obj.xint16_31_int);
+
+	/* SPI connections */
+        connection seL4RPCCall spi_gpio(from spi_obj.gpio, to gpio_obj.gpio);
+        connection seL4RPCCall spi_clk(from spi_obj.clktree, to clk_obj.clktree);
+        connection seL4HardwareMMIO spi1_mem(from spi_obj.spi1_reg, to spibase_obj.spi1_reg);
+
+        /* Can driver */
+        connection seL4RPCCall 	  can_spi(from can_obj.spi, to spi_obj.spi);
+        connection seL4SharedData can_spi_channel	(from can_obj.spi_can,	to spi_obj.spi1_can);
+        connection seL4Notification 	  gpio_can_int(from gpio_obj.CANInt, to can_obj.Int);
+        connection seL4Notification 	  gpio_can_intAck(from can_obj.IntAck, to gpio_obj.CANIntAck);
+
+	/* GCS hardware connection */
+        connection seL4HardwareMMIO uartbase_mem(from uart_gcs.uart0base, to uartbase_gcs.mem);
+        connection seL4HardwareInterrupt uartbase_irq(from uartbase_gcs.irq, to uart_gcs.interrupt);
+
+	/* PX4 hardware connection */
+        connection seL4HardwareMMIO uartpx4_mem(from uart_px4.uart0base, to uartbase_px4.mem);
+        connection seL4HardwareInterrupt uartpx4_irq(from uartbase_px4.irq, to uart_px4.interrupt);
+
+	/* Pilot connection */
+        connection seL4RPCCall uart_inf(from pilot_obj.uart_gcs, to uart_gcs.uart);
+        connection seL4SharedData uart_data(from pilot_obj.gcs_buf, to uart_gcs.client_buf);
+
+        connection seL4RPCCall uartpx4_inf(from pilot_obj.uart_px4, to uart_px4.uart);
+        connection seL4SharedData uartpx4_data(from pilot_obj.px4_buf, to uart_px4.client_buf);
+
+	/* Recv connection */
+        connection seL4RPCCall gcs_recv_inf(from uart_gcs.pilot, to pilot_obj.mavlink);
+        connection seL4RPCCall px4_recv_inf(from uart_px4.pilot, to pilot_obj.mavlink);
+
+        /* PWM connection */
+        connection seL4HardwareMMIO      i2c0_mem(from pwm_obj.i2c0, to i2c0_obj.i2c0_reg);
+        connection seL4HardwareInterrupt i2c0_irq(from i2c0_obj.i2c0_int, to pwm_obj.i2c0_int);
+        connection seL4RPCCall           fd_pwm(from pilot_obj.pwm, to pwm_obj.pwm);
+        connection seL4Notification pwm_sig(from pilot_obj.signal, to pwm_obj.signal);
+        connection seL4Notification pwm_timer(from timer_obj.timer_update, to pwm_obj.timer_update);
+
+
+	/* VM to PWM */
+        connection seL4RPCCall           vm_pwm(from vm.pwm, to pwm_obj.pwm);
+
+	/* Restart VM */
+	connection seL4Notification restart_vm(from pilot_obj.restart_vm, to vm.restart_event);
+
+        /* DTB Device Passthrough */
+        connection seL4VMDTBPassthrough vm_dtb(from vm.dtb_self, to vm.dtb);
+    }
+
+    configuration {
+        vm.num_extra_frame_caps = 0;
+        vm.extra_frame_map_address = 0;
+
+        uartbase_gcs.mem_paddr = 0x12C30000;
+        uartbase_gcs.mem_size = 0x1000;
+        uartbase_gcs.irq_irq_number = 86;                        //UART1 interrupt
+
+        uartbase_gcs.integrity_label = "uart_gcs";
+
+        uartbase_px4.mem_paddr = 0x12C10000;
+        uartbase_px4.mem_size = 0x1000;
+        uartbase_px4.irq_irq_number = 84;                        //UART1 interrupt
+
+        uartbase_px4.integrity_label = "uart_px4";
+
+        gpiobase_obj.gpio2base_paddr = 0x14000000;
+        gpiobase_obj.gpio2base_size = 0x1000;
+
+        gpiobase_obj.gpio1base_paddr = 0x13400000;
+        gpiobase_obj.gpio1base_size = 0x1000;
+
+        gpiobase_obj.irqcbase_paddr = 0x10440000;
+        gpiobase_obj.irqcbase_size = 0x1000;
+
+        gpiobase_obj.irq_grp26_int_irq_number = 58; //Combined IRQ group 26
+        gpiobase_obj.irq_grp28_int_irq_number = 60; //Combined IRQ group 28
+        gpiobase_obj.irq_grp31_int_irq_number = 63; //Combined IRQ group 31
+        gpiobase_obj.xint16_31_int_irq_number = 64; //Extern Interrupt EINT16-EINT31
+
+        gpiobase_obj.integrity_label = "gpio_obj";
+
+        spibase_obj.spi1_reg_paddr = 0x12D30000;
+        spibase_obj.spi1_reg_size = 0x1000;
+        spibase_obj.spi1_int_irq_number = 101;                    //SPI1  interrupt
+
+        spibase_obj.integrity_label = "spi_obj";
+
+        clkbase_obj.cmu_cpu_clk_paddr = 0x10010000;
+        clkbase_obj.cmu_cpu_clk_size = 0x1000;
+
+        clkbase_obj.cmu_core_clk_paddr = 0x10014000;
+        clkbase_obj.cmu_core_clk_size = 0x1000;
+
+        clkbase_obj.cmu_top_clk_paddr = 0x10020000;
+        clkbase_obj.cmu_top_clk_size = 0x1000;
+
+        clkbase_obj.integrity_label = "clk_obj";
+
+        i2c0_obj.i2c0_reg_paddr = 0x12C60000;
+        i2c0_obj.i2c0_reg_size = 0x1000;
+        i2c0_obj.i2c0_int_irq_number = 88;
+
+        i2c0_obj.integrity_label = "pwm_obj";
+
+
+
+        uart_gcs.ID = 1;
+        uart_px4.ID = 3;
+
+        vm.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+        vm.linux_image_config = {};
+
+        vm.dtb = dtb([{"path": "/soc/chipid@10000000"},
+                      {"path": "/soc/serial@12c20000"},
+                      {"path": "/soc/system-controller@10040000"},
+                      {"path": "/soc/syscon@10050000"},
+#ifndef FEATURE_VUSB
+                      {"path": "/soc/usb@12110000"},
+#endif
+                      {"path": "/soc/phy@12130000"},
+                      {"path": "/soc/mmc@12200000"},
+                      {"path": "/soc/mmc@12220000"},
+                      ]);
+
+        vm.untyped_mmios = [
+                    "0x10486000:12", // VCPU
+                    "0x10030000:12", // CMU_COREX
+                    "0x10038000:12", // CMU_MEM
+                    "0x1001c000:12", // CMU_ISP
+                    "0x10018000:12", // CMU_ACP
+                    "0x40000000:29"]; // RAM
+    }
+}

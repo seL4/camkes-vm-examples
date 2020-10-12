@@ -1,5 +1,5 @@
 #
-# Copyright 2018, Data61
+# Copyright 2019, Data61
 # Commonwealth Scientific and Industrial Research Organisation (CSIRO)
 # ABN 41 687 119 230.
 #
@@ -10,4 +10,6 @@
 # @TAG(DATA61_BSD)
 #
 
-# No easy settings are declared for this project.
+# set(PLATFORM "tx1" CACHE STRING "Platform to use")
+set(RELEASE OFF CACHE BOOL "Performance optimized build")
+# set(CAMKES_VM_APP "vm_minimal" CACHE STRING "CAmkES VM application to build")
