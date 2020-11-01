@@ -1,0 +1,89 @@
+/*
+ * Copyright 2018, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the GNU General Public License version 2. Note that NO WARRANTY is provided.
+ * See "LICENSE_GPLv2.txt" for details.
+ *
+ * @TAG(DATA61_GPL)
+ */
+
+import <VM/vm.camkes>;
+
+#include <configurations/vm.h>
+
+#define VM_GUEST_CMDLINE "earlyprintk=ttyS0,115200 console=ttyS0,115200 i8042.nokbd=y i8042.nomux=y i8042.noaux=y \
+io_delay=udelay noisapnp pci=nomsi debug root=/dev/sda1"
+
+component Init0 {
+    VM_INIT_DEF()
+}
+
+assembly {
+    composition {
+        VM_COMPOSITION_DEF()
+        VM_PER_VM_COMP_DEF(0)
+
+    }
+    configuration {
+        VM_CONFIGURATION_DEF()
+        VM_PER_VM_CONFIG_DEF(0)
+        vm0.simple_untyped24_pool = 48;
+        vm0.heap_size = 0x10000;
+        vm0.guest_ram_mb = 512;
+        vm0.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm0.kernel_image = "bzimage";
+        vm0.kernel_relocs = "bzimage";
+        vm0.initrd_image = "rootfs.cpio";
+        vm0.iospace_domain = 0x0f;
+        vm0.pci_devices_iospace = 1;
+
+        // For VESA vframebuffer
+        vm0.untyped_mmios = ["0xb0000000:28"];
+        vm0.simple_extra_bootinfo = ["SEL4_BOOTINFO_HEADER_X86_VBE"];
+        vm0.cnode_size_bits = 24;
+
+        vm0.pci_devices = [
+#ifdef USB1
+        {
+            "name":"USB1",
+            "bus":0, "dev":0x14, "fun":0,
+            "irq":"USB1",
+            "memory":[
+                {"paddr":0xc0700000, "size":0x400, "page_bits":12},
+            ],
+        },
+#endif
+        {
+            "name":"USB2",
+            "bus":0, "dev":0x1a, "fun":0,
+            "irq":"USB2",
+            "memory":[
+                {"paddr":0xc0714000, "size":0x400, "page_bits":12},
+            ],
+        },
+        {
+            "name":"USB3",
+            "bus":0, "dev":0x1d, "fun":0,
+            "irq":"USB3",
+            "memory":[
+                {"paddr":0xc0713000, "size":0x400, "page_bits":12},
+            ],
+        },
+        ];
+        vm0.vm_irqs = [
+#ifdef USB1
+            {"name":"USB1", "source":0x1c, "level_trig":1, "active_low":1, "dest":16},
+#endif
+            {"name":"USB2", "source":0x10, "level_trig":1, "active_low":1, "dest":14},
+            {"name":"USB3", "source":0x17, "level_trig":1, "active_low":1, "dest":15},
+        ];
+
+        // These ranges are RMRR for the IOMMU and so we must exclude the from the guest
+        // physical address space as we cannot overwrite the mappings that will already exist
+        // in the iommu for them
+        vm0.exclude_paddr = [ [0xaae84000, 0x20000], [0xab800000, 0x4200000]];
+    }
+}
