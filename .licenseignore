@@ -1,4 +1,5 @@
-cma34cr_centos/centos_linux/*
-cma34cr_centos/lwip_include/lwipopts.h
-cma34cr_ubuntu/ubuntu_linux/*
+apps/x86/cma34cr_centos/centos_linux/*
+apps/x86/cma34cr_centos/lwip_include/lwipopts.h
+apps/x86/cma34cr_ubuntu/ubuntu_linux/*
+linux/*
 .stylefilter
