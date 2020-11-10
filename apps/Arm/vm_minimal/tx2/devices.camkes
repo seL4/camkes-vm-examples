@@ -12,13 +12,6 @@
 
 #include <configurations/vm.h>
 
-  // memory@80000000 {
-  //  device_type = "memory";
-  //  reg = <0x0 0x80000000 0x0 0x70000000>;
-  // };
-// #define VM_RAM_BASE 0x80000000
-// #define VM_RAM_SIZE 0x70000000
-
 #define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
 #define VM_RAM_BASE 0xF1000000
 #define VM_RAM_SIZE 0x8000000
@@ -79,7 +72,6 @@ assembly {
                        {"path": "/gpio@c2f0000"},
                        {"path": "/pmc@c360000"},
                        {"path": "/pmc@c370000"},
-                       {"path": "/pwm-fan"},
                        /* bpmp node */
                        {"properties" : {"compatible[0]" : "nvidia,tegra186-bpmp"}}]);
 
