@@ -11,15 +11,15 @@
 #
 cmake_minimum_required(VERSION 3.7.2)
 
-if (EXISTS "${CMAKE_CURRENT_LIST_DIR}/apps/Arm/${CAMKES_VM_APP}")
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/apps/Arm/${CAMKES_VM_APP}")
     set(AppArch "Arm" CACHE STRING "" FORCE)
-elseif (EXISTS "${CMAKE_CURRENT_LIST_DIR}/apps/x86/${CAMKES_VM_APP}")
+elseif(EXISTS "${CMAKE_CURRENT_LIST_DIR}/apps/x86/${CAMKES_VM_APP}")
     set(AppArch "x86" CACHE STRING "" FORCE)
 else()
     message(FATAL_ERROR "App does not exist for supported architecture")
 endif()
 
-if (AppArch STREQUAL "Arm")
+if(AppArch STREQUAL "Arm")
     set(CAMKES_ARM_LINUX_DIR "${CMAKE_CURRENT_LIST_DIR}/linux" CACHE STRING "")
 
     set(project_dir "${CMAKE_CURRENT_LIST_DIR}/../../")
@@ -96,7 +96,7 @@ if (AppArch STREQUAL "Arm")
         message(FATAL_ERROR "${KernelARMPlatform} does not support SMP VMs")
     endif()
 
-elseif (AppArch STREQUAL "x86")
+elseif(AppArch STREQUAL "x86")
 
     set(project_dir "${CMAKE_CURRENT_LIST_DIR}")
     get_filename_component(resolved_path ${CMAKE_CURRENT_LIST_FILE} REALPATH)
