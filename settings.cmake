@@ -138,7 +138,7 @@ elseif (AppArch STREQUAL "x86")
     sel4_configure_platform_settings()
 
     if(SIMULATION)
-        ApplyCommonSimulationSettings(${KernelArch})
+        ApplyCommonSimulationSettings(${KernelSel4Arch})
         # Force IOMMU back on after CommonSimulationSettings disabled it
         set(KernelIOMMU ON CACHE BOOL "" FORCE)
     endif()
