@@ -90,6 +90,7 @@ if (AppArch STREQUAL "Arm")
         ("${KernelARMPlatform}" STREQUAL "exynos5422"
          OR "${KernelARMPlatform}" STREQUAL "exynos5410"
          OR "${KernelARMPlatform}" STREQUAL "tk1"
+         OR "${KernelARMPlatform}" STREQUAL "rk3288"
          )
         AND (${KernelMaxNumNodes} GREATER 1)
     )

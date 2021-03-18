@@ -134,6 +134,27 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+
+elseif("${KernelARMPlatform}" STREQUAL "rk3288")
+    find_package(camkes-vm-linux REQUIRED)
+    include(${CAMKES_VM_LINUX_HELPERS_PATH})
+    set(cpp_flags "-DKERNELARMPLATFORM_RK3288")
+
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/rk3288/linux")
+    # Generate overlayed rootfs
+	#    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/rk3288/rootfs.cpio.gz")
+	#    AddToFileServer("linux-initrd" ${rootfs_file})
+    # Updated dtb based on initrd
+	#    UpdateDtbFromInitrd(
+	#        "${CAMKES_VM_IMAGES_DIR}/rk3288/linux-dtb"
+	#        ${rootfs_file}
+	#        "0x4d700000"
+	#        dtb_gen_target
+	#        output_dtb_location
+	#    )
+	#    AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+    AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/rk3288/linux-dtb")
+
 endif()
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)

@@ -1,0 +1,180 @@
+/*
+ * Copyright 2021, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_RAM_OFFSET 0
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+
+#define VM_RAM_BASE 0x41000000
+#define VM_RAM_SIZE 0x40000000
+#define VM_DTB_ADDR 0x4F000000
+#define VM_INITRD_ADDR 0x4D700000
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttyS2,115200n8 rw rootwait root=/dev/mmcblk1p5 debug loglevel=8 noinitrd earlycon=uart8250,mmio32,0xff690000 initcall_debug",
+            "linux_stdout" : "serial2:115200n8",
+        };
+
+        vm0.dtb = dtb([{"path": "/arm-pmu"},
+                      {"path": "/cpus"},
+                      {"path": "/opp_table0"},
+//                      {"path": "/amba"},
+//                      {"path": "/reserved-memory"},
+                      {"path": "/oscillator"},
+                      {"path": "/timer"},
+                      {"path": "/display-subsystem"},
+                      {"path": "/dwmmc@ff0c0000"},
+                      {"path": "/dwmmc@ff0d0000"},
+                      {"path": "/dwmmc@ff0e0000"},
+                      {"path": "/dwmmc@ff0f0000"},
+                      {"path": "/saradc@ff100000"},
+                      {"path": "/spi@ff110000"},
+                      {"path": "/spi@ff120000"},
+                      {"path": "/spi@ff130000"},
+                      {"path": "/i2c@ff650000"},
+                      {"path": "/i2c@ff140000"},
+                      {"path": "/i2c@ff150000"},
+                      {"path": "/i2c@ff160000"},
+                      {"path": "/i2c@ff170000"},
+                      {"path": "/serial@ff180000"},
+                      {"path": "/serial@ff190000"},
+                      {"path": "/serial@ff690000"},
+                      {"path": "/serial@ff1b0000"},
+                      {"path": "/serial@ff1c0000"},
+                      {"path": "/thernal-zones"},
+                      {"path": "/tsadc@ff280000"},
+                      {"path": "/ethernet@ff290000"},
+                      {"path": "/usb@ff500000"},
+                      {"path": "/usb@ff520000"},
+                      {"path": "/usb@ff540000"},
+                      {"path": "/usb@ff580000"},
+                      {"path": "/usb@ff5c0000"},
+                      {"path": "/i2c@ff660000"},
+                      {"path": "/pwm@ff680000"},
+                      {"path": "/pwm@ff680010"},
+                      {"path": "/pwm@ff680020"},
+                      {"path": "/pwm@ff680030"},
+                      {"path": "/timer@ff6b0000"},
+//                      {"path": "/bus_intmem@ff700000"},
+//                      {"path": "/sram@ff720000"},
+                      {"path": "/qos@ffaa0000"},
+                      {"path": "/qos@ffaa0080"},
+                      {"path": "/qos@ffad0000"},
+                      {"path": "/qos@ffad0100"},
+                      {"path": "/qos@ffad0180"},
+                      {"path": "/qos@ffad0400"},
+                      {"path": "/qos@ffad0480"},
+                      {"path": "/qos@ffad0500"},
+                      {"path": "/qos@ffad0800"},
+                      {"path": "/qos@ffad0880"},
+                      {"path": "/qos@ffad0900"},
+                      {"path": "/qos@ffae0000"},
+                      {"path": "/qos@ffaf0000"},
+                      {"path": "/qos@ffaf0080"},
+//                      {"path": "/power-mangement@ff730000"},
+//                      {"path": "/syscon@ff740000"},
+//                      {"path": "/clock-controller@ff760000"},
+                      {"path": "/syscon@ff770000"},
+                      {"path": "/watchdog@ff800000"},
+                      {"path": "/rng@ff8a0000"},
+                      {"path": "/cypto-controller@ff8a0000"},
+                      {"path": "/sound@ff8b0000"},
+                      {"path": "/i2s@ff890000"},
+                      {"path": "/iep@ff90000"},
+                      {"path": "/iommu@ff900800"}, {"path": "/cif_isp@ff910000"},
+                      {"path": "/isp@ff910000"},
+                      {"path": "/rkisp1@ff910000"},
+                      {"path": "/iommu@ff914000"},
+                      {"path": "/rga@ff920000"},
+                      {"path": "/vop@ff930000"},
+                      {"path": "/iommu@ff930300"},
+                      {"path": "/vop@ff940000"},
+                      {"path": "/iommu@ff940300"},
+                      {"path": "/cif@ff950000"},
+                      {"path": "/dsi@ff960000"},
+                      {"path": "/dsi@ff964000"},
+                      {"path": "/mipi-phy-tx1rx1@ff968000"},
+                      {"path": "/mipi-csi-host@ff968000"},
+                      {"path": "/dp@ff970000"},
+                      {"path": "/video-phy@ff96c000"},
+                      {"path": "/hdmi@ff980000"},
+                      {"path": "/video-codec@ff9a0000"},
+                      {"path": "/vpu-service@ff9a0000"},
+                      {"path": "/iommu@ff9a0800"},
+                      {"path": "/hevc-service@ff9c0000"},
+                      {"path": "/iommu@ff9c0440"},
+                      {"path": "/gpu@ffa30000"},
+                      {"path": "/opp-table1"},
+                      {"path": "/syscon@ffac0000"},
+                      {"path": "/nocp-core@ffac0400"},
+                      {"path": "/nocp-gpu@ffac0800"},
+                      {"path": "/nocp-peri@ffac0c00"},
+//                      {"path": "/nocp-vpu@ffac1000"},
+//                      {"path": "/nocp-vio0@ffac1400"},
+//                      {"path": "/nocp-vio1@ffac1c00"},
+                      {"path": "/efuse@ffb40000"},
+//                      {"path": "/interrupt-controller@ffc01000"},
+                      {"path": "/rockchip-system-monitor"},
+//                      {"path": "/pinctrl"},
+                      {"path": "/rockchip-suspend"},
+                      {"path": "/ddr_timing"},
+                      {"path": "/dfi"},
+                      {"path": "/dmc"},
+                      {"path": "/opp_table2"},
+//                      {"path": "/ramoops"},
+                      {"path": "/fiq-debugger"},
+//                      {"path": "/psci"},
+//                      {"path": "/cpuinfo"},
+                      {"path": "/adc-keys"},
+//                      {"path": "/gpio-keys"},
+//                      {"path": "/dwc-control-usb@ff770284"},
+                      {"path": "/sdio-pwrseq"},
+                      {"path": "/wireless-wlan"},
+                      {"path": "/wireless-bluetooth"},
+                      {"path": "/sound"},
+                      {"path": "/spdif-sound"},
+                      {"path": "/hdmi-analog-sound"},
+                      {"path": "/backlight"},
+                      {"path": "/xin32k"},
+                      {"path": "/vsys-regulator"},
+                      {"path": "/dovdd-1v8-regulator"},
+                      {"path": "/dvdd-1v5-regulator"},
+                      {"path": "/vcc18-dvp-regulator"},
+                      {"path": "/vcc-lcd"},
+                      {"path": "/vcc-host-regulator"},
+                      {"path": "/vcc-3g-regulator"},
+                      {"path": "/vccadc-ref"},
+                      {"path": "/rk_headset"},
+                      {"path": "/adc0"},
+                      {"path": "/uboot-charge"}]);
+
+        vm0.untyped_mmios = [
+                    "0xffc06000:12", // VCPU
+                    "0x61000000:29", // VCPU
+                    "0x41000000:29"]; // RAM //:29
+    }
+}

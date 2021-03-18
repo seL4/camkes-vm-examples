@@ -10,7 +10,7 @@
 # @TAG(DATA61_BSD)
 #
 
-set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2")
+set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2;rk3288")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -41,4 +41,7 @@ if(${PLATFORM} STREQUAL "qemu-arm-virt")
     set(QEMU_MEMORY "2048")
     set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
+endif()
+if(${PLATFORM} STREQUAL "rk3288")
+    set(VmDtbFile ON CACHE BOOL "" FORCE)
 endif()
