@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2")
+set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2;rpi4")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -29,6 +29,10 @@ endif()
 if(${PLATFORM} STREQUAL "odroidc2")
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
     set(VmDtbFile ON CACHE BOOL "" FORCE)
+endif()
+if(${PLATFORM} STREQUAL "rpi4")
+    set(VmInitRdFile ON CACHE BOOL "" FORCE)
+    set(VmDtbFile OFF CACHE BOOL "" FORCE)
 endif()
 if(${PLATFORM} STREQUAL "qemu-arm-virt")
     # force cpu

@@ -18,6 +18,7 @@ Currently the supported platforms include:
 * QEMU ARM virt machine
 * x86
 * x86_64 (coming)
+* Raspberry Pi 4
 
 ## Getting and Building
 The following example builds the camkes arm vmm for the TK1.
