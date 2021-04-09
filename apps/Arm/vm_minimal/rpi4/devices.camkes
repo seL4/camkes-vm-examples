@@ -1,0 +1,48 @@
+/*
+ * Copyright 2020, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_RAM_OFFSET 0
+#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+
+#define VM_RAM_BASE 0x40000000
+#define VM_RAM_SIZE 0x10000000 // 256MiB
+#define VM_DTB_ADDR 0x4F000000
+#define VM_INITRD_ADDR 0x4D700000
+
+assembly {
+    composition {}
+    configuration {
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {};
+
+        vm0.dtb = dtb([
+                {"path": "/soc/serial@7e215040"}, // Pass through same serial1 as used by seL4??
+                {"path": "/scb/ethernet@7d580000"},
+        ]);
+
+        vm0.untyped_mmios = [
+            "0xff844000:12", // VCPU PADDR
+            "0x40000000:28", // RAM PADDR
+        ];
+    }
+}
