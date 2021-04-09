@@ -1,0 +1,78 @@
+/*
+ * Copyright 2020, DornerWorks
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+/*
+ * Sample QEMU invocation to test this on QEMU:
+ * qemu-system-i386 -machine q35,accel=kvm,kernel-irqchip=split \
+ *                  -cpu Nehalem,+vme,-pdpe1gb,+xsave,+xsaveopt,-xsavec,-fsgsbase,-invpcid,-syscall,-lm,enforce,+vmx \
+ *                  -nographic -serial mon:stdio -m size=4G -enable-kvm \
+ *                  -kernel images/kernel-ia32-pc99 \
+ *                  -initrd images/capdl-loader-image-ia32-pc99 \
+ *                  -device intel-iommu,intremap=off \
+ *                  -drive id=disk,file=/path/to/file.img,if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0
+ *
+ * This requires nested virtualisation to be turned on.
+ * https://www.linux-kvm.org/page/Nested_Guests
+ */
+
+import <VM/vm.camkes>;
+
+#include <configurations/vm.h>
+#include <configurations/sata.h>
+
+#define VM_GUEST_CMDLINE "earlyprintk=ttyS0,115200 console=ttyS0,115200 i8042.nokbd=y i8042.nomux=y \
+i8042.noaux=y noisapnp pci=nomsi,noacpi nolapic_timer"
+
+component Init0 {
+    VM_INIT_DEF()
+    VM_INIT_SATA()
+}
+
+assembly {
+    composition {
+        VM_COMPOSITION_DEF()
+        SATA_COMPOSITION_DEF()
+
+        VM_PER_VM_COMP_DEF(0)
+        VM_SATA_CONNECTIONS(0)
+    }
+
+    configuration {
+        VM_CONFIGURATION_DEF()
+        VM_PER_VM_CONFIG_DEF(0)
+
+        VM_SATA_CONFIG()
+
+        sataserver.ioports = "0xf090:0xf097,0xf080:0xf083,0xf070:0xf077,0xf060:0xf063,0xf020:0xf03f";
+        sataserver.iospaces = "0x12:0x0:0x1f:2";
+        sataserver.pci_bdfs = "0x0:0x1f.2";
+        sataserver.iospace_id = 0x12;
+        sataserver.num_bdfs = 1;
+        sataserver.drive = 0;
+
+        vm0.simple_untyped23_pool = 20;
+        vm0.heap_size = 0x2000000;
+        vm0.dma_pool = 0x20000;
+        vm0.guest_ram_mb = 128;
+        vm0.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm0.kernel_image = "bzimage";
+        vm0.kernel_relocs = "bzimage";
+        vm0.initrd_image = "rootfs.cpio";
+        vm0.iospace_domain = 0x0f;
+        vm0.cnode_size_bits = 21;
+
+        vm0.sched_ctrl = [0, 1, 2, 3, 4, 5];
+
+        vm0.sataserver_iface_attributes = "0";
+        vm0.sataserver_iface_partitions = [1];  /* Physical Partition assigned to VM0 */
+
+        vm0.init_cons = [
+            {"init":"make_virtio_blk"},
+        ];
+
+        vm0.pci_devices_iospace = 1;
+    }
+}
