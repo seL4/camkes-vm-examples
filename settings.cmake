@@ -71,7 +71,7 @@ if(AppArch STREQUAL "Arm")
     find_package(seL4 REQUIRED)
     sel4_configure_platform_settings()
 
-    ApplyData61ElfLoaderSettings(${KernelARMPlatform} ${KernelSel4Arch})
+    ApplyData61ElfLoaderSettings(${KernelPlatform} ${KernelSel4Arch})
 
     if(NUM_NODES MATCHES "^[0-9]+$")
         set(KernelMaxNumNodes ${NUM_NODES} CACHE STRING "" FORCE)
