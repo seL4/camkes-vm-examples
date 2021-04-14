@@ -13,12 +13,12 @@
 #include <configurations/vm.h>
 
 #define VM_RAM_OFFSET 0
-#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
+#define VM_INITRD_MAX_SIZE 0x2000000 //32 MB
 
-#define VM_RAM_BASE    0x50000000
-#define VM_RAM_SIZE    0x08000000 // 128MB
-#define VM_DTB_ADDR    0x57000000 // (0x58000000 - 0x57000000) = 0x100 0000 (16MB)
-#define VM_INITRD_ADDR 0x55700000 // (0x58000000 - 0x1900000) - 0x1000000
+#define VM_RAM_BASE    0x40000000
+#define VM_RAM_SIZE    0x20000000 // 512MB
+#define VM_DTB_ADDR    0x5E000000 // (0x60000000 - 0x5E000000) = 0x1000000 (16MB)
+#define VM_INITRD_ADDR 0x5D000000 // (0x60000000 - 0x2000000) - 0x1000000
 
 assembly {
     composition {}
@@ -44,7 +44,7 @@ assembly {
 
         vm0.untyped_mmios = [
             "0xff846000:12", // VCPU PADDR
-            "0x50000000:27", // RAM PADDR //:28
+            "0x40000000:29", // RAM PADDR //:28
         ];
     }
 }

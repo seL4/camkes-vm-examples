@@ -145,7 +145,7 @@ elseif("${KernelARMPlatform}" STREQUAL "rpi4")
     UpdateDtbFromInitrd(
         "${CAMKES_VM_IMAGES_DIR}/rpi4/linux-dtb"
         ${rootfs_file}
-        "0x55700000"
+        "0x5D000000"
         dtb_gen_target
         output_dtb_location
     )
