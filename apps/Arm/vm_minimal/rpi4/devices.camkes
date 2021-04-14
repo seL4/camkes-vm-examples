@@ -15,10 +15,10 @@
 #define VM_RAM_OFFSET 0
 #define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
 
-#define VM_RAM_BASE 0x20000000
-#define VM_RAM_SIZE 0x08000000 // 128MiB
-#define VM_DTB_ADDR 0x27000000
-#define VM_INITRD_ADDR 0x25700000
+#define VM_RAM_BASE    0x50000000
+#define VM_RAM_SIZE    0x08000000 // 128MB
+#define VM_DTB_ADDR    0x57000000 // (0x58000000 - 0x57000000) = 0x100 0000 (16MB)
+#define VM_INITRD_ADDR 0x55700000 // (0x58000000 - 0x1900000) - 0x1000000
 
 assembly {
     composition {}
@@ -33,15 +33,18 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.linux_image_config = {};
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+        };
 
         vm0.dtb = dtb([
-                {},
+                {}
         ]);
 
         vm0.untyped_mmios = [
-//            "0xff840000:13", // VCPU PADDR
-            "0x40000000:28", // RAM PADDR
+            "0xff846000:12", // VCPU PADDR
+            "0x50000000:27", // RAM PADDR //:28
         ];
     }
 }
