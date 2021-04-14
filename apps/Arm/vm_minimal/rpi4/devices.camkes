@@ -35,7 +35,7 @@ assembly {
 
         vm0.linux_image_config = {};
 
-        vm0.dtb = dtb([]);
+        vm0.dtb = dtb([{}]);
 
         vm0.untyped_mmios = [
             "0xff844000:12", // VCPU PADDR
