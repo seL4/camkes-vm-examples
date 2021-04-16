@@ -162,14 +162,21 @@ elseif("${KernelARMPlatform}" STREQUAL "rpi4")
     AddToFileServer("linux-initrd" ${rootfs_file} )
     
     # Updated dtb based on generated initrd
+    #UpdateDtbFromInitrd(
+    #    "${CAMKES_VM_IMAGES_DIR}/rpi4/linux-dtb"
+    #    ${output_overlayed_rootfs_location}
+    #    "0x5D000000"
+    #    dtb_gen_target
+    #    output_dtb_location
+    #    DEPENDS
+    #    rootfs_target
+    #)
     UpdateDtbFromInitrd(
         "${CAMKES_VM_IMAGES_DIR}/rpi4/linux-dtb"
-        ${output_overlayed_rootfs_location}
+        ${rootfs_file}
         "0x5D000000"
         dtb_gen_target
         output_dtb_location
-        #DEPENDS
-        #rootfs_target
     )
 
     # Add DTB to file server
