@@ -17,13 +17,13 @@ assembly {
         VM_GENERAL_COMPOSITION_DEF()
         VM_COMPOSITION_DEF(0)
         /* Add SerialServer functionality for VirtConsole */
-        VM_VIRTUAL_SERIAL_COMPOSITION_DEF(0)
+        //VM_VIRTUAL_SERIAL_COMPOSITION_DEF(0)
         connection seL4VMDTBPassthrough vm_dtb(from vm0.dtb_self, to vm0.dtb);
     }
     configuration {
         VM_GENERAL_CONFIGURATION_DEF()
         VM_CONFIGURATION_DEF(0)
-        VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0)
+        //VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0)
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;

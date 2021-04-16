@@ -34,12 +34,12 @@ assembly {
         };
 
         vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
+            "linux_bootcmdline" : "console=ttyS2,115200n8 earlyprink=serial root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "serial2:115200n8",
         };
 
         vm0.dtb = dtb([
-                {}
+                {"path": "/serial2"},
         ]);
 
         vm0.untyped_mmios = [
