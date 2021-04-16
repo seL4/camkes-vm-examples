@@ -141,23 +141,25 @@ elseif("${KernelARMPlatform}" STREQUAL "rpi4")
     set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/rpi4/rootfs.cpio.gz")
     
     # Add hvc0 init script
-    AddFileToOverlayDir(
-        "inittab"
-        "${CAMKES_VM_IMAGES_DIR}/rpi4/inittab_hvc0"
-        "etc"
-        overlay
-    )
+    #AddFileToOverlayDir(
+    #    "inittab"
+    #    "${CAMKES_VM_IMAGES_DIR}/rpi4/inittab_hvc0"
+    #    "etc"
+    #    overlay
+    #)
 
-    AddOverlayDirToRootfs(
-        overlay
-        ${rootfs_file}
-        "buildroot"
-        "rootfs_install"
-        output_overlayed_rootfs_location
-        rootfs_target
-        GZIP
-    )
-    AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+    #AddOverlayDirToRootfs(
+    #    overlay
+    #    ${rootfs_file}
+    #    "buildroot"
+    #    "rootfs_install"
+    #    output_overlayed_rootfs_location
+    #    rootfs_target
+    #    GZIP
+    #)
+    #AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+    
+    AddToFileServer("linux-initrd" ${rootfs_file} )
     
     # Updated dtb based on generated initrd
     UpdateDtbFromInitrd(
@@ -166,8 +168,8 @@ elseif("${KernelARMPlatform}" STREQUAL "rpi4")
         "0x5D000000"
         dtb_gen_target
         output_dtb_location
-        DEPENDS
-        rootfs_target
+        #DEPENDS
+        #rootfs_target
     )
 
     # Add DTB to file server
