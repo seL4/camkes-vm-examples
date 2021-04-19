@@ -33,8 +33,11 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
+	/* TODO: Note that for some reason, ramdisk_size was not passed to guest VM if specified here.
+	 * Do we need to remove cmdline from camkes-vm-images DTS or why this does not work?
+	 */
         vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=ttyS2,115200n8 earlyprink=serial root=/dev/ram0 ramdisk_size=131072 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "linux_bootcmdline" : "console=ttyS2,115200n8 earlyprink=serial root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
             "linux_stdout" : "serial2:115200n8",
         };
 
