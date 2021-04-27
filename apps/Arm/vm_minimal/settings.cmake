@@ -32,8 +32,15 @@ if(${PLATFORM} STREQUAL "odroidc2")
 endif()
 if(${PLATFORM} STREQUAL "rpi4")
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
+    set(VmDtbFile ON CACHE BOOL "" FORCE)
     set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioConsole ON CACHE BOOL "" FORCE)
+    
+    # Keep these flags as reminder if needed later during debug
+    #set(LibUtilsDefaultZfLogLevel "0" CACHE STRING "" FORCE)
+    #set(CapDLLoaderPrintDeviceInfo ON CACHE BOOL "" FORCE)
+    #set(CapDLLoaderPrintUntypeds ON CACHE BOOL "" FORCE)
+    #set(CapDLLoaderPrintCapDLObjects ON CACHE BOOL "" FORCE)
 endif()
 if(${PLATFORM} STREQUAL "qemu-arm-virt")
     # force cpu
