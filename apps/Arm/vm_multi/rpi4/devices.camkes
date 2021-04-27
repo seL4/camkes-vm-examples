@@ -1,0 +1,100 @@
+#include <configurations/vm.h>
+
+#define VM_RAM_OFFSET 0
+#define VM_INITRD_MAX_SIZE 0x2000000 //32 MB
+
+#define VM0_RAM_BASE 0x40000000
+#define VM0_RAM_SIZE 0x08000000
+#define VM0_DTB_ADDR 0x47000000 //VM0_RAM_BASE + 0x7000000
+#define VM0_INITRD_ADDR 0x45000000 //VM0_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+#define VM1_RAM_BASE 0x48000000
+#define VM1_RAM_SIZE 0x08000000
+#define VM1_DTB_ADDR 0x4F000000 //VM1_RAM_BASE + 0x7000000
+#define VM1_INITRD_ADDR 0x4D000000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+#define VM2_RAM_BASE 0x50000000
+#define VM2_RAM_SIZE 0x08000000
+#define VM2_DTB_ADDR 0x57000000 //VM2_RAM_BASE + 0x7000000
+#define VM2_INITRD_ADDR 0x55000000 //VM2_DTB_ADDR - VM_INITRD_MAX_SIZE
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM0_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
+        };
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 ramdisk_size=131072 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm0",
+        };
+	vm0.mmios = [
+	     "0xff846000:0x1000:12"
+        ];
+        vm0.untyped_mmios = [
+            "0x40000000:27"  //RAM
+        ];
+        vm0.irqs =  [];
+        vm0.dtb = dtb([
+            { "path": "/scb/ethernet@7d580000" }
+        ]);
+
+        vm1.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
+        };
+        vm1.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 ramdisk_size=131072 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm-client",
+        };
+	vm1.mmios = [
+	    "0xff846000:0x1000:12"
+        ];
+        vm1.untyped_mmios = [
+            "0x48000000:27"  //RAM
+        ];
+        vm1.irqs =  [];
+        vm1.dtb = dtb([{}]);
+
+        vm2.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
+        };
+        vm2.linux_image_config = {
+            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "hvc0",
+            "dtb_name" : "",
+            "initrd_name" : "linux-initrd-vm-client",
+        };
+        vm2.mmios = [
+	    "0xff846000:0x1000:12"
+        ];
+        vm2.untyped_mmios = [
+            "0x50000000:27"  //RAM
+        ];
+        vm2.irqs =  [];
+        vm2.dtb = dtb([{}]);
+
+    }
+}
