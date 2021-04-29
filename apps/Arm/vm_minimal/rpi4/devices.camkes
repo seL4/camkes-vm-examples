@@ -15,8 +15,8 @@
 #define VM_RAM_OFFSET 0
 #define VM_INITRD_MAX_SIZE 0x2000000 //32 MB
 
-#define VM_RAM_BASE    0x40000000
-#define VM_RAM_SIZE    0x20000000 // 512MB
+#define VM_RAM_BASE    0x50000000
+#define VM_RAM_SIZE    0x10000000 // 256MB
 #define VM_DTB_ADDR    0x5E000000 // (0x60000000 - 0x5E000000) = 0x1000000 (16MB)
 #define VM_INITRD_ADDR 0x5D000000 // (0x60000000 - 0x2000000) - 0x1000000
 
@@ -39,6 +39,8 @@ assembly {
         };
 
         vm0.dtb = dtb([ {} ]);
+        
+        // vm0.mmios = [];
 
         vm0.untyped_mmios = [
             /* libsel4vm's vgic.c maps 4k page at 0xff841000 (dist). It also
@@ -48,9 +50,13 @@ assembly {
              * 0xff846000 (VCPU), it is not used by Linux yet, but it is
              * definitely a TODO.
              */
-            "0xff843000:12",
-            "0xff846000:13",
-            "0x40000000:29", // RAM PADDR //:28
+            /*
+             * TODO: now things work with 1 4K frame only?? Figure out why.
+             * "0xff843000:12",
+             * "0xff846000:13",
+             */
+            "0xff846000:12",
+            "0x50000000:28", // RAM PADDR
         ];
     }
 }
