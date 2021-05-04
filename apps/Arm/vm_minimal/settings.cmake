@@ -32,7 +32,7 @@ if(${PLATFORM} STREQUAL "odroidc2")
 endif()
 if(${PLATFORM} STREQUAL "rpi4")
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
-    set(VmDtbFile ON CACHE BOOL "" FORCE)
+    set(VmDtbFile OFF CACHE BOOL "" FORCE)
     set(VmPCISupport ON CACHE BOOL "" FORCE)
     set(VmVirtioConsole ON CACHE BOOL "" FORCE)
     

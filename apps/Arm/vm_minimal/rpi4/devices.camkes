@@ -34,7 +34,7 @@ assembly {
         };
 
         vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 earlyprintk root=/dev/ram0 rw nosmp debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "linux_bootcmdline" : "console=hvc0 earlyprintk root=/dev/ram0 rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
             "linux_stdout" : "hvc0",
         };
 
