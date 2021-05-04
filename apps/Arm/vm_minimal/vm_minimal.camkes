@@ -25,6 +25,9 @@ assembly {
         VM_CONFIGURATION_DEF(0)
         VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0)
 
+#if KERNELARMPLATFORM_RPI4
+        vm0.num_vcpus = 4;
+#endif
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
         /*
