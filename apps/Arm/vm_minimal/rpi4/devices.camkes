@@ -40,22 +40,11 @@ assembly {
 
         vm0.dtb = dtb([ {} ]);
         
-        // vm0.mmios = [];
+	vm0.mmios = [
+	     "0xff846000:0x1000:12"
+        ];
 
         vm0.untyped_mmios = [
-            /* libsel4vm's vgic.c maps 4k page at 0xff841000 (dist). It also
-             * also maps CPU iface at 0xff842000, but it's also 4k, whereas
-             * Linux kernel wants to map 8k there, so as a kludge we expose
-             * 4k at 0xff843000. Look at vgic.c for reasoning behind
-             * 0xff846000 (VCPU), it is not used by Linux yet, but it is
-             * definitely a TODO.
-             */
-            /*
-             * TODO: now things work with 1 4K frame only?? Figure out why.
-             * "0xff843000:12",
-             * "0xff846000:13",
-             */
-            "0xff846000:12",
             "0x50000000:28", // RAM PADDR
         ];
     }
