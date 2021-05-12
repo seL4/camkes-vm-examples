@@ -1,6 +1,4 @@
-/*
- * @TAG(OTHER_LGPL)
- */
+/* SPDX-License-Identifier: LGPL-3.0-or-later */
 
 /*
     Copyright (c) 2007-2016 Contributors as noted in the AUTHORS file

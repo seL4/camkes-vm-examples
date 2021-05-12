@@ -1,4 +1,5 @@
-/* @TAG(CUSTOM) */
+/* SPDX-License-Identifier: BSD-2-Clause */
+
 /*
 ---------------------------------------------------------------------------
 Copyright (c) 1998-2010, Brian Gladman, Worcester, UK. All rights reserved.

@@ -1,0 +1,11 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: seL4
+Upstream-Contact: seL4 team <support@sel4.systems>
+Source: http://sel4.systems
+
+Files:
+  linux/*
+  apps/x86/cma34cr_centos/*
+  apps/x86/cma34cr_ubuntu/ubuntu_linux/rootfs.cpio
+Copyright: Linux
+License: GPL-2.0-only

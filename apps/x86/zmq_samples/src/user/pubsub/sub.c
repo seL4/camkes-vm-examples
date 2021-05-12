@@ -1,5 +1,6 @@
 /*
- * @TAG(OTHER_MIT)
+ * Copyright (c) 2010-2013 iMatix Corporation and Contributors
+ * SPDX-License-Identifier: MIT
  */
 // Originally sourced from https://github.com/booksbyus/zguide
 //  Weather update client
