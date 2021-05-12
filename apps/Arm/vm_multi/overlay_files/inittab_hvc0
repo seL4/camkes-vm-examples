@@ -1,4 +1,5 @@
-# @TAG(CUSTOM)
+# SPDX-License-Identifier: GPL-2.0-only
+
 # /etc/inittab
 #
 # Copyright (C) 2001 Erik Andersen <andersen@codepoet.org>

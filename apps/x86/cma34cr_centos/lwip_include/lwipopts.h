@@ -27,8 +27,10 @@
  * This file is part of the lwIP TCP/IP stack.
  * 
  * Author: Simon Goldschmidt
- *
  */
+
+// SPDX-License-Identifier: BSD-3-Clause
+
 #ifndef __LWIPOPTS_H__
 #define __LWIPOPTS_H__
 
