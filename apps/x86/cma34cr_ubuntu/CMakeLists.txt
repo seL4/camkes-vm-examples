@@ -19,7 +19,7 @@ include(${CAMKES_VM_LINUX_HELPERS_PATH})
 DeclareCAmkESVM(Init0)
 
 # Declare C162 Kernel
-GetDefaultLinuxKernelFile(kernel_file)
+GetArchSpecificLinuxKernelFile("32" kernel_file)
 DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
 AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
 
