@@ -51,9 +51,9 @@ endforeach()
 
 DeclareCamkesComponent(virtqueueinit)
 
-# Get Default Linux VM files
-GetDefaultLinuxKernelFile(kernel_file)
-GetDefaultLinuxRootfsFile(rootfs_file)
+# Get 32-bit Linux VM files
+GetArchDefaultLinuxKernelFile("32" kernel_file)
+GetArchDefaultLinuxRootfsFile("32" rootfs_file)
 
 foreach(i RANGE ${NumberVMsLess1})
     AddFileToOverlayDir(

@@ -20,9 +20,9 @@ DeclareCAmkESVM(Init0 EXTRA_SOURCES ${init0_extra} EXTRA_LIBS ethdrivers)
 # Declare VM component: Init1
 DeclareCAmkESVM(Init1)
 
-# Get Default Linux VM files
-GetDefaultLinuxKernelFile(kernel_file)
-GetDefaultLinuxRootfsFile(rootfs_file)
+# Get 32-bit Linux VM files
+GetArchDefaultLinuxKernelFile("32" kernel_file)
+GetArchDefaultLinuxRootfsFile("32" rootfs_file)
 
 # Decompress Linux Kernel image
 DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
