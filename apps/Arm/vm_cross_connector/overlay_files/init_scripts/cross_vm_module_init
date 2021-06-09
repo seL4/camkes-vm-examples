@@ -1,8 +1,0 @@
-#!/bin/sh
-#
-# Copyright 2019, Data61, CSIRO (ABN 41 687 119 230)
-#
-# SPDX-License-Identifier: BSD-2-Clause
-#
-
-insmod /lib/modules/4.14.87/kernel/drivers/vmm/connection.ko
