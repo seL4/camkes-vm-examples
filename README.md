@@ -79,7 +79,7 @@ See the `apps/Arm/` subdirectory for all the supported virtual machine manager a
 
 * The `cma34cr_centos` application is a more complex CAmkES VM configuration demonstrating the use of passthrough hardware. The `cma34cr_centos` application is configured with:
 
-- *1 Guest Linux VM:* The Linux guest images (`bzimage` and `roofs.cpio`) are located in the applications directory (`cma34cr_centos/centos_linux`), originally sourced from an i386 altarch CentOS-7 installation. Additionally the CentosOS installation should be on a flash drive passed-through to the `cma34cr` application. Further information regarding the Linux installation can be found in the applications [README](https://github.com/SEL4PROJ/camkes-vm-apps/apps/x86/cma34cr_centos/README.md).
+- *1 Guest Linux VM:* The Linux guest images (`bzimage` and `roofs.cpio`) are located in the applications directory (`cma34cr_centos/centos_linux`), originally sourced from an i386 altarch CentOS-7 installation. Additionally the CentosOS installation should be on a flash drive passed-through to the `cma34cr` application. Further information regarding the Linux installation can be found in the applications [README](https://github.com/seL4/camkes-vm-examples/blob/master/apps/x86/cma34cr_centos/README.md).
 - *Cross VM Connectors:* A series of shared dataports and events are established between `vm0` and the `StringReverse` component.
 - *Ethernet Driver, UDPSever, Echo, Firewall:* A passthrough ethernet configuration demo. The guest VM is configured to use the Ethernet driver component through a virtio configuration.
 - *Passthrough hardware storage (SATA/USB)*: A hardware configuration to boot the CentOS installation.
