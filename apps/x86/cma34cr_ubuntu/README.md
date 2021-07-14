@@ -15,7 +15,7 @@ i.e. no dual booting etc. See the centos example for the appropriate hardware pa
 ## Kernel Image
 
 The roofs.cpio in this directory is built from a Ubuntu 18.04 installation. This was generated as per
-the instructions found [here](https://docs.sel4.systems/CAmkESVM.html#booting-from-hard-drive)
+the instructions found [here](https://docs.sel4.systems/projects/camkes-vm/#booting-from-hard-drive)
 
 ## Kernel Command Line
 
