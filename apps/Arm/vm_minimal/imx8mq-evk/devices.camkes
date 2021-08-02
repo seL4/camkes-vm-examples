@@ -1,0 +1,50 @@
+/*
+ * Copyright 2018, Data61
+ * Commonwealth Scientific and Industrial Research Organisation (CSIRO)
+ * ABN 41 687 119 230.
+ *
+ * This software may be distributed and modified according to the terms of
+ * the BSD 2-Clause license. Note that NO WARRANTY is provided.
+ * See "LICENSE_BSD2.txt" for details.
+ *
+ * @TAG(DATA61_BSD)
+ */
+
+#include <configurations/vm.h>
+
+#define VM_INITRD_MAX_SIZE 0x8000000 //25 MB
+#define VM_RAM_BASE 0xb0000000
+#define VM_RAM_SIZE 0x8000000
+#define VM_RAM_OFFSET 0x00000000
+#define VM_DTB_ADDR 0xb1000000
+#define VM_INITRD_ADDR 0x8D700000
+
+assembly {
+	composition {}
+	configuration {
+
+        vm0.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+        };
+
+        vm0.linux_image_config = {
+            "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi",
+            "linux_stdout" : "/serial0",
+        };
+        vm0.num_vcpus = 2;
+
+        vm0.dtb = dtb([
+                        {"path": "/serial0"},
+                    ]);
+
+        vm0.untyped_mmios = [
+                    "0xb0000000:27", // Linux kernel memory regions
+                    ];
+	}
+}

@@ -128,6 +128,14 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+
+elseif("${KernelARMPlatform}" STREQUAL "imx8mq-evk")
+    find_package(camkes-vm-linux REQUIRED)
+    include(${CAMKES_VM_LINUX_HELPERS_PATH})
+    set(cpp_flags "-DKERNELARMPLATFORM_IMX8MQ")
+
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/imx8mq-evk/linux")
+    AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/imx8mq-evk/linux.dtb")
 endif()
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
