@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Copyright 2019, Data61, CSIRO (ABN 41 687 119 230)
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+set -e
+
+dataport_read /dev/uio0 4096
+echo -ne "This is a test user string\n\0" | dataport_write /dev/uio0 4096
+dataport_read /dev/uio0 4096
+consumes_event_wait /dev/uio0 &
+sleep 1
+emits_event_emit /dev/uio0
+wait
+echo "Finished crossvm test script"
