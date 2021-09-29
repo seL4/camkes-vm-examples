@@ -72,30 +72,5 @@ assembly {
         ];
         vm1.irqs =  [];
         vm1.dtb = dtb([{}]);
-
-        vm2.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
-            "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
-            "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
-        };
-        vm2.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
-            "dtb_name" : "",
-            "initrd_name" : "linux-initrd-vm-client",
-        };
-        vm2.mmios = [
-	    "0xff846000:0x1000:12"
-        ];
-        vm2.untyped_mmios = [
-            "0x50000000:27"  //RAM
-        ];
-        vm2.irqs =  [];
-        vm2.dtb = dtb([{}]);
-
     }
 }
