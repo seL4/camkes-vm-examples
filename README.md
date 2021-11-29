@@ -7,8 +7,8 @@
 # camkes-vm-apps
 
 This project is for running virtualised Linux guests on seL4 for ARM and x86 platforms. The `camkes-vm` implements
-a virtual machine monitor (VMM) server, faciliating the intialisation, booting and run-time management of a guest OS. 
-You can view the code for the VMMs in the `camkes-vm` repository under `VM_Arm` and `VM`. 
+a virtual machine monitor (VMM) server, faciliating the intialisation, booting and run-time management of a guest OS.
+You can view the code for the VMMs in the `camkes-vm` repository under `VM_Arm` and `VM`.
 
 Currently the supported platforms include:
 * Exynos5 (exynos5410, exynos5422)
