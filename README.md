@@ -22,7 +22,7 @@ Currently the supported platforms include:
 ## Getting and Building
 The following example builds the camkes arm vmm for the TK1.
 ```bash
-repo init -u https://github.com/seL4/camkes-vm-manifest.git
+repo init -u https://github.com/seL4/camkes-vm-examples-manifest.git
 repo sync
 mkdir build
 cd build
