@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
-#ifdef HAVE_AUTOCONF
-#include <autoconf.h>
-#endif
 import <VM/vm.camkes>;
 
 #include <configurations/vm.h>
