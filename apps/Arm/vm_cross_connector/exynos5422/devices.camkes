@@ -14,6 +14,11 @@
 #define VM_DTB_ADDR 0x4F000000
 #define VM_INITRD_ADDR 0x4D700000
 
+#define VM1_RAM_BASE 0x48000000
+#define VM1_RAM_SIZE 0x8000000
+#define VM1_DTB_ADDR 0x4f000000 //VM1_RAM_BASE + 0x7000000
+#define VM1_INITRD_ADDR 0x4d700000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+
 assembly {
 	composition {}
 	configuration {
@@ -105,5 +110,28 @@ assembly {
         vm0.untyped_mmios = [
                     "0x10486000:12", // VCPU
                     "0x40000000:28"]; // RAM //:29
+
+        vm1.linux_address_config = {
+            "linux_ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "linux_ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
+            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+            "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
+            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
+            "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
+        };
+        vm1.linux_image_config = {
+            "linux_bootcmdline" : "pci=nomsi initcall_blacklist=clk_disable_unused",
+            "linux_stdout" : "",
+        };
+        vm1.mmios = [
+                    "0x10000000:0x1000:12", // CHIP ID
+                    "0x10486000:0x1000:12"  // VCPU
+        ];
+        vm1.untyped_mmios = [
+                    "0x48000000:27"  //RAM
+        ];
+        vm1.irqs =  [];
+        vm1.dtb = dtb([{}]);
 	}
 }

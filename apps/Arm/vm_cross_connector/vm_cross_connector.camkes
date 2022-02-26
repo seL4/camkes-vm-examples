@@ -24,6 +24,11 @@ component CrossvmInit {
     emits Done done;
     dataport Buf(4096) dest;
     dataport Buf(4096) src;
+
+    consumes Ready ready1;
+    emits Done done1;
+    dataport Buf(4096) dest1;
+    dataport Buf(4096) src1;
 }
 
 component VM {
@@ -38,6 +43,7 @@ assembly {
     composition {
         VM_GENERAL_COMPOSITION_DEF()
         VM_COMPOSITION_DEF(0)
+        VM_COMPOSITION_DEF(1)
         component CrossvmInit crossvm_init;
 
         connection seL4Notification event_conn_0(from vm0.ready,
@@ -48,11 +54,21 @@ assembly {
                                                               to vm0.crossvm_dp_0);
         connection seL4SharedDataWithCaps cross_vm_conn_1(from crossvm_init.src,
                                                               to vm0.crossvm_dp_1);
-        connection seL4VMDTBPassthrough vm_dtb(from vm0.dtb_self, to vm0.dtb);
+
+        connection seL4Notification event_conn_2(from vm1.ready, to
+				crossvm_init.ready1);
+        connection seL4GlobalAsynch event_conn_3(from crossvm_init.done1, to vm1.done);
+        connection seL4SharedDataWithCaps cross_vm_conn_2(from
+				crossvm_init.dest1, to vm1.crossvm_dp_0);
+        connection seL4SharedDataWithCaps cross_vm_conn_3(from crossvm_init.src1, to vm1.crossvm_dp_1);
+
+        connection seL4VMDTBPassthrough vm0_dtb(from vm0.dtb_self, to vm0.dtb);
+        connection seL4VMDTBPassthrough vm1_dtb(from vm1.dtb_self, to vm1.dtb);
     }
     configuration {
         VM_GENERAL_CONFIGURATION_DEF()
         VM_CONFIGURATION_DEF(0)
+        VM_CONFIGURATION_DEF(1)
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
@@ -65,5 +81,14 @@ assembly {
         vm0.crossvm_dp_1_size = 4096;
 
 
+        vm1.num_extra_frame_caps = 0;
+        vm1.extra_frame_map_address = 0;
+        vm1.cnode_size_bits = 23;
+        vm1.simple_untyped24_pool = 12;
+
+        vm1.crossvm_dp_0_id = 0;
+        vm1.crossvm_dp_0_size = 4096;
+        vm1.crossvm_dp_1_id = 0;
+        vm1.crossvm_dp_1_size = 4096;
     }
 }
