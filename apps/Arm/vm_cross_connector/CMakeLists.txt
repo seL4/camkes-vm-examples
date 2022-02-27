@@ -182,6 +182,12 @@ if(BUILD_CROSSVM)
         "etc/init.d"
         overlay
     )
+    AddFileToOverlayDir(
+        "inittab"
+        ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
+        "etc"
+        overlay
+	)
 else()
     # User pre-configured rootfs file with crossvm modules and apps installed
     set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpio.gz")
