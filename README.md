@@ -174,6 +174,10 @@ dhclient wlan0
  The default setup does not pass though many devices to the Linux kernel. If you `make menuconfig` you can set `insecure` mode in the `Applications` submenu; this is meant to pass through all devices, but not
 everything has been tested and confirmed to work yet. In particular, the SMMU needs to have extra entries added for any DMA-capable devices such as SATA.
 
+## Useful Links for Developing VM Applications
+1. [CAmkES VM: Adding a Linux Guest](https://docs.sel4.systems/Tutorials/camkes-vm-linux.html)
+1. [CAmkES VM: Cross VM Connectors](https://docs.sel4.systems/Tutorials/camkes-vm-crossvm.html)
+
 ## Arm FAQ and Implementation Notes
 
 #### How do I update camkes-vm-apps to support platform 'X'
