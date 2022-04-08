@@ -1,0 +1,121 @@
+/*
+ * Copyright 2022, UNSW (ABN 57 195 873 179)
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+import <VM/vm.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
+
+#include <configurations/vm.h>
+#include <configurations/connections.h>
+
+#define VM_GUEST_CMDLINE "earlyprintk=ttyS0,115200 console=ttyS0,115200 root=/dev/mem i8042.nokbd=iy \
+i8042.nomux=y i8042.noaux=y io_delay=udelay noisapnp pci=nomsi"
+
+#define VM0_topology_def(f) f(0,1,2)
+#define VM1_topology_def(f) f(1,0,2)
+#define VM2_topology_def(f) f(2,0,1)
+
+#define topology_def(f) \
+    VM0_topology_def(f) \
+    VM1_topology_def(f) \
+    VM2_topology_def(f)
+
+#define VM0_MACADDRESS "02:00:00:00:AA:01"
+#define VM1_MACADDRESS "02:00:00:00:AA:02"
+#define VM2_MACADDRESS "02:00:00:00:AA:03"
+
+component Init0 {
+    VM_INIT_DEF()
+    VM_CONNECTION_COMPONENT_DEF(0,topology_def)
+}
+
+component Init1 {
+    VM_INIT_DEF()
+    VM_CONNECTION_COMPONENT_DEF(1,topology_def)
+}
+
+component Init2 {
+    VM_INIT_DEF()
+    VM_CONNECTION_COMPONENT_DEF(2,topology_def)
+}
+
+assembly {
+    composition {
+        VM_COMPOSITION_DEF()
+        VM_PER_VM_COMP_DEF(0)
+        VM_PER_VM_COMP_DEF(1)
+        VM_PER_VM_COMP_DEF(2)
+
+        component VirtQueueInit init;
+        VM_CONNECTION_CONNECT_VMS(init.init, topology_def)
+    }
+
+    configuration {
+        VM_CONNECTION_CONFIG(init.init, topology_def)
+
+        vm0.init_cons = [VM_CONNECTION_INIT_HANDLER(0,topology_def),
+        ];
+        vm1.init_cons = [VM_CONNECTION_INIT_HANDLER(1,topology_def),
+        ];
+        vm2.init_cons = [VM_CONNECTION_INIT_HANDLER(2,topology_def),
+        ];
+
+        VM_CONFIGURATION_DEF()
+        VM_PER_VM_CONFIG_DEF(0)
+        vm0.simple_untyped25_pool = 95;
+        vm0.heap_size = 0x2000000;
+        vm0.guest_ram_mb = 1900;
+        vm0.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm0.kernel_image = "bzimage";
+        vm0.kernel_relocs = "bzimage";
+        vm0.initrd_image = "rootfs.cpio";
+        vm0.iospace_domain = 0x0f;
+        vm0.pci_devices_iospace = 1;
+
+        VM_PER_VM_CONFIG_DEF(1)
+        vm1.simple_untyped25_pool = 95;
+        vm1.heap_size = 0x2000000;
+        vm1.guest_ram_mb = 1900;
+        vm1.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm1.kernel_image = "bzimage";
+        vm1.kernel_relocs = "bzimage";
+        vm1.initrd_image = "rootfs.cpio";
+        vm1.iospace_domain = 0x10;
+        vm1.pci_devices_iospace = 2;
+
+        VM_PER_VM_CONFIG_DEF(2)
+        vm2.simple_untyped25_pool = 95;
+        vm2.heap_size = 0x2000000;
+        vm2.guest_ram_mb = 1900;
+        vm2.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm2.kernel_image = "bzimage";
+        vm2.kernel_relocs = "bzimage";
+        vm2.initrd_image = "rootfs.cpio";
+        vm2.iospace_domain = 0x11;
+        vm2.pci_devices_iospace = 3;
+
+        // Hardware details of the passthrough Ethernet device
+        vm0.vm_ioports = [
+            {"start":0xe000, "end":0xe000 + 32, "pci_device":0, "name":"Ethernet-vm0"},
+        ];
+
+        vm0.pci_devices = [
+            {
+                "name":"Ethernet-vm0",
+                "bus":2, "dev":0, "fun":0,
+                "irq":"Ethernet-vm0",
+                "memory":[
+                    {"paddr":0xf7cc0000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xf7c00000, "size":0x80000, "page_bits":12},
+                    {"paddr":0xf7ce0000, "size":0x4000, "page_bits":12},
+                    {"paddr":0xf7c80000, "size":0x40000, "page_bits":12},
+                ],
+            },
+        ];
+        vm0.vm_irqs = [
+            {"name":"Ethernet-vm0", "source":16, "level_trig":1, "active_low":1, "dest":13},
+        ];
+    }
+}
