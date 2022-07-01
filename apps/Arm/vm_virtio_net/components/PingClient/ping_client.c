@@ -92,6 +92,10 @@ int create_arp_req_reply(char *recv_data, unsigned int recv_data_size)
 {
     char reply_buffer[ETHERMTU];
 
+    // recv_data holds a packet of the form:
+    // +--------+-----------+
+    // | ethhdr | ether_arp |
+    // +--------+-----------+
     struct ether_arp *arp_req = (struct ether_arp *)(recv_data + sizeof(struct ethhdr));
 
     struct ethhdr *send_reply = (struct ethhdr *) reply_buffer;
