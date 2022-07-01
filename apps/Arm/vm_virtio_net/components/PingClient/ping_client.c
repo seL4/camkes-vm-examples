@@ -88,9 +88,9 @@ void print_ip_packet(void *ip_buf, size_t ip_length)
     printf("\n");
 }
 
-int create_arp_req_reply(char *recv_data, size_t recv_data_size)
+int create_arp_req_reply(char *recv_data, unsigned int recv_data_size)
 {
-    unsigned char reply_buffer[ETHERMTU];
+    char reply_buffer[ETHERMTU];
 
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
     struct ether_arp *arp_req = (struct ether_arp *)(recv_data + sizeof(struct ethhdr));
@@ -124,14 +124,14 @@ int create_arp_req_reply(char *recv_data, size_t recv_data_size)
     return send_outgoing_packet(reply_buffer, sizeof(struct ethhdr) + sizeof(struct ether_arp));
 }
 
-int create_icmp_req_reply(char *recv_data, size_t recv_data_size)
+int create_icmp_req_reply(char *recv_data, unsigned int recv_data_size)
 {
 
     struct ethhdr *eth_req = (struct ethhdr *) recv_data;
     struct iphdr *ip_req = (struct iphdr *)(recv_data + sizeof(struct ethhdr));
     struct icmphdr *icmp_req = (struct icmphdr *)(recv_data + sizeof(struct ethhdr) + sizeof(struct iphdr));
 
-    unsigned char reply_buffer[ETHERMTU];
+    char reply_buffer[ETHERMTU];
     struct ethhdr *eth_reply = (struct ethhdr *) reply_buffer;
     struct iphdr *ip_reply = (struct iphdr *)(reply_buffer + sizeof(struct ethhdr));
     struct icmphdr *icmp_reply = (struct icmphdr *)(reply_buffer + sizeof(struct ethhdr) + sizeof(struct iphdr));
@@ -160,7 +160,7 @@ int create_icmp_req_reply(char *recv_data, size_t recv_data_size)
                                 sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct icmphdr) + ICMP_MSG_SIZE);
 }
 
-void handle_recv_data(char *recv_data, size_t recv_data_size)
+void handle_recv_data(char *recv_data, unsigned int recv_data_size)
 {
     struct ethhdr *rcv_req = (struct ethhdr *) recv_data;
     if (ntohs(rcv_req->h_proto) == ETH_P_ARP) {
@@ -177,7 +177,7 @@ void handle_recv_data(char *recv_data, size_t recv_data_size)
 void handle_recv_callback(virtqueue_device_t *vq)
 {
     void *buf = NULL;
-    size_t buf_size = 0;
+    unsigned int buf_size = 0;
     vq_flags_t flag;
     virtqueue_ring_object_t handle;
     if (!virtqueue_get_available_buf(vq, &handle)) {
@@ -200,7 +200,8 @@ void handle_recv_callback(virtqueue_device_t *vq)
 void handle_send_callback(virtqueue_driver_t *vq)
 {
     void *buf = NULL;
-    size_t buf_size = 0, wr_len = 0;
+    unsigned int buf_size = 0;
+    uint32_t wr_len = 0;
     vq_flags_t flag;
     virtqueue_ring_object_t handle;
     if (!virtqueue_get_used_buf(vq, &handle, &wr_len)) {
