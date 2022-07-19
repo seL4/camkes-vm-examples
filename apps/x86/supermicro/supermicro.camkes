@@ -1,0 +1,207 @@
+/*
+ * Copyright 2022, UNSW (ABN 57 195 873 179)
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+import <VM/vm.camkes>;
+import <VirtQueue/VirtQueue.camkes>;
+
+#include <configurations/vm.h>
+#include <configurations/sata.h>
+#include <configurations/connections.h>
+
+/*
+-- 4 VMs
+-- virtIO Net to the virtual switch that allows them all to talk to each other
+-- virtIO block to three of the VMs each with a separate partition on the disk
+-- virtio Console from COM1 on the VMs to COM2 in the serial server
+
+-- virtIO console from COM2 to COM2 of VM1 and VM2; COM3  tp COM3 from VM3 to VM4; COM4 from VM4 to VM1 and from VM3 to VM2
+-- And virtIO socket as soon as we have it
+*/
+
+#define SHARED_BUFSIZE 4096
+
+#define VM_GUEST_CMDLINE "earlyprintk=ttyS0,115200 console=ttyS0,115200 root=/dev/mem i8042.nokbd=iy \
+i8042.nomux=y i8042.noaux=y io_delay=udelay noisapnp pci=nomsi"
+
+#define VM0_topology_def(f) f(0,1,2,3)
+#define VM1_topology_def(f) f(1,0,2,3)
+#define VM2_topology_def(f) f(2,0,1,3)
+#define VM3_topology_def(f) f(3,0,1,2)
+
+#define topology_def(f) \
+    VM0_topology_def(f) \
+    VM1_topology_def(f) \
+    VM2_topology_def(f) \
+    VM3_topology_def(f)
+
+#define VM0_MACADDRESS "02:00:00:00:AA:01"
+#define VM1_MACADDRESS "02:00:00:00:AA:02"
+#define VM2_MACADDRESS "02:00:00:00:AA:03"
+#define VM3_MACADDRESS "02:00:00:00:AA:04"
+
+component Init0 {
+    dataport Buf(SHARED_BUFSIZE) dp01;
+    dataport Buf(SHARED_BUFSIZE) dp02;
+    dataport Buf(SHARED_BUFSIZE) dp03;
+    VM_INIT_DEF()
+    VM_INIT_SATA()
+    VM_CONNECTION_COMPONENT_DEF(0,topology_def)
+}
+
+component Init1 {
+    dataport Buf(SHARED_BUFSIZE) dp10;
+    dataport Buf(SHARED_BUFSIZE) dp12;
+    dataport Buf(SHARED_BUFSIZE) dp13;
+    VM_INIT_DEF()
+    VM_INIT_SATA()
+    VM_CONNECTION_COMPONENT_DEF(1,topology_def)
+}
+
+component Init2 {
+    dataport Buf(SHARED_BUFSIZE) dp20;
+    dataport Buf(SHARED_BUFSIZE) dp21;
+    dataport Buf(SHARED_BUFSIZE) dp23;
+    VM_INIT_DEF()
+    VM_INIT_SATA()
+    VM_CONNECTION_COMPONENT_DEF(2,topology_def)
+}
+
+component Init3 {
+    dataport Buf(SHARED_BUFSIZE) dp30;
+    dataport Buf(SHARED_BUFSIZE) dp31;
+    dataport Buf(SHARED_BUFSIZE) dp32;
+    VM_INIT_DEF()
+    VM_CONNECTION_COMPONENT_DEF(3,topology_def)
+}
+
+assembly {
+    composition {
+        VM_COMPOSITION_DEF()
+        SATA_COMPOSITION_DEF()
+
+        VM_PER_VM_COMP_DEF(0)
+        VM_SATA_CONNECTIONS(0)
+
+        VM_PER_VM_COMP_DEF(1)
+        VM_SATA_CONNECTIONS(1)
+
+        VM_PER_VM_COMP_DEF(2)
+        VM_SATA_CONNECTIONS(2)
+
+        VM_PER_VM_COMP_DEF(3)
+
+        component VirtQueueInit init;
+        VM_CONNECTION_CONNECT_VMS(init.init, topology_def)
+
+        connection seL4SharedDataWithCaps cross_vm_conn_01(from vm0.dp01, to vm1.dp10);
+        connection seL4SharedDataWithCaps cross_vm_conn_02(from vm0.dp02, to vm2.dp20);
+        connection seL4SharedDataWithCaps cross_vm_conn_03(from vm0.dp03, to vm3.dp30);
+
+        connection seL4SharedDataWithCaps cross_vm_conn_12(from vm1.dp12, to vm2.dp21);
+        connection seL4SharedDataWithCaps cross_vm_conn_13(from vm1.dp13, to vm3.dp31);
+
+        connection seL4SharedDataWithCaps cross_vm_conn_23(from vm2.dp23, to vm3.dp32);
+
+    }
+
+    configuration {
+        VM_CONNECTION_CONFIG(init.init, topology_def)
+        VM_CONFIGURATION_DEF()
+        VM_SATA_CONFIG()
+
+        sataserver.ioports = "0x3020:0x303f,0x3060:0x3063,0x3070:0x3077";
+        sataserver.iospaces = "0x15:0x0:0x11:5";
+        sataserver.pci_bdfs = "0x0:0x11.5";
+        sataserver.iospace_id = 0x15;
+        sataserver.num_bdfs = 1;
+        sataserver.drive = 0;
+
+        VM_PER_VM_CONFIG_DEF(0)
+        vm0.simple_untyped25_pool = 95;
+        vm0.heap_size = 0x2000000;
+        vm0.guest_ram_mb = 1900;
+        vm0.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm0.kernel_image = "bzimage";
+        vm0.kernel_relocs = "bzimage";
+        vm0.initrd_image = "rootfs.cpio";
+        vm0.iospace_domain = 0x0f;
+        vm0.pci_devices_iospace = 1;
+        vm0.sataserver_iface_attributes = "0";
+        vm0.sataserver_iface_partitions = [1];  /* Physical Partition assigned to VM0 */
+
+        vm0.init_cons = [VM_CONNECTION_INIT_HANDLER(0,topology_def), {"init":"make_virtio_blk"},
+        ];
+
+        VM_PER_VM_CONFIG_DEF(1)
+        vm1.simple_untyped25_pool = 95;
+        vm1.heap_size = 0x2000000;
+        vm1.guest_ram_mb = 1900;
+        vm1.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm1.kernel_image = "bzimage";
+        vm1.kernel_relocs = "bzimage";
+        vm1.initrd_image = "rootfs.cpio";
+        vm1.iospace_domain = 0x10;
+        vm1.pci_devices_iospace = 2;
+        vm1.sataserver_iface_attributes = "1";
+        vm1.sataserver_iface_partitions = [2];  /* Physical Partition assigned to VM1 */
+
+        vm1.init_cons = [VM_CONNECTION_INIT_HANDLER(1,topology_def), {"init":"make_virtio_blk"},
+        ];
+
+        VM_PER_VM_CONFIG_DEF(2)
+        vm2.simple_untyped25_pool = 95;
+        vm2.heap_size = 0x2000000;
+        vm2.guest_ram_mb = 1900;
+        vm2.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm2.kernel_image = "bzimage";
+        vm2.kernel_relocs = "bzimage";
+        vm2.initrd_image = "rootfs.cpio";
+        vm2.iospace_domain = 0x11;
+        vm2.pci_devices_iospace = 3;
+        vm2.sataserver_iface_attributes = "2";
+        vm2.sataserver_iface_partitions = [3];  /* Physical Partition assigned to VM2 */
+
+        vm2.init_cons = [VM_CONNECTION_INIT_HANDLER(2,topology_def), {"init":"make_virtio_blk"},
+        ];
+
+        VM_PER_VM_CONFIG_DEF(3)
+        vm3.simple_untyped25_pool = 95;
+        vm3.heap_size = 0x2000000;
+        vm3.guest_ram_mb = 1900;
+        vm3.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm3.kernel_image = "bzimage";
+        vm3.kernel_relocs = "bzimage";
+        vm3.initrd_image = "rootfs.cpio";
+        vm3.iospace_domain = 0x12;
+        vm3.pci_devices_iospace = 4;
+
+        vm3.init_cons = [VM_CONNECTION_INIT_HANDLER(3,topology_def),
+        ];
+
+        // Hardware details of the passthrough Ethernet device
+        vm0.vm_ioports = [
+            {"start":0xa060, "end":0xa060 + 32, "pci_device":0, "name":"Ethernet-vm0"},
+        ];
+
+        vm0.pci_devices = [
+            {
+                "name":"Ethernet-vm0",
+                "bus":0x66, "dev":0, "fun":0,
+                "irq":"Ethernet-vm0-Irq",
+                "memory":[
+                    {"paddr":0xe0d60000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xe0d8c000, "size":0x4000, "page_bits":12},
+                ],
+            },
+        ];
+        vm0.vm_irqs = [
+            {"name":"Ethernet-vm0-Irq", "ioapic":1, "source":6, "level_trig":1, "active_low":1, "dest":13},
+        ];
+
+
+
+    }
+}
