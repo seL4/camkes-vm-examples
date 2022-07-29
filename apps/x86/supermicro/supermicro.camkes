@@ -112,10 +112,14 @@ assembly {
         VM_CONFIGURATION_DEF()
         VM_SATA_CONFIG()
 
+        /* I/O ports for SATA device */
         sataserver.ioports = "0x3020:0x303f,0x3060:0x3063,0x3070:0x3077";
+
+        /* IOMMU group/bus/dev/fun for SATA device */
         sataserver.iospaces = "0x15:0x0:0x11:5";
         sataserver.pci_bdfs = "0x0:0x11.5";
         sataserver.iospace_id = 0x15;
+
         sataserver.num_bdfs = 1;
         sataserver.drive = 0;
 
