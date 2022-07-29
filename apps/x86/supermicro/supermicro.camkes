@@ -136,6 +136,7 @@ assembly {
         vm0.sataserver_iface_attributes = "0";
         vm0.sataserver_iface_partitions = [1];  /* Physical Partition assigned to VM0 */
 
+
         vm0.init_cons = [VM_CONNECTION_INIT_HANDLER(0,topology_def), {"init":"make_virtio_blk"},
         ];
 
@@ -202,7 +203,7 @@ assembly {
             },
         ];
         vm0.vm_irqs = [
-            {"name":"Ethernet-vm0-Irq", "ioapic":1, "source":6, "level_trig":1, "active_low":1, "dest":13},
+            {"name":"Ethernet-vm0-Irq", "ioapic":1, "source":5, "level_trig":1, "active_low":1, "dest":11},
         ];
 
 
