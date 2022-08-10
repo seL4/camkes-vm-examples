@@ -27,7 +27,7 @@ endforeach()
 DeclareCamkesComponent(virtqueueinit)
 
 # Get 32-bit Linux VM files
-GetArchDefaultLinuxKernelFile("32" kernel_file)
+GetSupermicroLinuxKernelFile(kernel_file)
 GetArchDefaultLinuxRootfsFile("32" rootfs_file)
 
 # Decompress Linux Kernel image
