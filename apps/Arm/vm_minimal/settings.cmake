@@ -33,6 +33,17 @@ endif()
 if(${PLATFORM} STREQUAL "rpi4")
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
     set(VmDtbFile OFF CACHE BOOL "" FORCE)
+
+    set(ArmVMCamkesMemoryDebug OFF CACHE BOOL "Include additional debug printing to aid debugging of CAmkES stage-2 memory mapping" FORCE)
+    set(LibSel4VMCamkesMemoryDebug OFF CACHE BOOL "Include additional debug printing to aid debugging of CAmkES stage-2 memory mapping" FORCE)
+    set(KernelMemDebugPrinting OFF CACHE BOOL "Print more verbose output about free memory init and creation of untyped regions during bootup." FORCE)
+
+    if(ArmVMCamkesMemoryDebug OR LibSel4VMCamkesMemoryDebug)
+        set(CapDLLoaderPrintDeviceInfo ON CACHE BOOL "" FORCE)
+        set(CapDLLoaderPrintUntypeds ON CACHE BOOL "" FORCE)
+        set(CapDLLoaderPrintCapDLObjects ON CACHE BOOL "" FORCE)
+    endif()
+
 endif()
 if(${PLATFORM} STREQUAL "qemu-arm-virt")
     # force cpu
