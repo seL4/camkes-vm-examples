@@ -212,16 +212,16 @@ assembly {
         uart_gcs.ID = 1;
         uart_px4.ID = 3;
 
-        vm.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
-        vm.linux_image_config = {};
+        vm.vm_image_config = {};
 
         vm.dtb = dtb([{"path": "/soc/chipid@10000000"},
                       {"path": "/soc/serial@12c20000"},

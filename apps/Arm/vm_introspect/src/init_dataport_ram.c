@@ -12,8 +12,8 @@
 #include <sel4vmmplatsupport/guest_memory_util.h>
 #include <vmlinux.h>
 
-extern unsigned long linux_ram_base;
-extern unsigned long linux_ram_size;
+extern unsigned long ram_base;
+extern unsigned long ram_size;
 
 extern dataport_caps_handle_t memdev_handle;
 
@@ -23,12 +23,12 @@ static vm_frame_t dataport_memory_iterator(uintptr_t addr, void *cookie)
     vm_frame_t frame_result = { seL4_CapNull, seL4_NoRights, 0, 0 };
 
     uintptr_t frame_start = ROUND_DOWN(addr, BIT(seL4_PageBits));
-    if (frame_start < linux_ram_base || frame_start > linux_ram_base + linux_ram_size) {
+    if (frame_start < ram_base || frame_start > ram_base + ram_size) {
         ZF_LOGE("Error: Not dataport ram region");
         return frame_result;
     }
 
-    int page_idx = (frame_start - linux_ram_base) / BIT(seL4_PageBits);
+    int page_idx = (frame_start - ram_base) / BIT(seL4_PageBits);
     frame_result.cptr = dataport_get_nth_frame_cap(&memdev_handle, page_idx);
     frame_result.rights = seL4_AllRights;
     frame_result.vaddr = frame_start;
@@ -40,6 +40,6 @@ void init_ram_module(vm_t *vm, void *cookie)
 {
     int err;
 
-    err = vm_ram_register_at_custom_iterator(vm, linux_ram_base, linux_ram_size, dataport_memory_iterator, NULL);
+    err = vm_ram_register_at_custom_iterator(vm, ram_base, ram_size, dataport_memory_iterator, NULL);
     assert(!err);
 }

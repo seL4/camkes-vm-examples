@@ -17,19 +17,19 @@ assembly {
 	composition {}
 	configuration {
 
-        vm0.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm0.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
-            "linux_stdout" : "/serial@3100000",
+        vm0.vm_image_config = {
+            "kernel_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
+            "kernel_stdout" : "/serial@3100000",
         };
 
         vm0.dtb = dtb([

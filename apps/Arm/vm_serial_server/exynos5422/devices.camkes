@@ -17,19 +17,19 @@
 assembly {
 	composition {}
 	configuration {
-        vm.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
+            "ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
+        vm.vm_image_config = {
+            "kernel_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
+            "kernel_stdout" : "hvc0",
         };
 
         vm.dtb = dtb([{"path": "/firmware@02073000"},
