@@ -42,6 +42,9 @@ assembly {
             "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm0",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm0.mmios = [
                     "0x10000000:0x1000:12", // CHIP ID
@@ -78,6 +81,9 @@ assembly {
             "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm1.mmios = [
                     "0x10000000:0x1000:12", // CHIP ID
@@ -103,6 +109,9 @@ assembly {
             "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm2.mmios = [
                     "0x10000000:0x1000:12", // CHIP ID

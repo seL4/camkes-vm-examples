@@ -29,6 +29,9 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
             "kernel_stdout" : "/pl011@9000000",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "map_one_to_one" : true,
         };
 
         vm0.dtb = dtb([

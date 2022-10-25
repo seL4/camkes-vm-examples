@@ -30,6 +30,7 @@ assembly {
         vm.vm_image_config = {
             "kernel_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
             "kernel_stdout" : "hvc0",
+            "map_one_to_one" : true,
         };
 
         vm.dtb = dtb([{"path": "/firmware@02073000"},

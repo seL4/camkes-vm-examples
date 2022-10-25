@@ -221,7 +221,10 @@ assembly {
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
-        vm.vm_image_config = {};
+        vm.vm_image_config = {
+            "map_one_to_one" : true,
+            "provide_initrd" : false,
+        };
 
         vm.dtb = dtb([{"path": "/soc/chipid@10000000"},
                       {"path": "/soc/serial@12c20000"},

@@ -30,6 +30,9 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "",
             "kernel_stdout" : "/pl011@9000000",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "map_one_to_one" : true,
         };
         vm0.num_vcpus = 2;
 

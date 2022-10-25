@@ -31,6 +31,10 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=ttyS0,115200n8 earlycon=uart8250,mmio32,0x70006000 debug mem=100m initcall_debug user_debug=31",
             "kernel_stdout" : "serial0:115200n8",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "provide_initrd" : false,
+            "clean_cache" : true,
         };
 
         vm0.dtb = dtb([{"path": "/serial@70006000"},

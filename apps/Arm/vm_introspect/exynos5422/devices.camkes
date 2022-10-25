@@ -8,7 +8,7 @@
 
 #define VM_INITRD_MAX_SIZE 0x1400000
 #define VM_RAM_BASE        0x40000000
-#define VM_RAM_SIZE        0x8001000                                                            
+#define VM_RAM_SIZE        0x8001000
 #define VM_RAM_OFFSET      0x00000000
 #define VM_DTB_ADDR        0x45801000
 #define VM_INITRD_ADDR     0x46c01000
@@ -33,6 +33,8 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi",
             "kernel_stdout" : "serial2:115200n8",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
         };
 
         vm0.dtb = dtb([{"path": "/firmware@2073000"},

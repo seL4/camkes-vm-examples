@@ -27,7 +27,9 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.vm_image_config = {};
+        vm0.vm_image_config = {
+            "map_one_to_one" : true,
+        };
 
         vm0.dtb = dtb([
                 {"path": "/serial@c81004c0"},

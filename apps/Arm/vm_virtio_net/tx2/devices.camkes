@@ -30,6 +30,10 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
             "kernel_stdout" : "/serial@3100000",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "clean_cache" : true,
+            "map_one_to_one" : true,
         };
 
         vm0.dtb = dtb([

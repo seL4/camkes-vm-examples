@@ -29,7 +29,9 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 pci=nomsi initcall_blacklist=clk_disable_unused",
             "kernel_stdout" : "serial2:115200n8",
-
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "map_one_to_one" : true,
         };
 
         vm0.dtb = dtb([{"path": "/firmware@02073000"},

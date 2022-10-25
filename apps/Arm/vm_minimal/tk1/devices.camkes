@@ -31,6 +31,10 @@ assembly {
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=ttyS0,115200n8 otf_key=c75e5bb91eb3bd947560357b64422f85 usbcore.old_scheme_first=1 tegraid=40.1.1.0.0 modem_id=0 android.kerneltype=normal commchip_id=0 usb_port_owner_info=2 lane_owner_info=1 touch_id=0@0 board_info=0x0177:0x0000:0x02:0x43:0x00 init=/sbin/init root=/dev/mmcblk0p2 rw rootwait gpt earlyprint",
             "kernel_stdout" : "/pl011@9000000",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "provide_initrd" : false,
+            "clean_cache" : true,
         };
 
         vm0.dtb = dtb([{"path": "/interrupt-controller@60004000"},
