@@ -1,0 +1,171 @@
+/*
+ * Copyright 2020, DornerWorks
+ *
+ * SPDX-License-Identifier: BSD-2-Clause
+ */
+
+/*
+ * Sample QEMU invocation to test this on QEMU:
+ * qemu-system-i386 -machine q35,accel=kvm,kernel-irqchip=split \
+ *                  -cpu Nehalem,+vme,-pdpe1gb,+xsave,+xsaveopt,-xsavec,-fsgsbase,-invpcid,-syscall,-lm,enforce,+vmx \
+ *                  -nographic -serial mon:stdio -m size=4G -enable-kvm \
+ *                  -kernel images/kernel-ia32-pc99 \
+ *                  -initrd images/capdl-loader-image-ia32-pc99 \
+ *                  -device intel-iommu,intremap=off \
+ *                  -drive id=disk,file=/path/to/file.img,if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ide.0
+ *
+ * This requires nested virtualisation to be turned on.
+ * https://www.linux-kvm.org/page/Nested_Guests
+ *
+ * Your file.img should have an MSDOS partition table; partition 1 will be
+ * made available to the VM.
+ *
+ * A suitable file can be created thus:
+ *   dd if=/dev/zero of=file1.img bs=1024k count=1024
+ *   mke2fs -L 'part1' file1.img
+ *   dd if=/dev/zero of=file2.img bs=1024k count=1024
+ *   mke2fs -L 'part2' file2.img
+ *   dd if=/dev/zero of=file.img bs=1024k count=1
+ *   cat file1.img file2.img >> file.img
+ *   rm file[12].img
+ *   parted file.img mklabel msdos
+ *   parted file.img mkpart primary 1MiB 1025MiB
+ *   parted file.img mkpart primary 1025MiB '100%'
+ *
+ */
+
+import <VM/vm.camkes>;
+
+#include <configurations/vm.h>
+
+#define VM_GUEST_CMDLINE "earlyprintk=ttyS0,115200 console=ttyS0,115200 i8042.nokbd=y i8042.nomux=y \
+i8042.noaux=y noisapnp pci=nomsi,noacpi nolapic_timer"
+
+#define SHARED_BUFSIZE  (2 * 4096)
+
+component Init0 {
+    VM_INIT_DEF()
+    dataport Buf(SHARED_BUFSIZE) sataserver_client_buf;
+    emits Done done;
+    consumes Ready ready;
+}
+
+component Init1 {
+    VM_INIT_DEF()
+    dataport Buf(SHARED_BUFSIZE) sataserver_client_buf;
+    emits Done done;
+    consumes Ready ready;
+}
+
+component Init2 {
+    VM_INIT_DEF()
+    dataport Buf(SHARED_BUFSIZE) sataserver_driver_buf_0;
+    consumes Done done_0;
+    emits Ready ready_0;
+
+    dataport Buf(SHARED_BUFSIZE) sataserver_driver_buf_1;
+    consumes Done done_1;
+    emits Ready ready_1;
+}
+
+assembly {
+    composition {
+        VM_COMPOSITION_DEF()
+
+        VM_PER_VM_COMP_DEF(0)
+        VM_PER_VM_COMP_DEF(1)
+        VM_PER_VM_COMP_DEF(2)
+
+        connection seL4SharedDataWithCaps conn_sata_buf_0(from vm0.sataserver_client_buf, to vm2.sataserver_driver_buf_0);
+        connection seL4Notification conn_sata_done_0(from vm0.done, to vm2.done_0);
+        connection seL4Notification conn_sata_ready_0(from vm2.ready_0, to vm0.ready);
+
+        connection seL4SharedDataWithCaps conn_sata_buf_1(from vm1.sataserver_client_buf, to vm2.sataserver_driver_buf_1);
+        connection seL4Notification conn_sata_done_1(from vm1.done, to vm2.done_1);
+        connection seL4Notification conn_sata_ready_1(from vm2.ready_1, to vm1.ready);
+    }
+
+    configuration {
+        VM_CONFIGURATION_DEF()
+
+        VM_PER_VM_CONFIG_DEF(0)
+        vm0.simple_untyped25_pool = 95;
+        vm0.heap_size = 0x2000000;
+        vm0.dma_pool = 0x20000;
+        vm0.guest_ram_mb = 1900;
+        vm0.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm0.kernel_image = "bzimage";
+        vm0.kernel_relocs = "bzimage";
+        vm0.initrd_image = "rootfs.cpio";
+        vm0.iospace_domain = 0x0f;
+
+        vm0.sataserver_client_buf_size = SHARED_BUFSIZE;
+        vm0.init_cons = [
+            {"init":"make_virtio_blk"},
+        ];
+
+        vm0.pci_devices_iospace = 1;
+        vm0.priority = 100;
+
+        VM_PER_VM_CONFIG_DEF(1)
+        vm1.simple_untyped25_pool = 95;
+        vm1.heap_size = 0x2000000;
+        vm1.dma_pool = 0x20000;
+        vm1.guest_ram_mb = 1900;
+        vm1.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm1.kernel_image = "bzimage";
+        vm1.kernel_relocs = "bzimage";
+        vm1.initrd_image = "rootfs.cpio";
+        vm1.iospace_domain = 0x010;
+
+        vm1.sataserver_client_buf_size = SHARED_BUFSIZE;
+        vm1.init_cons = [
+            {"init":"make_virtio_blk"},
+        ];
+
+        vm1.pci_devices_iospace = 2;
+        vm1.priority = 100;
+
+        // the guest driver VM
+        VM_PER_VM_CONFIG_DEF(2)
+        vm2.simple_untyped25_pool = 95;
+        vm2.heap_size = 0x2000000;
+        vm2.dma_pool = 0x20000;
+        vm2.guest_ram_mb = 1900;
+        vm2.kernel_cmdline = VM_GUEST_CMDLINE;
+        vm2.kernel_image = "bzimage";
+        vm2.kernel_relocs = "bzimage";
+        vm2.initrd_image = "rootfs.cpio";
+        vm2.iospace_domain = 0x11;
+
+        vm2.sataserver_driver_buf_0_size = SHARED_BUFSIZE;
+        vm2.sataserver_driver_buf_1_size = SHARED_BUFSIZE;
+
+        vm2.pci_devices_iospace = 3;
+        vm2.priority = 101;
+
+        // Hardware details of the passthrough SATA device (supermicro)
+        vm2.vm_ioports = [
+            {"start":0x3020, "end":0x3020 + 32, "pci_device":0x11, "name":"SSATA"},
+            {"start":0x3060, "end":0x3060 + 4, "pci_device":0x11, "name":"SSATA"},
+            {"start":0x3070, "end":0x3070 + 8, "pci_device":0x11, "name":"SSATA"},
+        ];
+
+        vm2.pci_devices = [
+            {
+                "name":"SSATA",
+                "bus":0, "dev":0x11, "fun":5,
+                "irq":"SSATA",
+                "memory":[
+                    {"paddr":0xaa180000, "size":0x80000, "page_bits":12},
+                    {"paddr":0xaa216000, "size":0x2000, "page_bits":12},
+                    {"paddr":0xaa219000, "size":0x100, "page_bits":12},
+                ],
+            },
+        ];
+
+        vm2.vm_irqs = [
+            {"name":"SSATA", "ioapic":0, "source":16, "level_trig":1, "active_low":1, "dest":11},
+        ];
+    }
+}
