@@ -1,37 +1,7 @@
 /*
- * Copyright 2020, DornerWorks
+ * Copyright 2022, UNSW (ABN 57 195 873 179)
  *
  * SPDX-License-Identifier: BSD-2-Clause
- */
-
-/*
- * Sample QEMU invocation to test this on QEMU:
- * qemu-system-i386 -machine q35,accel=kvm,kernel-irqchip=split \
- *                  -cpu Nehalem,+vme,-pdpe1gb,+xsave,+xsaveopt,-xsavec,-fsgsbase,-invpcid,-syscall,-lm,enforce,+vmx \
- *                  -nographic -serial mon:stdio -m size=4G -enable-kvm \
- *                  -kernel images/kernel-ia32-pc99 \
- *                  -initrd images/capdl-loader-image-ia32-pc99 \
- *                  -device intel-iommu,intremap=off \
- *                  -drive id=disk,file=/path/to/file.img,if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ide.0
- *
- * This requires nested virtualisation to be turned on.
- * https://www.linux-kvm.org/page/Nested_Guests
- *
- * Your file.img should have an MSDOS partition table; partition 1 will be
- * made available to the VM.
- *
- * A suitable file can be created thus:
- *   dd if=/dev/zero of=file1.img bs=1024k count=1024
- *   mke2fs -L 'part1' file1.img
- *   dd if=/dev/zero of=file2.img bs=1024k count=1024
- *   mke2fs -L 'part2' file2.img
- *   dd if=/dev/zero of=file.img bs=1024k count=1
- *   cat file1.img file2.img >> file.img
- *   rm file[12].img
- *   parted file.img mklabel msdos
- *   parted file.img mkpart primary 1MiB 1025MiB
- *   parted file.img mkpart primary 1025MiB '100%'
- *
  */
 
 import <VM/vm.camkes>;
