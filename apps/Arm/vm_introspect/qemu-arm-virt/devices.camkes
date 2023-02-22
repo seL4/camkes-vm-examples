@@ -12,6 +12,7 @@
 #define VM_RAM_OFFSET      0x00000000
 #define VM_DTB_ADDR        0x47381000
 #define VM_INITRD_ADDR     0x46701000
+#define VM_ENTRY_ADDR      0x40080000
 
 assembly {
 	composition {}
@@ -27,7 +28,8 @@ assembly {
             "ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
-            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM_ENTRY_ADDR),
         };
 
         vm0.vm_image_config = {

@@ -13,16 +13,19 @@
 #define VM0_RAM_SIZE 0x8000000
 #define VM0_DTB_ADDR 0x47000000 //VM0_RAM_BASE + 0x7000000
 #define VM0_INITRD_ADDR 0x43e00000 //VM0_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM0_ENTRY_ADDR 0x40080000 //VM0_RAM_BASE + 0x80000
 
 #define VM1_RAM_BASE 0x48000000
 #define VM1_RAM_SIZE 0x8000000
 #define VM1_DTB_ADDR 0x4f000000 //VM1_RAM_BASE + 0x7000000
 #define VM1_INITRD_ADDR 0x4be00000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM1_ENTRY_ADDR 0x48080000 //VM1_RAM_BASE + 0x80000
 
 #define VM2_RAM_BASE 0x50000000
 #define VM2_RAM_SIZE 0x8000000
 #define VM2_DTB_ADDR 0x57000000 //VM2_RAM_BASE + 0x7000000
 #define VM2_INITRD_ADDR 0x53e00000 //VM2_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM2_ENTRY_ADDR 0x50080000 //VM2_RAM_BASE + 0x80000
 
 assembly {
     composition {}
@@ -36,6 +39,7 @@ assembly {
             "dtb_addr" : VAR_STRINGIZE(VM0_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM0_ENTRY_ADDR),
         };
         vm0.vm_image_config = {
             "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
@@ -68,6 +72,7 @@ assembly {
             "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM1_ENTRY_ADDR),
         };
         vm1.vm_image_config = {
             "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
@@ -94,6 +99,7 @@ assembly {
             "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
             "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM2_ENTRY_ADDR),
         };
         vm2.vm_image_config = {
             "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
