@@ -27,7 +27,9 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
         };
 
-        vm0.linux_image_config = {};
+        vm0.linux_image_config = {
+            "initrd_name" : "linux-initrd",
+        };
 
         vm0.dtb = dtb([
                 {"path": "/serial@c81004c0"},

@@ -30,6 +30,7 @@ assembly {
         vm.linux_image_config = {
             "linux_bootcmdline" : "console=hvc0 root=/dev/ram0 nosmp rw debug loglevel=7 pci=nomsi initcall_debug initcall_blacklist=clk_disable_unused",
             "linux_stdout" : "hvc0",
+            "initrd_name" : "linux-initrd",
         };
 
         vm.dtb = dtb([{"path": "/firmware@02073000"},

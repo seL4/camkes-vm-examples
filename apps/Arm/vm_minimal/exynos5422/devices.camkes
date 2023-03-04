@@ -31,6 +31,7 @@ assembly {
         vm0.linux_image_config = {
             "linux_bootcmdline" : "console=ttySAC2,115200n8 root=/dev/ram0 nosmp rw debug loglevel=8 earlyprintk=serial pci=nomsi",
             "linux_stdout" : "serial2:115200n8",
+            "initrd_name" : "linux-initrd",
         };
 
         vm0.dtb = dtb([{"path": "/firmware@2073000"},

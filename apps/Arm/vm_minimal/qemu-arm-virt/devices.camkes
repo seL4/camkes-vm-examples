@@ -30,6 +30,7 @@ assembly {
         vm0.linux_image_config = {
             "linux_bootcmdline" : "",
             "linux_stdout" : "/pl011@9000000",
+            "initrd_name" : "linux-initrd",
         };
         vm0.num_vcpus = 2;
 

@@ -29,6 +29,7 @@ assembly {
         vm0.linux_image_config = {
             "linux_bootcmdline" : "pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
             "linux_stdout" : "/pl011@9000000",
+            "initrd_name" : "linux-initrd",
         };
 
         vm0.dtb = dtb([
