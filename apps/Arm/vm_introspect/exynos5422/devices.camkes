@@ -6,10 +6,8 @@
 
 #include <configurations/vm.h>
 
-#define VM_INITRD_MAX_SIZE 0x1400000
 #define VM_RAM_BASE        0x40000000
 #define VM_RAM_SIZE        0x8001000
-#define VM_RAM_OFFSET      0x00000000
 #define VM_DTB_ADDR        0x45801000
 #define VM_INITRD_ADDR     0x46c01000
 #define VM_ENTRY_ADDR      0x40008000
@@ -25,9 +23,7 @@ assembly {
             "ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
             "ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
-            "ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
             "kernel_entry_addr" : VAR_STRINGIZE(VM_ENTRY_ADDR),
         };
