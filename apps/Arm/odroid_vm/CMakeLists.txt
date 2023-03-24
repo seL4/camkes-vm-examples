@@ -32,8 +32,6 @@ add_subdirectory(components/spi)
 add_subdirectory(components/clk)
 add_subdirectory(components/timer)
 
-set(linux_binary_name "${CAMKES_ARM_LINUX_DIR}/linux")
-
 # Different device tree if compiling with VmVUSB
 if(VmVUSB)
     set(device_tree_src "${CAMKES_ARM_LINUX_DIR}/linux-secure-vusb-dtb")
@@ -49,14 +47,12 @@ add_custom_command(
         bash -c
         "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${device_tree_src} > ${linux_dtb}"
     VERBATIM
+    DEPENDS "${device_tree_src}"
 )
-# Create custom target for setting the dtb
-add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
 
-# Add Linux VM images into file server
-AddToFileServer("linux" "${linux_binary_name}")
-AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
-DefineCAmkESVMFileServer()
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+DefineCAmkESVMFileServer(FILES "linux:${CAMKES_ARM_LINUX_DIR}/linux" "linux-dtb:${linux_dtb}")
 
 # Declare odroid root server
 DeclareCAmkESRootserver(

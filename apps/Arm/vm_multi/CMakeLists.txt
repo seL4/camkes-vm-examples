@@ -46,7 +46,7 @@ AddOverlayDirToRootfs(
     "buildroot"
     "rootfs_install"
     vm0_output_overlayed_rootfs_location
-    rootfs_target_vm0
+    rootfs_target_vm0 # helper CMake target to be created, not used
     GZIP
 )
 
@@ -69,28 +69,22 @@ AddOverlayDirToRootfs(
     "buildroot"
     "rootfs_install"
     client_output_overlayed_rootfs_location
-    rootfs_target_client_vm
+    rootfs_target_client_vm # helper CMake target to be created, not used
     GZIP
 )
 
-AddToFileServer(
-    "linux-initrd-vm0"
-    "${vm0_output_overlayed_rootfs_location}"
-    DEPENDS
-    rootfs_target_vm0
-)
-AddToFileServer(
-    "linux-initrd-vm-client"
-    "${client_output_overlayed_rootfs_location}"
-    DEPENDS
-    rootfs_target_client_vm
-)
-
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
-
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB VmVchan Tk1DeviceFwd Tk1Insecure)
 
-DefineCAmkESVMFileServer()
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper targets
+# 'rootfs_target_vm0' and 'rootfs_target_client_vm'
+DefineCAmkESVMFileServer(
+    FILES
+    "linux-initrd-vm0:${vm0_output_overlayed_rootfs_location}"
+    "linux-initrd-vm-client:${client_output_overlayed_rootfs_location}"
+    "linux:${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux"
+)
 
 CAmkESAddImportPath(${KernelARMPlatform})
 
