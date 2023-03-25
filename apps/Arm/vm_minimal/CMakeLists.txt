@@ -18,29 +18,31 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
 
     # Different device tree if compiling with Tk1Insecure
     if(Tk1Insecure)
-        set(device_tree_src "linux-tk1-nonsecured.dts")
+        set(device_tree_src "${CAMKES_ARM_LINUX_DIR}/linux-tk1-nonsecured.dts")
     else()
-        set(device_tree_src "linux-tk1-secure.dts")
+        set(device_tree_src "${CAMKES_ARM_LINUX_DIR}/linux-tk1-secure.dts")
     endif()
 
     if(VmTk1InitrdRootfs)
-        set(linux_binary_name "linux-tk1-initrd")
+        set(linux_binary_name "${CAMKES_ARM_LINUX_DIR}/linux-tk1-initrd")
     else()
-        set(linux_binary_name "linux-tk1-debian")
+        set(linux_binary_name "${CAMKES_ARM_LINUX_DIR}/linux-tk1-debian")
     endif()
+
+    set(dtb_file "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
     add_custom_command(
-        OUTPUT linux/linux-dtb
+        OUTPUT "${dtb_file}"
         COMMAND
-            dtc -I dts -O dtb -o linux/linux-dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
+            dtc -I dts -O dtb -o ${dtb_file} ${device_tree_src}
         VERBATIM
-        DEPENDS ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
+        DEPENDS ${device_tree_src}
     )
     # Create custom target for setting the dtb
-    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
+    add_custom_target(set_dtb DEPENDS "${dtb_file}")
 
     # Add Linux VM images into file server
-    AddToFileServer("linux" "${CAMKES_ARM_LINUX_DIR}/${linux_binary_name}")
-    AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+    AddToFileServer("linux" "${linux_binary_name}")
+    AddToFileServer("linux-dtb" "${dtb_file}" DEPENDS set_dtb)
 
 elseif("${KernelARMPlatform}" STREQUAL "tx1")
     set(cpp_flags "-DKERNELARMPLATFORM_TX1")
@@ -154,18 +156,18 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     )
 
     set(dts_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux.dts")
-
+    set(dtb_file "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
     add_custom_command(
-        OUTPUT linux/linux-dtb
+        OUTPUT ${dtb_file}
         COMMAND
-            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+            dtc -q -I dts -O dtb -o ${dtb_file} ${dts_file}
         VERBATIM
         DEPENDS ${dts_file}
     )
 
     # Create custom target for setting the dtb
-    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
-    AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+    add_custom_target(set_dtb DEPENDS "${dtb_file}")
+    AddToFileServer("linux-dtb" "${dtb_file}" DEPENDS set_dtb)
 
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
 

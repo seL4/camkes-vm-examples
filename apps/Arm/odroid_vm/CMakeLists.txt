@@ -36,16 +36,18 @@ set(linux_binary_name "${CAMKES_ARM_LINUX_DIR}/linux")
 
 # Different device tree if compiling with VmVUSB
 if(VmVUSB)
-    set(device_tree_src "linux-secure-vusb-dtb")
+    set(device_tree_src "${CAMKES_ARM_LINUX_DIR}/linux-secure-vusb-dtb")
 else()
-    set(device_tree_src "linux-secure-dtb")
+    set(device_tree_src "${CAMKES_ARM_LINUX_DIR}/linux-secure-dtb")
 endif()
+
 # Sed the device tree updating the rootfs name
+set(linux_dtb "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
 add_custom_command(
-    OUTPUT linux/linux-dtb
+    OUTPUT "${linux_dtb}"
     COMMAND
         bash -c
-        "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${CAMKES_ARM_LINUX_DIR}/${device_tree_src} > linux/linux-dtb"
+        "sed \"s/root=\\/dev\\/mmcblk1p2/root=\\/dev\\/${VmRootfs}/g\" ${device_tree_src} > ${linux_dtb}"
     VERBATIM
 )
 # Create custom target for setting the dtb
