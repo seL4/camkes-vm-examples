@@ -12,23 +12,21 @@
 #include <sel4vmmplatsupport/guest_memory_util.h>
 #include <vmlinux.h>
 
-extern unsigned long linux_ram_base;
-extern unsigned long linux_ram_size;
-
 extern dataport_caps_handle_t memdev_handle;
 
 static vm_frame_t dataport_memory_iterator(uintptr_t addr, void *cookie)
 {
     cspacepath_t return_frame;
     vm_frame_t frame_result = { seL4_CapNull, seL4_NoRights, 0, 0 };
+    const vm_config_t *vm_config = (const vm_config_t *)cookie;
 
     uintptr_t frame_start = ROUND_DOWN(addr, BIT(seL4_PageBits));
-    if (frame_start < linux_ram_base || frame_start > linux_ram_base + linux_ram_size) {
+    if (frame_start < vm_config->ram.base || frame_start > vm_config->ram.base + vm_config->ram.size) {
         ZF_LOGE("Error: Not dataport ram region");
         return frame_result;
     }
 
-    int page_idx = (frame_start - linux_ram_base) / BIT(seL4_PageBits);
+    int page_idx = (frame_start - vm_config->ram.base) / BIT(seL4_PageBits);
     frame_result.cptr = dataport_get_nth_frame_cap(&memdev_handle, page_idx);
     frame_result.rights = seL4_AllRights;
     frame_result.vaddr = frame_start;
@@ -36,10 +34,15 @@ static vm_frame_t dataport_memory_iterator(uintptr_t addr, void *cookie)
     return frame_result;
 }
 
+/* This overwrites the weak function in the VMM module init_ram */
 void init_ram_module(vm_t *vm, void *cookie)
 {
     int err;
 
-    err = vm_ram_register_at_custom_iterator(vm, linux_ram_base, linux_ram_size, dataport_memory_iterator, NULL);
+    void *reg_cookie = (void *)&vm_config;
+    err = vm_ram_register_at_custom_iterator(vm, vm_config.ram.base,
+                                             vm_config.ram.size,
+                                             dataport_memory_iterator,
+                                             reg_cookie);
     assert(!err);
 }
