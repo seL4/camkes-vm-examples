@@ -31,8 +31,7 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
     add_custom_command(
         OUTPUT linux/linux-dtb
         COMMAND
-            bash -c
-            "which dtc && dtc -I dts -O dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src} > linux/linux-dtb"
+            dtc -I dts -O dtb -o linux/linux-dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
         VERBATIM
         DEPENDS ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
     )
@@ -150,7 +149,8 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
 
     add_custom_command(
         OUTPUT linux/linux-dtb
-        COMMAND bash -c "which dtc && dtc -q -I dts -O dtb ${dts_file} > linux/linux-dtb"
+        COMMAND
+            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
         VERBATIM
         DEPENDS ${dts_file}
     )
