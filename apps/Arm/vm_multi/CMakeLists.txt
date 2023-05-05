@@ -12,10 +12,10 @@ include(${CAMKES_ARM_VM_HELPERS_PATH})
 find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
-if("${PLATFORM}" STREQUAL "exynos5422")
+if(KernelPlatformExynos5422)
     # Create our CPP Flags based on ARM VM config variables
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
-elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
+elseif(KernelPlatformQEMUArmVirt)
     set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
     set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
     include(simulation)

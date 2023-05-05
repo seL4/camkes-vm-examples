@@ -13,7 +13,7 @@ include(${CAMKES_ARM_VM_HELPERS_PATH})
 set(cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm")
 
 # Create our CPP Flags based on ARM VM config variables
-if("${KernelARMPlatform}" STREQUAL "tk1")
+if(KernelPlatformTK1)
     set(cpp_flags "-DKERNELARMPLATFORM_TK1")
 
     # Different device tree if compiling with Tk1Insecure
@@ -42,13 +42,13 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
     AddToFileServer("linux" "${CAMKES_ARM_LINUX_DIR}/${linux_binary_name}")
     AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
 
-elseif("${KernelARMPlatform}" STREQUAL "tx1")
+elseif(KernelPlatformTx1)
     set(cpp_flags "-DKERNELARMPLATFORM_TX1")
 
     AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/tx1/linux")
     AddToFileServer("linux-dtb" "${CAMKES_VM_IMAGES_DIR}/tx1/linux-dtb")
 
-elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
+elseif(KernelPlatformExynos5422)
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
@@ -67,7 +67,7 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
-elseif("${KernelARMPlatform}" STREQUAL "tx2")
+elseif(KernelPlatformTx2)
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_TX2")
@@ -85,7 +85,7 @@ elseif("${KernelARMPlatform}" STREQUAL "tx2")
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
-elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+elseif(KernelPlatformQEMUArmVirt)
 
     # QEMU supports ARMv7/aarch32 and ARMv8/aarch32, but currently there are
     # Linux images for aarch64 only. However, it is unclear if that is the only
@@ -94,6 +94,7 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
         message(FATAL_ERROR "Only AARCH64 is supported")
     endif()
 
+elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
@@ -116,7 +117,7 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
         GenerateSimulateScript()
     endif()
 
-elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
+elseif(KernelPlatformOdroidc2)
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_ODROIDC2")
@@ -138,7 +139,7 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
-elseif("${KernelARMPlatform}" STREQUAL "zcu102")
+elseif(KernelPlatformZynqmpZcu102)
 
     if("${VmZynqmpPetalinuxVersion}" STREQUAL "")
         message(

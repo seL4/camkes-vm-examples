@@ -17,7 +17,7 @@ include(${CAMKES_VM_LINUX_MODULE_HELPERS_PATH})
 include(ExternalProject)
 include(external-project-helpers)
 
-if("${KernelARMPlatform}" STREQUAL "exynos5422")
+if(KernelPlatformExynos5422)
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
     set(linux_repo "https://github.com/hardkernel/linux.git")
     set(linux_tag "4.14.87-153")
@@ -33,7 +33,7 @@ if("${KernelARMPlatform}" STREQUAL "exynos5422")
     # Generate overlayed rootfs
     set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 
-elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+elseif(KernelPlatformQEMUArmVirt)
     set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
     set(linux_repo "https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git")
     set(linux_tag "v4.9.189")
