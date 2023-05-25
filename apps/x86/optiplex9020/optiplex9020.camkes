@@ -84,6 +84,5 @@ assembly {
         vm1.initrd_image = "rootfs.cpio";
         vm1.iospace_domain = 0x10;
         vm1.pci_devices_iospace = 2;
-        vm1.affinity = 1;
     }
 }
