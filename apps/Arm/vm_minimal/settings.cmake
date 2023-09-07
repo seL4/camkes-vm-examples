@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2")
+set(supported "tk1;tx1;tx2;exynos5422;qemu-arm-virt;odroidc2;zcu102")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -35,4 +35,9 @@ if(${PLATFORM} STREQUAL "qemu-arm-virt")
     set(QEMU_MEMORY "2048")
     set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
+endif()
+if(${PLATFORM} STREQUAL "zcu102")
+    set(AARCH64 ON CACHE BOOL "" FORCE)
+    set(KernelAllowSMCCalls ON CACHE BOOL "" FORCE)
+    set(VmZynqmpPetalinuxVersion 2021_1 CACHE STRING "" FORCE)
 endif()

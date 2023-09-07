@@ -16,6 +16,7 @@ Currently the supported platforms include:
 * TX1
 * TX2
 * QEMU ARM virt machine
+* ZCU102
 * x86
 * x86_64 (coming)
 
@@ -29,7 +30,8 @@ cd build
 ../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=tk1
 ninja
 ```
-*Note: To buid for another platform you can substitute the value of the `-DPLATFORM` variable e.g. (exynos5422, tx1, tx2, qemu-arm-virt)*
+*Note: To buid for another platform you can substitute the value of the `-DPLATFORM` variable
+e.g. (exynos5422, tx1, tx2, qemu-arm-virt, zcu102)*
 *Note: If building for x86 you don't need to specify the `-DPLATFORM` variable*
 
 ### For Arm
@@ -98,12 +100,13 @@ See the below feature matrix for the various features the CAmkES ARM VMM impleme
 | TK1 | 32-bit | Unsupported | Unsupported | Unsupported | Unsupported | Unsupported | Unsupported | SMP configurations are unsupported due to: * No TK1 kernel SMP support * No virtual power device interface to manage VCPU's at runtime (e.g. core startup) Virtio PCI, Console, Net, Cross VM connector support & Multi-VM are untested  |
 | TX1 | 64-bit | Supported | Unsupported | Unsupported | Unsupported | Unsupported | Unsupported | Virtio PCI, Console, Net, Cross VM connector support & Multi-VM are untested |
 | TX2 | 64-bit | Supported | Supported | Supported | Supported | Supported | Unsupported | Cross VM connector support is untested |
+| ZCU102 | 64-bit | Supported | Supported | Supported | Supported | Supported | Unsupported | Cross VM connector support is untested |
 | QEMU Virt | 64-bit | Supported | Unsupported | Supported | Supported | Supported | Supported | Multi-VM support depends on porting the TimeServer to QEMU (See https://github.com/sel4/global-components/tree/master/components/TimeServer) |
 
 
 ## Arm Platform Configuration Notes
 
-### Exynos5422, TX1, TX2, QEMU ARM Virt configuration
+### Exynos5422, TX1, TX2, ZCU102, QEMU ARM Virt configuration
 We provide a pre-built Linux image and Buildroot image for our guest VM's. See the images in the `camkes-vm-images` repository @ https://github.com/sel4/camkes-vm-images
 When compiling an application for these platforms, the images are sourced from the platforms subdirectory in the `camkes-vm-images` repo.
 Feel free also to compile your own Linux and Rootfs images, see the README's in each platform subdirectory (within `camkes-vm-images`) for information about our
