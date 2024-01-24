@@ -6,30 +6,32 @@
 
 #include <configurations/vm.h>
 
-#define VM_INITRD_MAX_SIZE 0x1900000 //25 MB
 #define VM_RAM_BASE 0xF1000000
 #define VM_RAM_SIZE 0x8000000
-#define VM_RAM_OFFSET 0
 #define VM_DTB_ADDR 0xF2000000
 #define VM_INITRD_ADDR 0xF7000000
+#define VM_ENTRY_ADDR 0xF1080000
 
 assembly {
 	composition {}
 	configuration {
 
-        vm0.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm0.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
-            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR)
+            "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM_ENTRY_ADDR),
         };
 
-        vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
-            "linux_stdout" : "/serial@3100000",
+        vm0.vm_image_config = {
+            "kernel_bootcmdline" : "console=ttyS0,115200n1 no_console_suspend=1 earlycon=uart8250,mmio32,0x03100000 debug nosmp init=/sbin/init",
+            "kernel_stdout" : "/serial@3100000",
+            "provide_dtb" : false,
+            "generate_dtb" : true,
+            "clean_cache" : true,
+            "map_one_to_one" : true,
         };
 
         vm0.dtb = dtb([

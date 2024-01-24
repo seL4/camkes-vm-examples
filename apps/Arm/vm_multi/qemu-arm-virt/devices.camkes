@@ -6,42 +6,44 @@
 
 #include <configurations/vm.h>
 
-#define VM_RAM_OFFSET 0x00000000
-#define VM_INITRD_MAX_SIZE 0x3200000 //50 MB
-
 #define VM0_RAM_BASE 0x40000000
 #define VM0_RAM_SIZE 0x8000000
 #define VM0_DTB_ADDR 0x47000000 //VM0_RAM_BASE + 0x7000000
 #define VM0_INITRD_ADDR 0x43e00000 //VM0_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM0_ENTRY_ADDR 0x40080000 //VM0_RAM_BASE + 0x80000
 
 #define VM1_RAM_BASE 0x48000000
 #define VM1_RAM_SIZE 0x8000000
 #define VM1_DTB_ADDR 0x4f000000 //VM1_RAM_BASE + 0x7000000
 #define VM1_INITRD_ADDR 0x4be00000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM1_ENTRY_ADDR 0x48080000 //VM1_RAM_BASE + 0x80000
 
 #define VM2_RAM_BASE 0x50000000
 #define VM2_RAM_SIZE 0x8000000
 #define VM2_DTB_ADDR 0x57000000 //VM2_RAM_BASE + 0x7000000
 #define VM2_INITRD_ADDR 0x53e00000 //VM2_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM2_ENTRY_ADDR 0x50080000 //VM2_RAM_BASE + 0x80000
 
 assembly {
     composition {}
     configuration {
 
-        vm0.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm0.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM0_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM0_ENTRY_ADDR),
         };
-        vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
+        vm0.vm_image_config = {
+            "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm0",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm0.dtb = dtb([
                         {"path": "/pcie@10000000"},
@@ -57,20 +59,22 @@ assembly {
                     ];
         vm0.dtb_irqs = [35, 36, 37, 38];
 
-        vm1.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm1.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM1_ENTRY_ADDR),
         };
-        vm1.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
+        vm1.vm_image_config = {
+            "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm1.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
@@ -80,20 +84,22 @@ assembly {
         ];
         vm1.dtb = dtb([{}]);
 
-        vm2.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm2.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
+            "kernel_entry_addr" : VAR_STRINGIZE(VM2_ENTRY_ADDR),
         };
-        vm2.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
+        vm2.vm_image_config = {
+            "kernel_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
+            "kernel_stdout" : "hvc0",
             "dtb_name" : "",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb" : true,
+            "provide_dtb" : false,
+            "map_one_to_one" : true,
         };
         vm2.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
