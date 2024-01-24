@@ -22,6 +22,8 @@ elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
     if(SIMULATION)
         GenerateSimulateScript()
     endif()
+else()
+    message(FATAL_ERROR "unsupported PLATFORM: ${PLATFORM}")
 endif()
 
 # Generate our overlayed rootfs images

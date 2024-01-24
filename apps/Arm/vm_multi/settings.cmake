@@ -9,13 +9,17 @@ if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
 endif()
+
 set(LibUSB OFF CACHE BOOL "" FORCE)
 set(VmPCISupport ON CACHE BOOL "" FORCE)
 set(VmVirtioConsole ON CACHE BOOL "" FORCE)
 set(VmVirtioNetArping OFF CACHE BOOL "" FORCE)
 set(VmVirtioNetVirtqueue ON CACHE BOOL "" FORCE)
 set(VmInitRdFile ON CACHE BOOL "" FORCE)
-if("${PLATFORM}" STREQUAL "qemu-arm-virt")
+
+if("${PLATFORM}" STREQUAL "exynos5422")
+    # nothing special here
+elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
     set(QEMU_MEMORY "2048")
     set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
     set(
@@ -24,4 +28,6 @@ if("${PLATFORM}" STREQUAL "qemu-arm-virt")
     )
     set(KernelArmExportPCNTUser ON CACHE BOOL "" FORCE)
     set(KernelArmExportPTMRUser ON CACHE BOOL "" FORCE)
+else()
+    message(FATAL_ERROR "unsupported PLATFORM: ${PLATFORM}")
 endif()
