@@ -49,86 +49,59 @@ assembly {
 
         vm0.untyped_mmios = ["0xf9060000:12"]; // Interrupt Controller Virtual CPU interface (Virtual Machine view)
 
+        /* The ZCU102 can run different Xilinx releases of Petalinux
+         * During one release, the PS devices were moved from the "amba" to
+         * the "axi" bus. The seL4 kernel only needs the device tree to
+         * allocate untyped resources, so the device tree was never updated.
+         * However, it's a good idea to match the device tree with the version
+         * of Petalinux that is running.
+         *
+         * This file configures a Petalinux 2021.1 guest VM, meaning a different
+         * device tree than the seL4 kernel device tree is used as the base for
+         * guest dtb generation. This version uses the axi bus. Therefore,
+         * any passthrough or emulated devices on that bus must be listed here
+         * with the plat_keep_devices, as the VMM will attempt to keep the amba
+         * bus versions, which do not exist in the 2021.1 base.
+         *
+         * The VMM will complain about the /amba/serial device not existing:
+         *     "Non-existing node /amba/serial@ff000000 specified to be kept"
+         */
         vm0.plat_keep_devices = [
-            "/__symbols__",
-            "/aliases",
-            "/aux_ref_clk",
-            "/axi/interrupt-controller@f9010000",
-            "/dcc",
-            "/dp_aclk",
-            "/edac",
-            "/fclk0",
-            "/fclk1",
-            "/fclk2",
-            "/fclk3",
-            "/fpga-full",
+            "/pss_ref_clk",
             "/gt_crx_ref_clk",
-            "/ina226-u15",
-            "/ina226-u16",
-            "/ina226-u65",
-            "/ina226-u74",
-            "/ina226-u75",
-            "/ina226-u76",
-            "/ina226-u77",
-            "/ina226-u78",
-            "/ina226-u79",
-            "/ina226-u80",
-            "/ina226-u81",
-            "/ina226-u84",
-            "/ina226-u85",
-            "/ina226-u86",
-            "/ina226-u87",
-            "/ina226-u88",
-            "/ina226-u92",
-            "/ina226-u93",
+            "/pss_alt_ref_clk",
+            "/aux_ref_clk",
+            "/video_clk",
             "/pmu",
             "/psci",
-            "/pss_alt_ref_clk",
-            "/pss_ref_clk",
-            "/ref48M",
-            "/refhdmi",
             "/timer",
-            "/video_clk",
+            "/aliases",
+            "/axi/interrupt-controller@f9010000",
             "/axi/serial@ff000000",
         ];
 
         vm0.plat_keep_devices_and_subtree = [
             "/firmware",
-            "/gpio-keys",
-            "/leds",
-            "/zynqmp_ipi",
         ];
 
         vm0.allow_smc = true;
         vm0.allowed_smc_functions = [
             SMC_PM_GET_API_VERSION,
             SMC_PM_REQUEST_NODE,
-            SMC_PM_RELEASE_NODE,
             SMC_PM_SET_REQUIREMENT,
             SMC_PM_INIT_FINALIZE,
             SMC_PM_FPGA_GET_STATUS,
-            SMC_PM_RESET_ASSERT,
-            SMC_PM_RESET_GET_STATUS,
-            SMC_PM_MMIO_WRITE,
-            SMC_PM_MMIO_READ,
-            SMC_PM_GET_CHIPID,
             SMC_PM_PINCTRL_REQUEST,
-            SMC_PM_PINCTRL_RELEASE,
             SMC_PM_PINCTRL_SET_FUNCTION,
             SMC_PM_PINCTRL_CONFIG_PARAM_GET,
             SMC_PM_PINCTRL_CONFIG_PARAM_SET,
             SMC_PM_IOCTL,
             SMC_PM_QUERY_DATA,
             SMC_PM_CLOCK_ENABLE,
-            SMC_PM_CLOCK_DISABLE,
             SMC_PM_CLOCK_GETSTATE,
-            SMC_PM_CLOCK_SETDIVIDER,
             SMC_PM_CLOCK_GETDIVIDER,
             SMC_PM_CLOCK_GETPARENT,
             SMC_PM_GET_TRUSTZONE_VERSION,
-            SMC_IPI_MAILBOX_OPEN,
-            SMC_IPI_MAILBOX_RELEASE,
-            SMC_IPI_MAILBOX_ENABLE_IRQ
         ];
 	}
 }
