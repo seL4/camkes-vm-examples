@@ -48,8 +48,8 @@ ninja
 An EFI application file will be left in `images/capdl-loader-image-arm-tk1` We normally boot using TFTP, by first copying `capdl-loader-image-arm-tk1` to a tftpserver then on the U-Boot serial console doing:
 
 ```sh
-dhcp tftpboot $loadaddr
-/capdl-loader-image-arm-tk1
+dhcp
+tftpboot ${loadaddr} /capdl-loader-image-arm-tk1
 bootefi ${loadaddr}
 ```
 
