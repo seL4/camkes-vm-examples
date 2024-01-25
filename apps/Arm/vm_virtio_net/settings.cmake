@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-set(supported "exynos5422;tx2")
+set(supported "exynos5422;tx2;zcu102")
 if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
@@ -18,3 +18,9 @@ else()
 endif()
 set(VmInitRdFile ON CACHE BOOL "" FORCE)
 set(VmDtbFile ON CACHE BOOL "provide dtb" FORCE)
+
+if(${PLATFORM} STREQUAL "zcu102")
+    set(AARCH64 ON CACHE BOOL "" FORCE)
+    set(KernelAllowSMCCalls ON CACHE BOOL "" FORCE)
+    set(VmZynqmpPetalinuxVersion 2022_1 CACHE STRING "" FORCE)
+endif()

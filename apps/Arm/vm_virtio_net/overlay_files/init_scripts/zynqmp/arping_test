@@ -1,0 +1,31 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          arping_test
+# Required-Start:    $networking
+# Required-Stop:
+# Default-Start:     2 3 4 5
+# Default-Stop:      1
+# Short-Description: Configure virtio-net device
+### END INIT INFO
+
+#
+# Copyright 2019, Data61, CSIRO (ABN 41 687 119 230)
+# Copyright 2024, DornerWorks
+#
+# SPDX-License-Identifier: BSD-2-Clause
+#
+
+echo "Testing arping on virtual interface:" > /dev/console
+
+# Petalinux 2022.1 doesn't seem to like the /etc/network/interfaces file
+eth0_ip="192.168.1.1"
+ifconfig eth0 $eth0_ip
+
+arping 192.168.1.2 -c 5 -w 2
+# Success code for arping: 0 (arping returns non-zero value if packet count and timeout is not met)
+if [ $? -eq 0 ]
+then
+    echo "arping test was successful" > /dev/console
+else
+    echo "arping test failed" > /dev/console
+fi
