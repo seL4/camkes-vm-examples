@@ -10,7 +10,7 @@ name: HW
 
 on:
   # needs PR target for secrets access; guard by requiring label
-  pull_request_target:
+  pull_request_target: # !! dummy
     types: [opened, reopened, synchronize, labeled]
 
 # downgrade permissions to read-only as you would have in a standard PR action
