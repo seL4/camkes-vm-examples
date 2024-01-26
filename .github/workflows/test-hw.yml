@@ -1,0 +1,95 @@
+# Copyright 2021, Proofcraft Pty Ltd
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+# camkes-vm-examples hardware builds and runs
+#
+# See camkes-vm-hw/builds.yml in the repo seL4/ci-actions for configs.
+
+name: HW
+
+on:
+  # needs PR target for secrets access; guard by requiring label
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled]
+
+# downgrade permissions to read-only as you would have in a standard PR action
+permissions:
+  contents: read
+
+jobs:
+  code:
+    name: Freeze Code
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' ||
+            github.event_name == 'pull_request_target' &&
+              github.event.action != 'labeled' &&
+              (contains(github.event.pull_request.labels.*.name, 'hw-build') ||
+               contains(github.event.pull_request.labels.*.name, 'hw-test')) ||
+            github.event_name == 'pull_request_target' &&
+              github.event.action == 'labeled' &&
+              (github.event.label.name == 'hw-build' ||
+               github.event.label.name == 'hw-test') }}
+    outputs:
+      xml: ${{ steps.repo.outputs.xml }}
+    steps:
+    - id: repo
+      uses: seL4/ci-actions/repo-checkout@master
+      with:
+        manifest_repo: camkes-vm-examples-manifest
+        manifest: master.xml
+
+  build:
+    name: Build
+    needs: code
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        march: [nehalem, armv7a, armv8a]
+    steps:
+    - uses: seL4/ci-actions/camkes-vm@master
+      with:
+        xml: ${{ needs.code.outputs.xml }}
+        march: ${{ matrix.march }}
+    - name: Upload images
+      uses: actions/upload-artifact@v3
+      with:
+        name: images-${{ matrix.march }}
+        path: '*-images.tar.gz'
+
+  run:
+    name: Hardware
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: ${{ github.repository_owner == 'seL4' &&
+            (github.event_name == 'push' ||
+             github.event_name == 'pull_request_target' &&
+               github.event.action != 'labeled' &&
+               contains(github.event.pull_request.labels.*.name, 'hw-test') ||
+             github.event_name == 'pull_request_target' &&
+               github.event.action == 'labeled' &&
+               github.event.label.name == 'hw-test') }}
+    strategy:
+      fail-fast: true
+      matrix:
+        march: [nehalem, armv7a, armv8a]
+    # do not run concurrently with previous jobs in PRs, but do run concurrently in the build matrix
+    concurrency: camkes-hw-pr-${{ strategy.job-index }}
+    steps:
+      - name: Get machine queue
+        uses: actions/checkout@v4
+        with:
+          repository: seL4/machine_queue
+          path: machine_queue
+      - name: Download image
+        uses: actions/download-artifact@v3
+        with:
+          name: images-${{ matrix.march }}
+      - name: Run
+        uses: seL4/ci-actions/camkes-vm-hw@master
+        with:
+          march: ${{ matrix.march }}
+          index: $${{ strategy.job-index }}
+        env:
+          HW_SSH: ${{ secrets.HW_SSH }}
