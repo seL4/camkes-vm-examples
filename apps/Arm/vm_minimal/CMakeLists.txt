@@ -160,6 +160,8 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
 
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
+
+    CAmkESAddImportPath(${KernelARMPlatform}/${VmZynqmpPetalinuxVersion})
 endif()
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
