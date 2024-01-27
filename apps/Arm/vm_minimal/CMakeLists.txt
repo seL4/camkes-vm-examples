@@ -10,6 +10,8 @@ project(camkes-arm-tk1-vm C)
 
 include(${CAMKES_ARM_VM_HELPERS_PATH})
 
+set(cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm")
+
 # Create our CPP Flags based on ARM VM config variables
 if("${KernelARMPlatform}" STREQUAL "tk1")
     set(cpp_flags "-DKERNELARMPLATFORM_TK1")
@@ -29,8 +31,7 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
     add_custom_command(
         OUTPUT linux/linux-dtb
         COMMAND
-            bash -c
-            "which dtc && dtc -I dts -O dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src} > linux/linux-dtb"
+            dtc -I dts -O dtb -o linux/linux-dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
         VERBATIM
         DEPENDS ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
     )
@@ -128,6 +129,37 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+
+elseif("${KernelARMPlatform}" STREQUAL "zcu102")
+
+    if("${VmZynqmpPetalinuxVersion}" STREQUAL "")
+        message(
+            FATAL_ERROR
+                "VmZynqmpPetalinuxVersion is not set. Please set to include proper VM artifacts"
+        )
+    endif()
+
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux")
+    AddToFileServer(
+        "linux-initrd"
+        "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/rootfs-minimal.cpio.gz"
+    )
+
+    set(dts_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux.dts")
+
+    add_custom_command(
+        OUTPUT linux/linux-dtb
+        COMMAND
+            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+        VERBATIM
+        DEPENDS ${dts_file}
+    )
+
+    # Create custom target for setting the dtb
+    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
+    AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+
+    list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
 endif()
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
@@ -137,10 +169,4 @@ DefineCAmkESVMFileServer()
 CAmkESAddImportPath(${KernelARMPlatform})
 
 # Declare root server
-DeclareCAmkESRootserver(
-    vm_minimal.camkes
-    CPP_FLAGS
-    ${cpp_flags}
-    CPP_INCLUDES
-    ${CAMKES_VM_DIR}/components/VM_Arm
-)
+DeclareCAmkESRootserver(vm_minimal.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${cpp_includes})

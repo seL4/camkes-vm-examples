@@ -55,6 +55,7 @@ jobs:
     name: Hardware
     runs-on: ubuntu-latest
     needs: [build]
+    if: ${{ github.repository_owner == 'seL4' }}
     strategy:
       fail-fast: false
       matrix:
@@ -67,7 +68,6 @@ jobs:
         with:
           repository: seL4/machine_queue
           path: machine_queue
-          token: ${{ secrets.PRIV_REPO_TOKEN }}
       - name: Download image
         uses: actions/download-artifact@v3
         with:
@@ -84,6 +84,7 @@ jobs:
     name: Deploy manifest
     runs-on: ubuntu-latest
     needs: [code, hw-run]
+    if: ${{ github.repository_owner == 'seL4' }}
     steps:
     - name: Deploy
       uses: seL4/ci-actions/manifest-deploy@master
