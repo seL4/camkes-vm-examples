@@ -53,7 +53,7 @@ jobs:
         xml: ${{ needs.code.outputs.xml }}
         march: ${{ matrix.march }}
     - name: Upload images
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: images-${{ matrix.march }}
         path: '*-images.tar.gz'
@@ -83,7 +83,7 @@ jobs:
           repository: seL4/machine_queue
           path: machine_queue
       - name: Download image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: images-${{ matrix.march }}
       - name: Run
