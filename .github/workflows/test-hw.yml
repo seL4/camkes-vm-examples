@@ -62,7 +62,7 @@ jobs:
       matrix:
         march: [nehalem, armv7a, armv8a]
     steps:
-    - uses: seL4/ci-actions/camkes-vm@master
+    - uses: axel-h/ci-actions/camkes-vm@patch-axel-7
       with:
         xml: ${{ needs.code.outputs.xml }}
         march: ${{ matrix.march }}
@@ -99,7 +99,7 @@ jobs:
         with:
           name: images-${{ matrix.march }}
       - name: Run
-        uses: seL4/ci-actions/camkes-vm-hw@master
+        uses: axel-h/ci-actions/camkes-vm-hw@patch-axel-7
         with:
           march: ${{ matrix.march }}
           index: $${{ strategy.job-index }}
