@@ -18,6 +18,6 @@ jobs:
       matrix:
         march: [nehalem, armv7a, armv8a]
     steps:
-    - uses: seL4/ci-actions/camkes-vm@master
+    - uses: axel-h/ci-actions/camkes-vm@patch-axel-7
       with:
         march: ${{ matrix.march }}
