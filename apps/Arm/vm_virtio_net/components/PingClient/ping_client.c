@@ -133,12 +133,13 @@ int create_icmp_req_reply(char *recv_data, unsigned int recv_data_size)
     struct ethhdr *eth_req = (struct ethhdr *) recv_data;
     struct iphdr *ip_req = (struct iphdr *)(recv_data + sizeof(struct ethhdr));
     struct icmphdr *icmp_req = (struct icmphdr *)(recv_data + sizeof(struct ethhdr) + sizeof(struct iphdr));
+    char *icmp_msg_req = (char *)(icmp_req + 1);
 
     char reply_buffer[ETHERMTU];
     struct ethhdr *eth_reply = (struct ethhdr *) reply_buffer;
     struct iphdr *ip_reply = (struct iphdr *)(reply_buffer + sizeof(struct ethhdr));
     struct icmphdr *icmp_reply = (struct icmphdr *)(reply_buffer + sizeof(struct ethhdr) + sizeof(struct iphdr));
-    char *icmp_msg = (char *)(icmp_reply + 1);
+    char *icmp_reply_msg = (char *)(icmp_reply + 1);
 
     memcpy(eth_reply->h_dest, eth_req->h_source, ETH_ALEN);
     memcpy(eth_reply->h_source, eth_req->h_dest, ETH_ALEN);
@@ -149,10 +150,13 @@ int create_icmp_req_reply(char *recv_data, unsigned int recv_data_size)
     ip_reply->saddr = ip_reply->daddr;
     ip_reply->daddr = saddr;
 
-    memset(icmp_msg, 0, ICMP_MSG_SIZE);
     icmp_reply->un.echo.sequence =  icmp_req->un.echo.sequence;
     icmp_reply->un.echo.id = icmp_req->un.echo.id;
     icmp_reply->type = ICMP_ECHOREPLY;
+    /* Copy data (timestamp + dummy data) from request */
+    memcpy(icmp_reply_msg, icmp_msg_req, ICMP_MSG_SIZE);
+    /* Need to set checksum to 0 before calculating checksum */
+    icmp_reply->checksum = 0;
     icmp_reply->checksum = one_comp_checksum((char *)icmp_reply, sizeof(struct icmphdr) + ICMP_MSG_SIZE);
 
     /* Need to set checksum to 0 before calculating checksum of the header */
