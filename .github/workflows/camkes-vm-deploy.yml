@@ -4,7 +4,7 @@
 
 # CAmkES VM regression tests
 
-name: Camkes VM
+name: Deploy
 
 on:
   push:
