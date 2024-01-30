@@ -75,8 +75,12 @@ jobs:
       fail-fast: true
       matrix:
         march: [nehalem, armv7a, armv8a]
-    # do not run concurrently with previous jobs in PRs, but do run concurrently in the build matrix
-    concurrency: camkes-hw-pr-${{ strategy.job-index }}
+    # Reduce the load on the machine queue by cancelling any older jobs from
+    # the current PR that are still running. This usually happens if there are
+    # new pushes to the PR's branch without waiting for the runs to finish. As
+    # a side effect, pushing becomes a convenient way to cancel all the runs
+    # that are stuck and would only be stopped by the timeout eventually.
+    concurrency: pr-${{ github.event.number }}-${{ strategy.job-index }}
     steps:
       - name: Get machine queue
         uses: actions/checkout@v4
