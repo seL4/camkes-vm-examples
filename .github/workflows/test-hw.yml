@@ -17,6 +17,15 @@ on:
 permissions:
   contents: read
 
+# Reduce the load on the machine queue by cancelling any older jobs from the
+# current PR that are still running. This usually happens if there are new
+# pushes to the PR's branch without waiting for the runs to finish. As a side
+# effect, pushing becomes a convenient way to cancel all the runs that are stuck
+# and would only be stopped by the timeout eventually.
+concurrency:
+  group: pr-${{ github.event.number }}
+  cancel-in-progress: true
+
 jobs:
   code:
     name: Freeze Code
@@ -75,12 +84,6 @@ jobs:
       fail-fast: true
       matrix:
         march: [nehalem, armv7a, armv8a]
-    # Reduce the load on the machine queue by cancelling any older jobs from
-    # the current PR that are still running. This usually happens if there are
-    # new pushes to the PR's branch without waiting for the runs to finish. As
-    # a side effect, pushing becomes a convenient way to cancel all the runs
-    # that are stuck and would only be stopped by the timeout eventually.
-    concurrency: pr-${{ github.event.number }}-${{ strategy.job-index }}
     steps:
       - name: Get machine queue
         uses: actions/checkout@v4
