@@ -86,6 +86,14 @@ elseif("${KernelARMPlatform}" STREQUAL "tx2")
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
 elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+
+    # QEMU supports ARMv7/aarch32 and ARMv8/aarch32, but currently there are
+    # Linux images for aarch64 only. However, it is unclear if that is the only
+    # blocker to get this example run in QEMU on aarch32.
+    if(NOT KernelSel4ArchAarch64)
+        message(FATAL_ERROR "Only AARCH64 is supported")
+    endif()
+
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
