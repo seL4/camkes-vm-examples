@@ -27,7 +27,8 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM_INITRD_ADDR),
             "kernel_entry_addr" : VAR_STRINGIZE(VM_ENTRY_ADDR),
         };
-        vm0.num_vcpus = 4;
+        vm0.num_vcpus = 2;
+        vm0.pcpus = [2, 3];
 
         /* Extra untyped pool to allow for 256MB of RAM */
         vm0.simple_untyped28_pool = 1;
