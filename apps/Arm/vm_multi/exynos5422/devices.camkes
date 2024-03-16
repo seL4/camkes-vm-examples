@@ -87,7 +87,7 @@ assembly {
                     "0x48000000:27"  //RAM
         ];
         vm1.irqs =  [];
-        vm1.dtb = dtb([{}]);
+        vm1.dtb = dtb([]);
 
         vm2.linux_address_config = {
             "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
@@ -112,7 +112,7 @@ assembly {
                     "0x50000000:27"  //RAM
         ];
         vm2.irqs =  [];
-        vm2.dtb = dtb([{}]);
+        vm2.dtb = dtb([]);
 
     }
 }
