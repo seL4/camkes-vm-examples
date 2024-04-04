@@ -56,6 +56,15 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
 
     CAmkESAddImportPath(${KernelARMPlatform}/${VmZynqmpPetalinuxVersion})
+elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
+    set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
+    set(rootfs_address "0x4d700000")
+
+       include(simulation)
+    set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
+    if(SIMULATION)
+        GenerateSimulateScript()
+    endif()
 endif()
 
 # Generate overlayed rootfs
