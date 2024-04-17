@@ -9,9 +9,9 @@ DHCPRANGE=10.10.10.100,10.10.10.254
 
 ip link show dev $TAP &> /dev/null
 if [ $? -ne 0 ]; then
-	ip tuntap add dev $TAP mode tap
-	ip link set up dev $TAP
-	ip addr add dev $TAP $GATEWAY/$NETMASK
+    ip tuntap add dev $TAP mode tap
+    ip link set up dev $TAP
+    ip addr add dev $TAP $GATEWAY/$NETMASK
 fi
 
 sysctl -w net.ipv4.ip_forward=1 > /dev/null 2>&1
@@ -46,7 +46,7 @@ dns_cmd=(
     --interface=$TAP
     --listen-address=$GATEWAY
     --bind-interfaces
-	--dhcp-authoritative 
+    --dhcp-authoritative 
     --dhcp-range=$DHCPRANGE
     --conf-file=""
     --pid-file=/var/run/qemu-dnsmasq-$TAP.pid
