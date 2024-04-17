@@ -28,12 +28,12 @@ endif()
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 
 # Setup our passthrough vm overlay
-AddFileToOverlayDir(
-    "inittab"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
-    "etc"
-    overlay_vm0
-)
+#AddFileToOverlayDir(
+#    "inittab"
+#    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
+#    "etc"
+#    overlay_vm0
+#)
 AddFileToOverlayDir(
     "S90bridge_setup"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm0_bridge_setup.sh
@@ -51,12 +51,12 @@ AddOverlayDirToRootfs(
 )
 
 # Setup our client vm overlays
-AddFileToOverlayDir(
-    "inittab"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
-    "etc"
-    overlay_client_vm
-)
+#AddFileToOverlayDir(
+#    "inittab"
+#    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/inittab_hvc0
+#    "etc"
+#    overlay_client_vm
+#)
 AddFileToOverlayDir(
     "S90client_net_vm"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup.sh
