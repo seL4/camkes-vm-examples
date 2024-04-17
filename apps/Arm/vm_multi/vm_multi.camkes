@@ -42,7 +42,7 @@ assembly {
         VM_COMPOSITION_DEF(1)
         VM_COMPOSITION_DEF(2)
         /* vm0,vm1 & vm2 serial connections */
-        VM_VIRTUAL_SERIAL_COMPOSITION_DEF(0,1,2)
+        // VM_VIRTUAL_SERIAL_COMPOSITION_DEF(0,1,2)
 
         /* vm0-[vm1,vm2] connection */
         component VirtQueueInit vm1_vm0;
@@ -60,7 +60,7 @@ assembly {
         VM_CONFIGURATION_DEF(0)
         VM_CONFIGURATION_DEF(1)
         VM_CONFIGURATION_DEF(2)
-        VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0,1,2)
+        //VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0,1,2)
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
@@ -92,6 +92,7 @@ assembly {
         vm0.recv1_shmem_size = 8192;
         vm0.send1_id = 1;
         vm0.send1_shmem_size = 8192;
+
         /* VM0-VM2 virtqueue configurations */
         vm0.recv2_id = 2;
         vm0.recv2_shmem_size = 8192;
@@ -116,6 +117,5 @@ assembly {
 
         vm2_vm0.init_topology = [{ "drv" : "vm0.send2", "dev" : "vm2.recv1"},
                                  { "drv" : "vm2.send1", "dev" : "vm0.recv2"}];
-
     }
 }
