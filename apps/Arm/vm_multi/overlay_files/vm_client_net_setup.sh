@@ -7,5 +7,5 @@
 
 set -e
 
-ifconfig eth0 up
+ip link set up dev eth0
 udhcpc -i eth0

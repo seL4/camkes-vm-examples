@@ -7,9 +7,10 @@
 
 set -e
 
-ifconfig eth0 up
-ifconfig eth1 up
-brctl addbr br0
-brctl addif br0 eth0
-brctl addif br0 eth1
+ip link add name br0 type bridge
+ip link set up dev br0
+ip link set up dev eth0
+ip link set up dev eth1
+ip link set master br0 dev eth0
+ip link set master br0 dev eth1
 udhcpc -i br0

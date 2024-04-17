@@ -38,13 +38,13 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
         };
         vm0.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
-            "dtb_name" : "",
+            "linux_bootcmdline" : "node=vm0",
+            "linux_stdout" : "/pl011@9000000",
             "initrd_name" : "linux-initrd-vm0",
         };
         vm0.dtb = dtb([
                         {"path": "/pcie@10000000"},
+                        {"path": "/pl011@9000000"},
                     ]);
         vm0.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
@@ -67,9 +67,7 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
         };
         vm1.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
-            "dtb_name" : "",
+            "linux_bootcmdline" : "node=vm1",
             "initrd_name" : "linux-initrd-vm-client",
         };
         vm1.mmios = [
@@ -90,9 +88,7 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
         };
         vm2.linux_image_config = {
-            "linux_bootcmdline" : "console=hvc0 nosmp rw debug loglevel=8 pci=nomsi,realloc=off,bios initcall_blacklist=clk_disable_unused",
-            "linux_stdout" : "hvc0",
-            "dtb_name" : "",
+            "linux_bootcmdline" : "node=vm2",
             "initrd_name" : "linux-initrd-vm-client",
         };
         vm2.mmios = [
