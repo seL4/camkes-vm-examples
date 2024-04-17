@@ -16,6 +16,7 @@ qemu-system-aarch64 \
     -machine virt,virtualization=on,highmem=on,secure=off \
     -cpu cortex-a53 \
     -nographic \
+    -smp 4 \
     -m size=2048 \
     -netdev tap,id=mynet0,ifname=tap0,script=no,downscript=no \
     -device e1000,netdev=mynet0,mac=52:55:00:d1:55:01 \
