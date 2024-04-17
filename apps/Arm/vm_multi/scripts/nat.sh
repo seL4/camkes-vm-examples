@@ -7,7 +7,12 @@ NETMASK=255.255.255.0
 GATEWAY=10.10.10.1
 DHCPRANGE=10.10.10.100,10.10.10.254
 
-ip addr add dev $TAP $GATEWAY/$NETMASK
+ip link show dev $TAP &> /dev/null
+if [ $? -ne 0 ]; then
+	ip tuntap add dev $TAP mode tap
+	ip link set up dev $TAP
+	ip addr add dev $TAP $GATEWAY/$NETMASK
+fi
 
 sysctl -w net.ipv4.ip_forward=1 > /dev/null 2>&1
 
