@@ -1,0 +1,6 @@
+# mkdir -p /etc/dropbear
+# cd /etc/dropbear
+# /bin/dropbearkey -t rsa -f dropbear_rsa_host_key
+kill $(ps -e | grep dropbear | awk '{print $1}')
+dropbear # -r /etc/dropbear/dropbear_rsa_host_key -s -E
+

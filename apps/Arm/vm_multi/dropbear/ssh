@@ -1,0 +1,2 @@
+dbclient -y -i /etc/dropbear/dropbear_rsa_host_key root@10.10.10.193
+

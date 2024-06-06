@@ -57,6 +57,85 @@ AddOverlayDirToRootfs(
 #    "etc"
 #    overlay_client_vm
 #)
+
+
+# Add startup dropbear script to client_vm
+AddFileToOverlayDir(
+    "authorized_keys"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/authorized_keys
+    "etc/dropbear"
+    overlay_client_vm
+)
+AddFileToOverlayDir(
+    "id_rsa.pub"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/id_rsa.pub
+    "home/root/.ssh"
+    overlay_client_vm
+)
+AddFileToOverlayDir(
+    "id_rsa"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/id_rsa
+    "home/root/.ssh"
+    overlay_client_vm
+)
+AddFileToOverlayDir(
+    "dropbear_rsa_host_key.pub"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/dropbear_rsa_host_key.pub
+    "etc/dropbear"
+    overlay_client_vm
+)
+AddFileToOverlayDir(
+    "dropbear_rsa_host_key"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/dropbear_rsa_host_key
+    "etc/dropbear"
+    overlay_client_vm
+)
+AddFileToOverlayDir(
+    "StartDropbear"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/StartDropbear
+    "etc/init.d"
+    overlay_client_vm
+)
+
+# Add startup dropbear script to vm0
+AddFileToOverlayDir(
+    "authorized_keys"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/authorized_keys
+    "etc/dropbear"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "id_rsa.pub"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/id_rsa.pub
+    "home/root/.ssh"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "id_rsa"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/id_rsa
+    "home/root/.ssh"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "dropbear_rsa_host_key.pub"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/dropbear_rsa_host_key.pub
+    "etc/dropbear"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "dropbear_rsa_host_key"
+    ${CMAKE_CURRENT_SOURCE_DIR}/dropbear/dropbear_rsa_host_key
+    "etc/dropbear"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "StartDropbear"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/StartDropbear
+    "etc/init.d"
+    overlay_vm0
+)
+
+
 AddFileToOverlayDir(
     "S90client_net_vm"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup.sh
