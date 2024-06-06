@@ -89,27 +89,27 @@ assembly {
 
         /* VM0-VM1 virtqueue configurations */
         vm0.recv1_id = 0;
-        vm0.recv1_shmem_size = 8192;
+        vm0.recv1_shmem_size = 81920;
         vm0.send1_id = 1;
-        vm0.send1_shmem_size = 8192;
+        vm0.send1_shmem_size = 81920;
 
         /* VM0-VM2 virtqueue configurations */
         vm0.recv2_id = 2;
-        vm0.recv2_shmem_size = 8192;
+        vm0.recv2_shmem_size = 81920;
         vm0.send2_id = 3;
-        vm0.send2_shmem_size = 8192;
+        vm0.send2_shmem_size = 81920;
 
         /* VM1 virtqueue configurations */
         vm1.recv1_id = 0;
-        vm1.recv1_shmem_size = 8192;
+        vm1.recv1_shmem_size = 81920;
         vm1.send1_id = 1;
-        vm1.send1_shmem_size = 8192;
+        vm1.send1_shmem_size = 81920;
 
         /* VM2 virtqueue configurations */
         vm2.recv1_id = 0;
-        vm2.recv1_shmem_size = 8192;
+        vm2.recv1_shmem_size = 81920;
         vm2.send1_id = 1;
-        vm2.send1_shmem_size = 8192;
+        vm2.send1_shmem_size = 81920;
 
         /* Virtqueue Topology */
         vm1_vm0.init_topology = [{ "drv" : "vm0.send1", "dev" : "vm1.recv1"},
