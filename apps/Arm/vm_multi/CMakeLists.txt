@@ -136,6 +136,70 @@ AddFileToOverlayDir(
 )
 
 
+
+AddFileToOverlayDir(
+    ".profile"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/.profile
+    "root"
+    overlay_client_vm
+)
+
+AddFileToOverlayDir(
+    ".profile"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/.profile
+    "root"
+    overlay_vm0
+)
+
+AddFileToOverlayDir(
+    "hosts"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
+    "etc"
+    overlay_client_vm
+)
+
+AddFileToOverlayDir(
+    "hosts"
+    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
+    "etc"
+    overlay_vm0
+)
+
+
+
+AddFileToOverlayDir(
+    "generate-client-vlan"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/generate-client-vlan
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "silent"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/vnfs/silent
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "connect-vlans"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/connect-vlans
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "setup"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/orchestration/setup
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
+    "config.yml"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/config.yml
+    "root"
+    overlay_vm0
+)
+
+
+
 AddFileToOverlayDir(
     "S90client_net_vm"
     ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup.sh

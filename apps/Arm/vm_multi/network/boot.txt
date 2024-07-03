@@ -1,0 +1,36 @@
+- Boot process:
+    - Read the config file
+        - Pop an error if it isn't there
+    - Read how many nodes are requested
+    - See if we can allocate enough nodes
+        - Report to logs if not
+        - Exit
+    - Assign names to each of the nodes
+    - Determine the number of links needed to get the network running
+        - This is going to determine the number of vlans we need
+            - Need routing 
+    - Determine where all the links need to pass through to get forwarded to the output
+    - Set up the different links:
+        1) Go to start of connection and set up vlan link
+        2) Go to first item in through and set up vlan link in and out
+        3) Repeat step 2 with all the p
+    - Set up the forwarding in the control node
+        1) Iterate through the links and set a forwarding path for the start and end
+            - Possibly bi-directional. Shouldn't have to adjust anything but flags though
+    - Determine the "functional nodes"
+    - Determine what functionality is executing on what functional node
+    - Set up the functionality programs
+        NOTE: These should take the vids as arguments to make life easier
+        NOTE: These need to be stand alone binaries / scripts for QoL
+            Would be nice if the can execute from the openvswitch node, but we'll get there 
+            eventually
+    - QED
+
+
+
+
+NOTE: Should add a debug and randomization mode for vlan ids so they can just increase 
+    monotonically for ease of use
+
+NOTE: Bidirectionality on the links is enforced at the openvswitch level
+

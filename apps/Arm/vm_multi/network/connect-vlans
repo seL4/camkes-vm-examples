@@ -1,0 +1,88 @@
+#!/bin/sh
+
+bridge=""
+vid1=""
+vid2=""
+type=""
+
+
+# Help menu
+show_help() {
+    echo "Enable forwarding between two vlan tags on the current node"
+    echo
+    echo "Usage: $0 [options] bridge vid1 vid2"
+    echo
+    echo "Options:"
+    echo "  --uni,   Allow unidirectional flow (default)"
+    echo "  --bi,    Allow bidirectional flow"
+    echo "  --br,    Specify the bridge to apply this flow to"
+    echo "  --vid1,  Specify the vlan id to forward from"
+    echo "  --vid2,  Specify the vlan id to forward to"
+    echo "  --help,  Print this help menu"
+}
+
+
+# Parse CLI flag arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --bi)
+        type="bidirectional"
+        shift
+        ;;
+    --uni)
+        type="unidirectional"
+        shift
+        ;;
+    --br)
+        shift
+        bridge="$1"
+        shift
+        ;;
+    --vid1)
+        shift
+        vid1="$1"
+        shift
+        ;;
+    --vid2)
+        shift
+        vid2="$1"
+        shift
+        ;;
+    --help)
+        show_help
+        exit 0
+        ;;
+  esac
+done
+
+
+# Parse positional arguments
+if [[ -z $bridge && $# -ge 1 ]]; then
+    bridge="$1"
+    shift
+fi
+if [[ -z $vid1 && $# -ge 1 ]]; then
+    vid1="$1"
+    shift
+fi
+if [[ -z $vid2 && $# -ge 1 ]]; then
+    vid2="$1"
+    shift
+fi
+
+
+# Verify we have all the arguments
+if [[ -z $bridge || -z $vid1 || -z $vid2 ]]; then
+    echo "Error: bridge, vid1, and vid2 are required."
+    show_help
+    exit 1
+fi
+
+
+# Set up forwarding flows
+ovs-ofctl add-flow br0 "in_port=eth0,dl_vlan=$vid1,actions=mod_vlan_vid:$vid2,output:eth0"
+
+if [ "$type" = "bidirectional" ]; then
+    ovs-ofctl add-flow br0 "in_port=eth0,dl_vlan=$vid2,actions=mod_vlan_vid:$vid1,output:eth0"
+fi
+

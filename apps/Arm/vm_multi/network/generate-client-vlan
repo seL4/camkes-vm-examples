@@ -1,0 +1,93 @@
+#!/bin/sh
+
+node=""
+dev=eth0
+vid=""
+ip=""
+
+
+# Help menu
+show_help() {
+    echo "Adds a new vlan on a remote device"
+    echo
+    echo "Usage: $0 [options] node dev ip vid"
+    echo
+    echo "Options:"
+    echo "  --node,  Specify the node to add a vlan on"
+    echo "  --dev,   Specify the interface the vlan is on (default is eth0)"
+    echo "  --ip,    Specify IP and subnet of the new vlan network"
+    echo "              Ex: 192.168.10.1/24"
+    echo "  --vid,   Specify the vlan id for the new network"
+    echo "  --help,  Print this help menu"
+}
+
+
+# Parse CLI
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --node)
+        shift
+        node="$1"
+        shift
+        ;;
+    --dev)
+        shift
+        dev="$1"
+        shift
+        ;;
+    --ip)
+        shift
+        ip="$1"
+        shift
+        ;;
+    --vid)
+        shift
+        vid="$1"
+        shift
+        ;;
+    --help)
+        show_help
+        exit 0
+        ;;
+  esac
+done
+
+
+# Parse positional arguments
+if [[ -z $node && $# -ge 1 ]]; then
+    node="$1"
+    shift
+fi
+if [[ -z $dev && $# -ge 1 ]]; then
+    dev="$1"
+    shift
+fi
+if [[ -z $ip && $# -ge 1 ]]; then
+    ip="$1"
+    shift
+fi
+if [[ -z $vid && $# -ge 1 ]]; then
+    vid="$1"
+    shift
+fi
+
+
+# Verify we have all the arguments
+if [[ -z $node || -z $dev || -z $ip || -z $vid ]]; then
+    echo "Error: node, dev, ip, and vid are required."
+    show_help
+    exit 1
+fi
+
+# Add new vlan on remote device
+sshpass -p "root" dbclient -y "$node" "ip link add link $dev name $dev.$vid type vlan id $vid"
+echo sshpass -p "root" dbclient -y "$node" "ip link add link $dev name $dev.$vid type vlan id $vid"
+
+sshpass -p "root" dbclient -y $node "ip link set dev $dev.$vid up"
+echo sshpass -p "root" dbclient -y $node "ip link set dev $dev.$vid up"
+
+
+sshpass -p "root" dbclient -y $node "ip addr add $ip dev $dev.$vid"
+echo sshpass -p "root" dbclient -y $node "ip addr add $ip dev $dev.$vid"
+
+
