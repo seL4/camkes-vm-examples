@@ -36,7 +36,7 @@ set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 #)
 AddFileToOverlayDir(
     "S90bridge_setup"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm0_bridge_setup.sh
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm0_bridge_setup_ovs_vlan.sh
     "etc/init.d"
     overlay_vm0
 )
@@ -202,7 +202,7 @@ AddFileToOverlayDir(
 
 AddFileToOverlayDir(
     "S90client_net_vm"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup.sh
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup_vlan.sh
     "etc/init.d"
     overlay_client_vm
 )
