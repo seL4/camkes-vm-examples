@@ -6,57 +6,54 @@
 
 #include <configurations/vm.h>
 
-#define VM_RAM_OFFSET 0x00000000
-#define VM_INITRD_MAX_SIZE 0x3200000 //50 MB
+//#define VM_INITRD_MAX_SIZE 0x3200000 //50 MB
+#define VM_INITRD_MAX_SIZE  0xc800000 //200 MB
+#define VM_DTB_OFFSET       0x1000000 // 16 MB below the end of RAM
 
-// #define VM0_RAM_BASE 0x38000000
-// #define VM0_RAM_SIZE 0x8000000
-// #define VM0_DTB_ADDR 0x3f000000 //VM4_RAM_BASE + 0x7000000
-// #define VM0_INITRD_ADDR 0x3be00000 //VM4_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM_DTB_ADDR(ram_base, ram_size, offset) \
+    ((unsigned long)ram_base + (unsigned long)ram_size - (unsigned long)offset)
+#define VM_INITRD_ADDR(dtb_addr, initrd_max_size) \
+    ((unsigned long)(dtb_addr) - (unsigned long)initrd_max_size)
 
-#define VM0_RAM_BASE 0x40000000
-#define VM0_RAM_SIZE 0x8000000
-#define VM0_DTB_ADDR 0x47000000 //VM0_RAM_BASE + 0x7000000
-#define VM0_INITRD_ADDR 0x43e00000 //VM0_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM0_RAM_BASE        0x40000000
+#define VM0_RAM_SIZE        0x20000000 // 2<^29 == 512MB
+#define VM0_DTB_ADDR        VM_DTB_ADDR(VM0_RAM_BASE, VM0_RAM_SIZE, VM_DTB_OFFSET)
+#define VM0_INITRD_ADDR     VM_INITRD_ADDR(VM0_DTB_ADDR, VM_INITRD_MAX_SIZE)
 
-#define VM1_RAM_BASE 0x48000000
-#define VM1_RAM_SIZE 0x8000000
-#define VM1_DTB_ADDR 0x4f000000 //VM1_RAM_BASE + 0x7000000
-#define VM1_INITRD_ADDR 0x4be00000 //VM1_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM1_RAM_BASE        0x60000000
+#define VM1_RAM_SIZE        0x20000000 // 2<^29 == 512MB
+#define VM1_DTB_ADDR        VM_DTB_ADDR(VM1_RAM_BASE, VM1_RAM_SIZE, VM_DTB_OFFSET)
+#define VM1_INITRD_ADDR     VM_INITRD_ADDR(VM1_DTB_ADDR, VM_INITRD_MAX_SIZE)
 
-#define VM2_RAM_BASE 0x50000000
-#define VM2_RAM_SIZE 0x8000000
-#define VM2_DTB_ADDR 0x57000000 //VM2_RAM_BASE + 0x7000000
-#define VM2_INITRD_ADDR 0x53e00000 //VM2_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM2_RAM_BASE        0x80000000
+#define VM2_RAM_SIZE        0x20000000 // 2<^29 == 512MB
+#define VM2_DTB_ADDR        VM_DTB_ADDR(VM2_RAM_BASE, VM2_RAM_SIZE, VM_DTB_OFFSET)
+#define VM2_INITRD_ADDR     VM_INITRD_ADDR(VM2_DTB_ADDR, VM_INITRD_MAX_SIZE)
 
-#define VM3_RAM_BASE 0x58000000
-#define VM3_RAM_SIZE 0x8000000
-#define VM3_DTB_ADDR 0x5f000000 //VM3_RAM_BASE + 0x7000000
-#define VM3_INITRD_ADDR 0x5be00000 //VM3_DTB_ADDR - VM_INITRD_MAX_SIZE
-
-// #define VM4_RAM_BASE 0x60000000
-// #define VM4_RAM_SIZE 0x8000000
-// #define VM4_DTB_ADDR 0x67000000 //VM4_RAM_BASE + 0x7000000
-// #define VM4_INITRD_ADDR 0x63e00000 //VM4_DTB_ADDR - VM_INITRD_MAX_SIZE
+#define VM3_RAM_BASE        0xa00000000
+#define VM3_RAM_SIZE        0x20000000 // 2<^29 == 512MB
+#define VM3_DTB_ADDR        VM_DTB_ADDR(VM3_RAM_BASE, VM2_RAM_SIZE, VM_DTB_OFFSET)
+#define VM3_INITRD_ADDR     VM_INITRD_ADDR(VM3_DTB_ADDR, VM_INITRD_MAX_SIZE)
 
 assembly {
     composition {}
     configuration {
 
-        vm0.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm0.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM0_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM0_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM0_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
         };
-        vm0.linux_image_config = {
-            "linux_bootcmdline" : "node=vm0",
-            "linux_stdout" : "/pl011@9000000",
+        vm0.vm_image_config = {
+            "kernel_bootcmdline" : "node=vm0 pci=nomsi", // pci=nomsi is a MUST for passthrough VM
+            "kernel_stdout" : "/pl011@9000000",
             "initrd_name" : "linux-initrd-vm0",
+            "generate_dtb": true,
+            "provide_dtb" : false,
         };
+
         vm0.dtb = dtb([
                         {"path": "/pcie@10000000"},
                         {"path": "/pl011@9000000"},
@@ -66,102 +63,76 @@ assembly {
         ];
         vm0.untyped_mmios = [
                     /* TODO: QEMU PCI addresses could change - ideally need to decode from pcie node */
+                    "0x10000000:18", // QEMU PCI MMIO
                     "0x10040000:17", // QEMU PCI MMIO
                     "0x3eff0000:16", // QEMU PCI IO ports
-                    "0x40000000:27", // Linux kernel memory regions
+                    "0x40000000:29", // Linux kernel memory regions
                     ];
         vm0.dtb_irqs = [35, 36, 37, 38];
 
-
-
-        vm1.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm1.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM1_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM1_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM1_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM1_INITRD_ADDR),
         };
-        vm1.linux_image_config = {
-            "linux_bootcmdline" : "node=vm1",
+        vm1.vm_image_config = {
+            "kernel_bootcmdline" : "node=vm1 vlan=100",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb": true,
+            "provide_dtb" : false,
         };
+
         vm1.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
         ];
         vm1.untyped_mmios = [
-                    "0x48000000:27", // Linux kernel memory regions
+                    "0x60000000:29", // Linux kernel memory regions
         ];
         vm1.dtb = dtb([{}]);
 
-
-
-        vm2.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm2.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM2_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM2_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM2_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM2_INITRD_ADDR),
         };
-        vm2.linux_image_config = {
-            "linux_bootcmdline" : "node=vm2",
+        vm2.vm_image_config = {
+            "kernel_bootcmdline" : "node=vm2 vlan=101",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb": true,
+            "provide_dtb" : false,
         };
         vm2.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
         ];
         vm2.untyped_mmios = [
-                    "0x50000000:27", // Linux kernel memory regions
+                    "0x80000000:29", // Linux kernel memory regions
         ];
         vm2.dtb = dtb([{}]);
 
-
-
-        vm3.linux_address_config = {
-            "linux_ram_base" : VAR_STRINGIZE(VM3_RAM_BASE),
-            "linux_ram_paddr_base" : VAR_STRINGIZE(VM3_RAM_BASE),
-            "linux_ram_size" : VAR_STRINGIZE(VM3_RAM_SIZE),
-            "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
+        vm3.vm_address_config = {
+            "ram_base" : VAR_STRINGIZE(VM3_RAM_BASE),
+            "ram_paddr_base" : VAR_STRINGIZE(VM3_RAM_BASE),
+            "ram_size" : VAR_STRINGIZE(VM3_RAM_SIZE),
             "dtb_addr" : VAR_STRINGIZE(VM3_DTB_ADDR),
-            "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
             "initrd_addr" : VAR_STRINGIZE(VM3_INITRD_ADDR),
         };
-        vm3.linux_image_config = {
-            "linux_bootcmdline" : "node=vm3",
+        vm3.vm_image_config = {
+            "kernel_bootcmdline" : "node=vm3 vlan=102",
             "initrd_name" : "linux-initrd-vm-client",
+            "generate_dtb": true,
+            "provide_dtb" : false,
         };
         vm3.mmios = [
                     "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
         ];
         vm3.untyped_mmios = [
-                    "0x58000000:27", // Linux kernel memory regions
+                    "0xa0000000:29", // Linux kernel memory regions
         ];
         vm3.dtb = dtb([{}]);
 
-
-
-        // vm4.linux_address_config = {
-        //     "linux_ram_base" : VAR_STRINGIZE(VM4_RAM_BASE),
-        //     "linux_ram_paddr_base" : VAR_STRINGIZE(VM4_RAM_BASE),
-        //     "linux_ram_size" : VAR_STRINGIZE(VM4_RAM_SIZE),
-        //     "linux_ram_offset" : VAR_STRINGIZE(VM_RAM_OFFSET),
-        //     "dtb_addr" : VAR_STRINGIZE(VM4_DTB_ADDR),
-        //     "initrd_max_size" : VAR_STRINGIZE(VM_INITRD_MAX_SIZE),
-        //     "initrd_addr" : VAR_STRINGIZE(VM4_INITRD_ADDR),
-        // };
-        // vm4.linux_image_config = {
-        //     "linux_bootcmdline" : "node=vm4",
-        //     "initrd_name" : "linux-initrd-vm-client",
-        // };
-        // vm4.mmios = [
-        //             "0x8040000:0x1000:12", // Interrupt Controller Virtual CPU interface (Virtual Machine view)
-        // ];
-        // vm4.untyped_mmios = [
-        //             "0x60000000:27", // Linux kernel memory regions
-        // ];
-        // vm4.dtb = dtb([{}]);
     }
 }
