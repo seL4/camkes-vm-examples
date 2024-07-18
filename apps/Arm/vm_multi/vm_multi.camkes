@@ -28,6 +28,8 @@ component VM {
     maybe uses VirtQueueDrv send1;
     maybe uses VirtQueueDev recv2;
     maybe uses VirtQueueDrv send2;
+    maybe uses VirtQueueDev recv3;
+    maybe uses VirtQueueDrv send3;
     attribute vswitch_mapping vswitch_layout[] = [];
     attribute string vswitch_mac_address = "";
 }
@@ -37,43 +39,49 @@ assembly {
         /* Boilerplate composition settings */
         VM_GENERAL_COMPOSITION_DEF()
 
-        /* Other standard VM defintions (vm0, vm1, vm1) */
+        /* Other standard VM defintions (vm0, vm1, vm2) */
         VM_COMPOSITION_DEF(0)
         VM_COMPOSITION_DEF(1)
         VM_COMPOSITION_DEF(2)
+        VM_COMPOSITION_DEF(3)
         /* vm0,vm1 & vm2 serial connections */
         // VM_VIRTUAL_SERIAL_COMPOSITION_DEF(0,1,2)
 
         /* vm0-[vm1,vm2] connection */
         component VirtQueueInit vm1_vm0;
         component VirtQueueInit vm2_vm0;
+        component VirtQueueInit vm3_vm0;
         connection seL4VirtQueues vm1_vm0_conn(to vm1_vm0.init, from vm0.send1, from vm0.recv1, from vm1.send1, from vm1.recv1);
         connection seL4VirtQueues vm2_vm0_conn(to vm2_vm0.init, from vm0.recv2, from vm0.send2, from vm2.recv1, from vm2.send1);
+        connection seL4VirtQueues vm3_vm0_conn(to vm3_vm0.init, from vm0.recv3, from vm0.send3, from vm3.recv1, from vm3.send1);
 
         /* DTB Passthrough */
         connection seL4VMDTBPassthrough vm0_dtb(from vm0.dtb_self, to vm0.dtb);
         connection seL4VMDTBPassthrough vm1_dtb(from vm1.dtb_self, to vm1.dtb);
         connection seL4VMDTBPassthrough vm2_dtb(from vm2.dtb_self, to vm2.dtb);
+        connection seL4VMDTBPassthrough vm3_dtb(from vm3.dtb_self, to vm3.dtb);
     }
     configuration {
         VM_GENERAL_CONFIGURATION_DEF()
         VM_CONFIGURATION_DEF(0)
         VM_CONFIGURATION_DEF(1)
         VM_CONFIGURATION_DEF(2)
-        //VM_VIRTUAL_SERIAL_CONFIGURATION_DEF(0,1,2)
+        VM_CONFIGURATION_DEF(3)
 
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
-        vm0.cnode_size_bits = 18;
+        vm0.cnode_size_bits = 19;
         vm0.simple_untyped21_pool = 12;
         vm0.simple_untyped12_pool = 12;
         vm0.vswitch_mac_address = "02:00:00:00:AA:01";
         vm0.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:02", "recv_id": 0, "send_id":1},
-                              {"mac_addr": "02:00:00:00:AA:03", "recv_id": 2, "send_id":3}];
+                              {"mac_addr": "02:00:00:00:AA:03", "recv_id": 2, "send_id":3},
+                              {"mac_addr": "02:00:00:00:AA:04", "recv_id": 4, "send_id":5},
+                              ];
 
         vm1.num_extra_frame_caps = 0;
         vm1.extra_frame_map_address = 0;
-        vm1.cnode_size_bits = 18;
+        vm1.cnode_size_bits = 19;
         vm1.simple_untyped21_pool = 12;
         vm1.simple_untyped12_pool = 12;
         vm1.vswitch_mac_address = "02:00:00:00:AA:02";
@@ -81,11 +89,19 @@ assembly {
 
         vm2.num_extra_frame_caps = 0;
         vm2.extra_frame_map_address = 0;
-        vm2.cnode_size_bits = 18;
+        vm2.cnode_size_bits = 19;
         vm2.simple_untyped21_pool = 12;
         vm2.simple_untyped12_pool = 12;
         vm2.vswitch_mac_address = "02:00:00:00:AA:03";
         vm2.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "recv_id": 0, "send_id":1}];
+
+        vm3.num_extra_frame_caps = 0;
+        vm3.extra_frame_map_address = 0;
+        vm3.cnode_size_bits = 19;
+        vm3.simple_untyped21_pool = 512;
+        vm3.simple_untyped12_pool = 12;
+        vm3.vswitch_mac_address = "02:00:00:00:AA:04";
+        vm3.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "recv_id": 0, "send_id":1}];
 
         /* VM0-VM1 virtqueue configurations */
         vm0.recv1_id = 0;
@@ -99,6 +115,12 @@ assembly {
         vm0.send2_id = 3;
         vm0.send2_shmem_size = 81920;
 
+        /* VM0-VM3 virtqueue configurations */
+        vm0.recv3_id = 4;
+        vm0.recv3_shmem_size = 81920;
+        vm0.send3_id = 5;
+        vm0.send3_shmem_size = 81920;
+
         /* VM1 virtqueue configurations */
         vm1.recv1_id = 0;
         vm1.recv1_shmem_size = 81920;
@@ -111,11 +133,20 @@ assembly {
         vm2.send1_id = 1;
         vm2.send1_shmem_size = 81920;
 
+        /* VM3 virtqueue configurations */
+        vm3.recv1_id = 0;
+        vm3.recv1_shmem_size = 81920;
+        vm3.send1_id = 1;
+        vm3.send1_shmem_size = 81920;
+
         /* Virtqueue Topology */
         vm1_vm0.init_topology = [{ "drv" : "vm0.send1", "dev" : "vm1.recv1"},
                                  { "drv" : "vm1.send1", "dev" : "vm0.recv1"}];
 
         vm2_vm0.init_topology = [{ "drv" : "vm0.send2", "dev" : "vm2.recv1"},
                                  { "drv" : "vm2.send1", "dev" : "vm0.recv2"}];
-    }
+
+        vm3_vm0.init_topology = [{ "drv" : "vm0.send3", "dev" : "vm3.recv1"},
+                                 { "drv" : "vm3.send1", "dev" : "vm0.recv3"}];
+     }
 }

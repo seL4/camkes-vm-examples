@@ -1,0 +1,37 @@
+clusters:
+  cluster1: # These are comments
+    
+    settings:
+      link_type_default: bidirectional
+
+    nodes:
+      - testing # Node that can access the outside world
+      - testing2
+
+    connections:
+      - from: testing
+        through:
+          - silent
+          - silent2
+        to: external
+        type: unidirectional
+      - from: testing
+        through: 
+          - silent
+        to: testing2
+
+    functionality:
+      - external
+      - silent
+      - silent2
+
+topology: # These are comments
+  settings:
+    link_type_default: bidirectional
+
+  links:
+    - from: cluster1.testing
+      to: cluster2.random
+
+debug:
+  order_vlans: true

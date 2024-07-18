@@ -32,7 +32,7 @@ if(${PLATFORM} STREQUAL "odroidc2")
 endif()
 if(${PLATFORM} STREQUAL "qemu-arm-virt")
     # force cpu
-    set(QEMU_MEMORY "2048")
+    set(QEMU_MEMORY "4096")
     set(KernelArmCPU cortex-a53 CACHE STRING "" FORCE)
     set(VmInitRdFile ON CACHE BOOL "" FORCE)
 endif()

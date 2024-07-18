@@ -1,0 +1,117 @@
+
+dev=eth0
+tag1=100
+tag2=200
+type="bidirectional"
+node=""
+
+# Help menu
+show_help() {
+    echo "Makes a node silently forward vlan packets from one network to another using vanilla linux on a remote host"
+    echo
+    echo "Usage: $0 [options] node dev vid1 vid2"
+    echo
+    echo "Options:"
+    echo "  --bi,    Allow bidirectional flow (default)"
+    echo "  --uni,   Allow unidirectional flow"
+    echo "  --dev,   Specify the device to apply this flow to"
+    echo "  --vid1,  Specify the vlan id to forward from"
+    echo "  --vid2,  Specify the vlan id to forward to"
+    echo "  --help,  Print this help menu"
+}
+
+
+# Parse CLI flag arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --bi)
+        type="bidirectional"
+        shift
+        ;;
+    --uni)
+        type="unidirectional"
+        shift
+        ;;
+    --dev)
+        shift
+        dev="$1"
+        shift
+        ;;
+    --vid1)
+        shift
+        vid1="$1"
+        shift
+        ;;
+    --vid2)
+        shift
+        vid2="$1"
+        shift
+        ;;
+    --node)
+        shift
+        node="$1"
+        shift
+        ;;
+    --help)
+        show_help
+        exit 0
+        ;;
+  esac
+done
+
+
+# Parse positional arguments
+if [[ -z $node && $# -ge 1 ]]; then
+    node="$1"
+    shift
+fi
+
+if [[ -z $dev&& $# -ge 1 ]]; then
+    bridge="$1"
+    shift
+fi
+if [[ -z $vid1 && $# -ge 1 ]]; then
+    vid1="$1"
+    shift
+fi
+if [[ -z $vid2 && $# -ge 1 ]]; then
+    vid2="$1"
+    shift
+fi
+
+
+# Verify we have all the arguments
+if [[ -z $node || -z $dev || -z $vid1 || -z $vid2 ]]; then
+    echo "Error: node, dev, vid1, and vid2 are required."
+    show_help
+    exit 1
+fi
+
+
+# Create VLAN interfaces
+sshpass -p "root" dbclient -y "$node" "ip link add link $dev name $dev.$tag1 type vlan id $tag1"
+sshpass -p "root" dbclient -y "$node" "ip link add link $dev name $dev.$tag2 type vlan id $tag2"
+
+# Bring up interfaces
+sshpass -p "root" dbclient -y "$node" "ip link set $dev up"
+sshpass -p "root" dbclient -y "$node" "ip link set $dev.$tag1 up"
+sshpass -p "root" dbclient -y "$node" "ip link set $dev.$tag2 up"
+
+# Create a bridge and add interfaces
+sshpass -p "root" dbclient -y "$node" "ip link add name br0 type bridge"
+sshpass -p "root" dbclient -y "$node" "ip link set br0 up"
+sshpass -p "root" dbclient -y "$node" "ip link set $dev.$tag1 master br0"
+sshpass -p "root" dbclient -y "$node" "ip link set $dev.$tag2 master br0"
+
+# Set up forwarding rules
+sshpass -p "root" dbclient -y "$node" "iptables -t nat -A PREROUTING -i $dev.$tag1 -j DNAT --to-destination $dev.$tag2"
+sshpass -p "root" dbclient -y "$node" "iptables -A FORWARD -i $dev.$tag1 -o $dev.$tag2 -j ACCEPT"
+sshpass -p "root" dbclient -y "$node" "iptables -A FORWARD -i $dev.$tag2 -o $dev.$tag1 -m state --state ESTABLISHED,RELATED -j ACCEPT"
+
+# Add the reverse direction if necessary
+if [ "$type" = "bidirectional" ]; then
+    sshpass -p "root" dbclient -y "$node" "iptables -t nat -A PREROUTING -i $dev.$tag2 -j DNAT --to-destination $dev.$tag1"
+    sshpass -p "root" dbclient -y "$node" "iptables -A FORWARD -i $dev.$tag2 -o $dev.$tag1 -j ACCEPT"
+    sshpass -p "root" dbclient -y "$node" "iptables -A FORWARD -i $dev.$tag1 -o $dev.$tag2 -m state --state ESTABLISHED,RELATED -j ACCEPT"
+fi
+

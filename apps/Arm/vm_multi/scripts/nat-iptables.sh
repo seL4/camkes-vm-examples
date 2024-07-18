@@ -5,7 +5,7 @@ EGRESS=eth0
 NETWORK=10.10.10.0
 NETMASK=255.255.255.0
 GATEWAY=10.10.10.1
-DHCPRANGE=10.10.10.100,10.10.10.254
+DHCPRANGE=10.10.10.2,10.10.10.254
 
 ip link show dev $TAP &> /dev/null
 if [ $? -ne 0 ]; then
