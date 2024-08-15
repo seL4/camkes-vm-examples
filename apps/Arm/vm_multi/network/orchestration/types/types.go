@@ -19,11 +19,12 @@ type NodeInfo struct {
 
 type DebugInfo struct {
     OrderVlans bool    `yaml:"order_vlans"`
+    Verbose    bool    `yaml:"verbose"`
 }
 
 type Cluster struct {
     Settings      Settings      `yaml:"settings"`
-    Nodes         []string       `yaml:"nodes"`
+    Nodes         []string      `yaml:"nodes"`
     Connections   []Connection  `yaml:"connections"`
     Functionality []string      `yaml:"functionality"`
 }
@@ -54,3 +55,10 @@ type Config struct {
     ClusterTopology Topology           `yaml:"topology"`
     Debug           DebugInfo          `yaml:"debug"`
 }
+
+type IPInfo struct {
+    Sel4Name     string
+    UserIP       string
+    UserName     string    
+}
+

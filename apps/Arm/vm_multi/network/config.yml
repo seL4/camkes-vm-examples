@@ -13,12 +13,14 @@ clusters:
         through:
           - silent
           - silent2
-        to: external
+        to: testing2
         type: unidirectional
+
       - from: testing
         through: 
           - silent
-        to: testing2
+        to: external
+        type: unidirectional
 
     functionality:
       - external
@@ -35,3 +37,4 @@ topology: # These are comments
 
 debug:
   order_vlans: true
+  verbose: true

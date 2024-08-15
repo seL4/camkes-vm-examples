@@ -86,8 +86,6 @@ echo sshpass -p "root" dbclient -y "$node" "ip link add link $dev name $dev.$vid
 sshpass -p "root" dbclient -y $node "ip link set dev $dev.$vid up"
 echo sshpass -p "root" dbclient -y $node "ip link set dev $dev.$vid up"
 
-
 sshpass -p "root" dbclient -y $node "ip addr add $ip dev $dev.$vid"
 echo sshpass -p "root" dbclient -y $node "ip addr add $ip dev $dev.$vid"
-
 

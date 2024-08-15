@@ -6,9 +6,16 @@
 #
 
 set -e
- 
+
+# mkdir -p /etc/dhcp/
+# touch /etc/dhcp/dhclient.conf
+
+vm_name=$(cat /proc/cmdline | awk '{print $1}' | awk '{print substr($0, 6)}')
+
+# echo "$vm_name" >> /etc/dhcp/dhclient.conf
+
 ip link set up dev eth0
-udhcpc -i eth0
+udhcpc -i eth0 -x hostname:$vm_name
 
 # ip link set up dev eth0
 # 

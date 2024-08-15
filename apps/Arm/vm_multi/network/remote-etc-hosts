@@ -1,0 +1,72 @@
+#!/bin/sh
+
+host_ip=""
+etc_ip=""
+etc_host=""
+
+
+# Help menu
+show_help() {
+    echo "Adds an entry into /etc/hosts on a remote host"
+    echo
+    echo "Usage: $0 [options] remote host ip"
+    echo
+    echo "Options:"
+    echo "  --remote,  Specify the node the /etc/hosts entry on"
+    echo "  --host,    Specify host the IP address should resolve for"
+    echo "  --ip,      Specify the IP address of the entry"
+    echo
+}
+
+
+# Parse CLI
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --remote)
+        shift
+        host_ip="$1"
+        shift
+        ;;
+    --host)
+        shift
+        etc_host="$1"
+        shift
+        ;;
+    --ip)
+        shift
+        etc_ip="$1"
+        shift
+        ;;
+    --help)
+        show_help
+        exit 0
+        ;;
+  esac
+done
+
+if [[ -z $host_ip && $# -ge 1 ]]; then
+    host_ip="$1"
+    shift
+fi
+if [[ -z $etc_host && $# -ge 1 ]]; then
+    etc_host="$1"
+    shift
+fi
+if [[ -z $etc_ip && $# -ge 1 ]]; then
+    etc_ip="$1"
+    shift
+fi
+
+
+# Verify we have all the arguments
+if [[ -z $host_ip || -z $etc_host || -z $etc_ip ]]; then
+    echo "Error: remote, host, and ip, are required."
+    show_help
+    exit 1
+fi
+
+# Add new vlan on remote device
+sshpass -p "root" dbclient -y "$host_ip" "echo $etc_ip $etc_host | tee -a /etc/hosts > /dev/null"
+echo sshpass -p "root" dbclient -y "$host_ip" "echo $etc_ip $etc_host | tee -a /etc/hosts > /dev/null"
+
+

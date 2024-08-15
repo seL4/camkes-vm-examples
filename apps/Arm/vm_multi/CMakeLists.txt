@@ -36,7 +36,7 @@ set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 #)
 AddFileToOverlayDir(
     "S90bridge_setup"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm0_bridge_setup_ovs_vlan.sh
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm0_bridge_setup.sh
     "etc/init.d"
     overlay_vm0
 )
@@ -151,19 +151,19 @@ AddFileToOverlayDir(
     overlay_vm0
 )
 
-AddFileToOverlayDir(
-    "hosts"
-    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
-    "etc"
-    overlay_client_vm
-)
-
-AddFileToOverlayDir(
-    "hosts"
-    ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
-    "etc"
-    overlay_vm0
-)
+# AddFileToOverlayDir(
+#     "hosts"
+#     ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
+#     "etc"
+#     overlay_client_vm
+# )
+# 
+# AddFileToOverlayDir(
+#     "hosts"
+#     ${CMAKE_CURRENT_SOURCE_DIR}/scripts/hosts
+#     "etc"
+#     overlay_vm0
+# )
 
 
 
@@ -186,6 +186,12 @@ AddFileToOverlayDir(
     overlay_vm0
 )
 AddFileToOverlayDir(
+    "remote-etc-hosts"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/remote-etc-hosts
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
     "setup"
     ${CMAKE_CURRENT_SOURCE_DIR}/network/orchestration/setup
     "root"
@@ -202,7 +208,7 @@ AddFileToOverlayDir(
 
 AddFileToOverlayDir(
     "S90client_net_vm"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup_vlan.sh
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/vm_client_net_setup.sh
     "etc/init.d"
     overlay_client_vm
 )
