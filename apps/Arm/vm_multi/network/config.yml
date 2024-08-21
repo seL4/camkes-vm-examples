@@ -1,39 +1,19 @@
-clusters:
-  cluster1: # These are comments
-    
-    settings:
-      link_type_default: bidirectional
-
-    nodes:
-      - testing # Node that can access the outside world
-      - testing2
-
-    connections:
-      - from: testing
-        through:
-          - silent
-          - silent2
-        to: testing2
-        type: unidirectional
-
-      - from: testing
-        through: 
-          - silent
-        to: external
-        type: unidirectional
-
-    functionality:
-      - external
-      - silent
-      - silent2
-
-topology: # These are comments
-  settings:
-    link_type_default: bidirectional
-
-  links:
-    - from: cluster1.testing
-      to: cluster2.random
+data_paths:
+  name:
+    ingest: # Just wireguard settings
+      InterfaceName: wg0 # Will default to its order in the build list, if not provided
+      PrivateKey: /etc/wireguard/privkey
+      Address: 10.198.10.113
+      ListenPort: 5891
+      peers:
+        Name:
+            PublicKeys: t1A4mXWKHd2R3zlnDaDoFx/bCTHEz/FP6CK1PpdVzBs= #pubkey for example-wg-priv.txt
+            AllowedIPs: 
+              - 10.198.10.1/24
+            Endpoint: 10.10.10.1:5891
+    functions:
+      silent:
+        tmp: testing
 
 debug:
   order_vlans: true

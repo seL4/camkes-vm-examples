@@ -168,6 +168,12 @@ AddFileToOverlayDir(
 
 
 AddFileToOverlayDir(
+    "wireguard-interface.sh"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/wireguard-interface.sh
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
     "generate-client-vlan"
     ${CMAKE_CURRENT_SOURCE_DIR}/network/generate-client-vlan
     "root"
@@ -205,6 +211,13 @@ AddFileToOverlayDir(
 )
 
 
+
+AddFileToOverlayDir(
+    "privkey"
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/wg-privkey
+    "etc/wireguard"
+    overlay_vm0
+)
 
 AddFileToOverlayDir(
     "S90client_net_vm"

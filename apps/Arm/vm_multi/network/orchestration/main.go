@@ -1,24 +1,21 @@
 package main
 
 import (
+    "fmt"
     "orchestration/helpers"
     "orchestration/types"
-    "orchestration/functionality"
-    "orchestration/nodes"
-    "orchestration/network"
-    "orchestration/build"
+    "orchestration/wireguard"
+    // "orchestration/functionality"
+    // "orchestration/nodes"
+    // "orchestration/network"
+    // "orchestration/build"
 )
 
-type FunctionalityInfo = types.FunctionalityInfo
-type NodeInfo = types.NodeInfo
-type DebugInfo  = types.DebugInfo
-type Cluster  = types.Cluster
-type Settings  = types.Settings
-type Connection  = types.Connection
-type Topology  = types.Topology
-type Link  = types.Link
+// type FunctionalityInfo = types.FunctionalityInfo
+// type NodeInfo = types.NodeInfo
+// type DebugInfo  = types.DebugInfo
 type Config  = types.Config
-type IPInfo = types.IPInfo
+// type IPInfo = types.IPInfo
 
 
 
@@ -26,6 +23,7 @@ type IPInfo = types.IPInfo
 func main() {
 
     config_file := "/root/config.yml"
+    // config_file := "/home/test/capsule-dev/camkes-vm-examples-manifest/projects/vm-examples/apps/Arm/vm_multi/network/config.yml"
 
     // Read the config file
     var network_settings Config
@@ -38,6 +36,47 @@ func main() {
     }
     
 
+    dataPathNumber := 0
+    for name, settings := range network_settings.DataPaths {
+        helpers.LogE("Setting up Data Path:", name)
+
+        // Write wireguard config file
+        wireguard.StartWireGuard(settings.Ingest, dataPathNumber, network_settings.Debug)
+
+
+        // Give each function a unique vlan tag
+        // TODO: Add catching vlan tag overflow
+        vid_index := 2; // 1 is reserved for management
+        for function_name, function_settings := range network_settings.DataPaths[name].Functions {
+            if vid_index + 1 >= 4096 { 
+                helpers.LogE("Error. Too many vlans required for this configuration. Quitting.");
+            }
+            new_vids := [2]int{vid_index, vid_index + 1}
+            function_settings.VIDS = new_vids
+            network_settings.DataPaths[name].Functions[function_name] = function_settings
+        }
+
+        // Create connections for all openvswitch pairs in functionality
+
+
+
+        // Create IP addresses for ingest nodes
+
+
+
+
+        fmt.Println(settings)
+
+
+        dataPathNumber++
+    }
+
+
+    // Deploy the data paths (since there are no errors)
+
+    fmt.Println(network_settings)
+    
+/*
     // Generate an array to hold functionality info and map to go from user name to important info
     functionality_map := make(map[string]*FunctionalityInfo)
 
@@ -194,6 +233,7 @@ func main() {
             return
         }
     }
+    */
 }
 
 

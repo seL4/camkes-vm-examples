@@ -69,4 +69,3 @@ func get_connected_nodes(filename string) ([]NodeInfo, error) {
     return nodes, nil
 }
 
-
