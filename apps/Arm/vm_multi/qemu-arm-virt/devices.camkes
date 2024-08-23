@@ -47,7 +47,7 @@ assembly {
             "initrd_addr" : VAR_STRINGIZE(VM0_INITRD_ADDR),
         };
         vm0.vm_image_config = {
-            "kernel_bootcmdline" : "node=vm0 pci=nomsi", // pci=nomsi is a MUST for passthrough VM
+            "kernel_bootcmdline" : "node=vm0 pci=nomsi console=ttyAMA0", // pci=nomsi is a MUST for passthrough VM
             "kernel_stdout" : "/pl011@9000000",
             "initrd_name" : "linux-initrd-vm0",
             "generate_dtb": true,

@@ -6,6 +6,8 @@
 
 #include <configurations/vm.h>
 
+#define SHMEM_SIZE (0x1 << 24)
+
 import <std_connector.camkes>;
 import <global-connectors.camkes>;
 import <seL4VMDTBPassthrough.idl4>;
@@ -68,6 +70,7 @@ assembly {
         VM_CONFIGURATION_DEF(2)
         VM_CONFIGURATION_DEF(3)
 
+        vm0.vm_name = "vm0";
         vm0.num_extra_frame_caps = 0;
         vm0.extra_frame_map_address = 0;
         vm0.cnode_size_bits = 19;
@@ -79,6 +82,7 @@ assembly {
                               {"mac_addr": "02:00:00:00:AA:04", "recv_id": 4, "send_id":5},
                               ];
 
+        vm1.vm_name = "vm1";
         vm1.num_extra_frame_caps = 0;
         vm1.extra_frame_map_address = 0;
         vm1.cnode_size_bits = 19;
@@ -86,7 +90,9 @@ assembly {
         vm1.simple_untyped12_pool = 12;
         vm1.vswitch_mac_address = "02:00:00:00:AA:02";
         vm1.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "recv_id": 0, "send_id":1}];
+        vm1.affinity = 1;
 
+        vm2.vm_name = "vm2";
         vm2.num_extra_frame_caps = 0;
         vm2.extra_frame_map_address = 0;
         vm2.cnode_size_bits = 19;
@@ -94,7 +100,9 @@ assembly {
         vm2.simple_untyped12_pool = 12;
         vm2.vswitch_mac_address = "02:00:00:00:AA:03";
         vm2.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "recv_id": 0, "send_id":1}];
+        vm2.affinity = 2;
 
+        vm3.vm_name = "vm3";
         vm3.num_extra_frame_caps = 0;
         vm3.extra_frame_map_address = 0;
         vm3.cnode_size_bits = 19;
@@ -102,42 +110,43 @@ assembly {
         vm3.simple_untyped12_pool = 12;
         vm3.vswitch_mac_address = "02:00:00:00:AA:04";
         vm3.vswitch_layout = [{"mac_addr": "02:00:00:00:AA:01", "recv_id": 0, "send_id":1}];
+        vm3.affinity = 3;
 
         /* VM0-VM1 virtqueue configurations */
         vm0.recv1_id = 0;
-        vm0.recv1_shmem_size = 81920;
+        vm0.recv1_shmem_size = SHMEM_SIZE;
         vm0.send1_id = 1;
-        vm0.send1_shmem_size = 81920;
+        vm0.send1_shmem_size = SHMEM_SIZE;
 
         /* VM0-VM2 virtqueue configurations */
         vm0.recv2_id = 2;
-        vm0.recv2_shmem_size = 81920;
+        vm0.recv2_shmem_size = SHMEM_SIZE;
         vm0.send2_id = 3;
-        vm0.send2_shmem_size = 81920;
+        vm0.send2_shmem_size = SHMEM_SIZE;
 
         /* VM0-VM3 virtqueue configurations */
         vm0.recv3_id = 4;
-        vm0.recv3_shmem_size = 81920;
+        vm0.recv3_shmem_size = SHMEM_SIZE;
         vm0.send3_id = 5;
-        vm0.send3_shmem_size = 81920;
+        vm0.send3_shmem_size = SHMEM_SIZE;
 
         /* VM1 virtqueue configurations */
         vm1.recv1_id = 0;
-        vm1.recv1_shmem_size = 81920;
+        vm1.recv1_shmem_size = SHMEM_SIZE;
         vm1.send1_id = 1;
-        vm1.send1_shmem_size = 81920;
+        vm1.send1_shmem_size = SHMEM_SIZE;
 
         /* VM2 virtqueue configurations */
         vm2.recv1_id = 0;
-        vm2.recv1_shmem_size = 81920;
+        vm2.recv1_shmem_size = SHMEM_SIZE;
         vm2.send1_id = 1;
-        vm2.send1_shmem_size = 81920;
+        vm2.send1_shmem_size = SHMEM_SIZE;
 
         /* VM3 virtqueue configurations */
         vm3.recv1_id = 0;
-        vm3.recv1_shmem_size = 81920;
+        vm3.recv1_shmem_size = SHMEM_SIZE;
         vm3.send1_id = 1;
-        vm3.send1_shmem_size = 81920;
+        vm3.send1_shmem_size = SHMEM_SIZE;
 
         /* Virtqueue Topology */
         vm1_vm0.init_topology = [{ "drv" : "vm0.send1", "dev" : "vm1.recv1"},
