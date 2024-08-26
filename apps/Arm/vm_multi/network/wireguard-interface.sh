@@ -55,53 +55,37 @@ while [[ $# -gt 0 ]]; do
 done
 
 
-sub_net="$(echo "10.198.10.1" | sed 's/^[0-9]*\.[0-9]*\.[0-9]*\.//').0/24"
-
+sub_net="$(echo $addr | sed 's/^[0-9]*\.[0-9]*\.[0-9]*\.//').0/24"
 
 
 # Set pubkey in wireguard
 echo wg pubkey < $PrivateKey
 wg pubkey < $PrivateKey
 
-
 # Add a wireguard interface
-echo ip link add dev $InterfaceName type wireguard
-ip link add dev $InterfaceName type wireguard
+echo ip link add dev "$InterfaceName" type wireguard
+ip link add dev "$InterfaceName" type wireguard
 
 # Add address for wireguard (used internally in wireguard comms)
-echo ip address add dev $InterfaceName $Address
-ip address add dev $InterfaceName $Address
+echo ip address add $Address/24 dev "$InterfaceName"
+ip address add $Address/24 dev "$InterfaceName"
 
 # Set interface UP
-echo ip link set $InterfaceName up
-ip link set $InterfaceName up
+echo ip link set "$InterfaceName" up
+ip link set "$InterfaceName" up
 
 # Set up route for easy resolution
-echo ip route add $sub_net dev wg0 proto kernel scope link src $Address
-ip route add $sub_net dev wg0 proto kernel scope link src $Address
+echo ip route add "$sub_net" dev wg0 proto kernel scope link src "$Address"
+ip route add "$sub_net" dev wg0 proto kernel scope link src "$Address"
 
 # Set the priv key from wireguard instance
-echo wg set $InterfaceName private-key $PrivateKey
-wg set $InterfaceName private-key $PrivateKey
+echo wg set "$InterfaceName" private-key "$PrivateKey"
+wg set "$InterfaceName" private-key "$PrivateKey"
 
 # Specify port inbound communication needs to come from
-echo wg set $InterfaceName listen-port $ListenPort
-wg set $InterfaceName listen-port $ListenPort
+echo wg set "$InterfaceName" listen-port "$ListenPort"
+wg set "$InterfaceName" listen-port "$ListenPort"
 
 
 echo "Wireface setup complete"
-
-
-# Allow a remote peer
-# wg set wg0 peer $peer_pubkey allowed-ips $peer_wg_ip endpoint $peer_real_ip:$peer_real_port
-
-# Contact remote host. Everything is set up now
-# ping 10.0.0.2
-
-
-
-# sudo wg set wg0 peer RSg/jyvPHmGtmt+8cHT/XwQfJbfYQydRCNJb/x+KjRY= allowed-ips 0.0.0.0/0,::/0 endpoint 10.10.10.113:5891 persistent-keepalive 25
-# sudo ip route add 10.192.10.0/32 dev wg0 via 10.192.10.1
-
-
 

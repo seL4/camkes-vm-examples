@@ -13,8 +13,7 @@ type Cluster  = types.Cluster
 type Settings  = types.Settings
 type Connection  = types.Connection
 type Topology  = types.Topology
-type Link  = types.Link
-type Config  = types.Config
+type Link  = types.Link type Config  = types.Config
 type IPInfo = types.IPInfo
 
 

@@ -7,30 +7,16 @@ import (
     "orchestration/types"
 )
 
-type FunctionalityInfo = types.FunctionalityInfo
+// type FunctionalityInfo = types.FunctionalityInfo
 type NodeInfo = types.NodeInfo
-type DebugInfo  = types.DebugInfo
-type Cluster  = types.Cluster
-type Settings  = types.Settings
-type Connection  = types.Connection
-type Topology  = types.Topology
-type Link  = types.Link
-type Config  = types.Config
+// type DebugInfo  = types.DebugInfo
+// type Cluster  = types.Cluster
+// type Settings  = types.Settings
+// type Connection  = types.Connection
+// type Topology  = types.Topology
+// type Link  = types.Link
+// type Config  = types.Config
 
-
-func AssignUserNodeNamesToAvailableSel4Nodes(UserNodeNames []string, available_nodes []NodeInfo, names_to_nodes map[string]*NodeInfo, index int) (int, []NodeInfo, map[string]*NodeInfo) {
-
-    for _, node := range UserNodeNames {
-        // Set the user determined name
-        available_nodes[index].Name = node
-        // Create a mapping from user defined names to sel4 info. Makes building links easier
-        names_to_nodes[node] = &available_nodes[index]
-        // Move to next node
-        index++
-    }
-
-    return index, available_nodes, names_to_nodes
-}
 
 // Wrapper in case we want to add some logic here that isn't just return all connected nodes
 func GetAvailableNodes(filename string) ([]NodeInfo, error) {
@@ -68,4 +54,22 @@ func get_connected_nodes(filename string) ([]NodeInfo, error) {
     // Print the number of lines
     return nodes, nil
 }
+/*
+
+func AssignUserNodeNamesToAvailableSel4Nodes(UserNodeNames []string, available_nodes []NodeInfo, names_to_nodes map[string]*NodeInfo, index int) (int, []NodeInfo, map[string]*NodeInfo) {
+
+    for _, node := range UserNodeNames {
+        // Set the user determined name
+        available_nodes[index].Name = node
+        // Create a mapping from user defined names to sel4 info. Makes building links easier
+        names_to_nodes[node] = &available_nodes[index]
+        // Move to next node
+        index++
+    }
+
+    return index, available_nodes, names_to_nodes
+}
+
+
+*/
 

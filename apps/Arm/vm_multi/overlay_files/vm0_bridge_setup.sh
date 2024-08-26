@@ -40,11 +40,6 @@ dnsmasq \
     --dhcp-no-override
 
 
-# Set up exit to the outside world
-ip link set up dev eth1
-ip link add link eth1 name eth1.1000 type vlan id 1000
-udhcpc -i eth1.1000 > /tmp/dhcp 2> /tmp/dhcp
-
 # Forward data to the bridge and from the bridge. Going to have flows happen in bridge space
 ovs-ofctl del-flows br0
 ovs-ofctl add-flow br0 "priority=100,in_port=eth0 actions=output:br0"

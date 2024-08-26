@@ -186,6 +186,12 @@ AddFileToOverlayDir(
     overlay_vm0
 )
 AddFileToOverlayDir(
+    "build-router.sh"
+    ${CMAKE_CURRENT_SOURCE_DIR}/network/build-router.sh
+    "root"
+    overlay_vm0
+)
+AddFileToOverlayDir(
     "connect-vlans"
     ${CMAKE_CURRENT_SOURCE_DIR}/network/connect-vlans
     "root"

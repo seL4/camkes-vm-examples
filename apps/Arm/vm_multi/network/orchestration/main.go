@@ -1,21 +1,22 @@
 package main
 
 import (
-    "fmt"
+    // "fmt"
     "orchestration/helpers"
     "orchestration/types"
     "orchestration/wireguard"
-    // "orchestration/functionality"
-    // "orchestration/nodes"
+    "orchestration/functionality"
+    "orchestration/nodes"
+    "orchestration/build"
     // "orchestration/network"
-    // "orchestration/build"
 )
 
-// type FunctionalityInfo = types.FunctionalityInfo
-// type NodeInfo = types.NodeInfo
+type FunctionalityInfo = types.FunctionalityInfo
+type NodeInfo = types.NodeInfo
 // type DebugInfo  = types.DebugInfo
 type Config  = types.Config
 // type IPInfo = types.IPInfo
+type CrossPathFunctionalityMap = types.CrossPathFunctionalityMap
 
 
 
@@ -36,45 +37,99 @@ func main() {
     }
     
 
+    // Initialize the CrossPathFunctionality
+    network_settings.CrossPathFunctionality = make(CrossPathFunctionalityMap)
+
+
+    // Get physical nodes to allocate VNF functionality to
+    var available_nodes []NodeInfo
+
+    lease_file := "/var/run/dnsmasq-br0.leases"
+
+    available_nodes, err = nodes.GetAvailableNodes(lease_file)
+    if err != nil {
+        helpers.LogE("Error finding the number of connected nodes.", err, "Exiting")
+        return
+    }
+    if len(available_nodes) == 0 {
+        helpers.LogE("No available nodes on the network. Exiting")
+        return
+    }
+
+    // Set up /etc/hosts for ease of use
+    err = build.EtcHosts(available_nodes)
+    if err != nil {
+        helpers.LogE("Error updaing /etc/hosts.", err, "Exiting")
+        return
+    }
+
+
+    // Give each function a unique vlan tag in and out
+    vid_index := 2; // 1 is reserved for management
+
     dataPathNumber := 0
+
     for name, settings := range network_settings.DataPaths {
         helpers.LogE("Setting up Data Path:", name)
+
+        // Set ingest VID. Wireguard will forward to this VLAN
+        settings.Ingest.VID = vid_index
 
         // Write wireguard config file
         wireguard.StartWireGuard(settings.Ingest, dataPathNumber, network_settings.Debug)
 
 
-        // Give each function a unique vlan tag
-        // TODO: Add catching vlan tag overflow
-        vid_index := 2; // 1 is reserved for management
+        last_vid := 0;  // Used to make internal connections. init @ 0 so only internal. Reset for each datapath
         for function_name, function_settings := range network_settings.DataPaths[name].Functions {
             if vid_index + 1 >= 4096 { 
                 helpers.LogE("Error. Too many vlans required for this configuration. Quitting.");
+                return
             }
-            new_vids := [2]int{vid_index, vid_index + 1}
-            function_settings.VIDS = new_vids
+
+            // Assign VIDs to a given function
+            new_vids := []int{vid_index, vid_index + 1}
+            function_settings.VIDs = new_vids
+
+            // Assign this functionality to a node
+            if functionality.RequiresCrossPathAbility(function_name) {
+                tmp, err := functionality.AddCrossPathFunctionality(network_settings, function_name, function_settings, settings, available_nodes, new_vids)
+                if err != nil {
+                    helpers.LogE(err)
+                    return
+                }
+                network_settings = tmp
+            } else {
+                function_settings = functionality.AssignFunctionalityToInfraNode(function_settings, available_nodes)
+            }
+
             network_settings.DataPaths[name].Functions[function_name] = function_settings
+
+
+            // Create connections for all openvswitch pairs in functionality
+            // Used last_vid to make the necessary connections
+            // Using zero as init value for last_vid so we only create internal connections
+            if last_vid > 0 {
+                settings.Connections =  append(network_settings.DataPaths[name].Connections, [2]int{last_vid, vid_index})
+                network_settings.DataPaths[name] = settings
+            }
+
+            last_vid = vid_index + 1 // Outbound VID path
+            // increment vid_index to prevent overlap
+            vid_index += 2
+
         }
-
-        // Create connections for all openvswitch pairs in functionality
-
-
-
-        // Create IP addresses for ingest nodes
-
-
-
-
-        fmt.Println(settings)
-
 
         dataPathNumber++
     }
 
-
     // Deploy the data paths (since there are no errors)
+    for _, settings := range network_settings.DataPaths {
+        build.IngestVlanForwarding(settings.Ingest.InterfaceName, settings.Ingest.VID)
+        build.IsolatedDataPath(settings.Functions,  settings.Connections)
+    }
 
-    fmt.Println(network_settings)
+    build.CrossDataPathNodes(network_settings.CrossPathFunctionality)
+
     
 /*
     // Generate an array to hold functionality info and map to go from user name to important info

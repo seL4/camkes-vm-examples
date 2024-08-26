@@ -56,7 +56,7 @@ func BuildWireGuardConfig(settings IngestInfo, path_num int, debug DebugInfo) bo
         // Write Allowed IPs section
         allowed_ip_string := "AllowedIPs = "
         for _, ip := range peer_settings.AllowedIPs {
-            ip := ip[:len(ip) - 3] // remove subnet mask
+            // ip := ip[:len(ip) - 3] // remove subnet mask
             allowed_ip_string += ip + ", "
         }
         allowed_ip_string = allowed_ip_string[:len(allowed_ip_string) - 2] + "\n"
@@ -103,7 +103,7 @@ func StartWireGuard(settings IngestInfo, path_num int, debug DebugInfo) bool {
         // Build allowed ips argument string
         allowed_ips := ""
         for _, ip := range peer_settings.AllowedIPs { 
-            ip = ip[:len(ip) - 3]
+            // ip = ip[:len(ip) - 3]
             allowed_ips += ip + "," 
         }
         // remove trailing comma

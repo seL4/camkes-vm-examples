@@ -76,7 +76,7 @@ if(AppArch STREQUAL "Arm")
     if(NUM_NODES MATCHES "^[0-9]+$")
         set(KernelMaxNumNodes ${NUM_NODES} CACHE STRING "" FORCE)
     else()
-        set(KernelMaxNumNodes 1 CACHE STRING "" FORCE)
+        set(KernelMaxNumNodes 4 CACHE STRING "" FORCE)
     endif()
 
     # We dont support SMP configurations on the exynos5422, exynos5410 or TK1

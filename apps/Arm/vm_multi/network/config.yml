@@ -1,19 +1,43 @@
 data_paths:
-  name:
+  node1:
     ingest: # Just wireguard settings
-      InterfaceName: wg0 # Will default to its order in the build list, if not provided
-      PrivateKey: /etc/wireguard/privkey
-      Address: 10.198.10.113
-      ListenPort: 5891
-      peers:
-        Name:
-            PublicKeys: t1A4mXWKHd2R3zlnDaDoFx/bCTHEz/FP6CK1PpdVzBs= #pubkey for example-wg-priv.txt
-            AllowedIPs: 
-              - 10.198.10.1/24
-            Endpoint: 10.10.10.1:5891
+      # InterfaceName: wg0 # Will default to its order in the build list, if not provided
+      # PrivateKey: /etc/wireguard/privkey
+      # Address: 10.198.10.113
+      # ListenPort: 5891
+      # peers:
+      #   Name:
+      #       PublicKeys: t1A4mXWKHd2R3zlnDaDoFx/bCTHEz/FP6CK1PpdVzBs= #pubkey for example-wg-priv.txt
+      #       AllowedIPs: 
+      #         - 10.198.10.1
+      #         - 10.192.10.0/24
+      #       Endpoint: 10.10.10.1:5861
+      VID: 3000
     functions:
       silent:
         tmp: testing
+      router:
+        name: r1
+
+  node2:
+    ingest: # Just wireguard settings
+      # InterfaceName: wg1 # Will default to its order in the build list, if not provided
+      # PrivateKey: /etc/wireguard/privkey
+      # Address: 10.199.10.113
+      # ListenPort: 5892
+      # peers:
+      #   Name:
+      #       PublicKeys: t1A4mXWKHd2R3zlnDaDoFx/bCTHEz/FP6CK1PpdVzBs= #pubkey for example-wg-priv.txt
+      #       AllowedIPs: 
+      #         - 10.199.10.1
+      #       Endpoint: 10.10.10.1:5862
+      VID: 3001
+    functions:
+      silent:
+        tmp: testing
+      router:
+        name: r1
+
 
 debug:
   order_vlans: true

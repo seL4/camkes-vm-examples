@@ -46,12 +46,13 @@ func LogE(args ...interface{}) {
             case []FunctionalityInfo:
                 for _, el := range v {
                     result += fmt.Sprintf("Name: %v\n", el.Name)
-                    result += fmt.Sprintf("  Mac: %v\n", el.Mac)
-                    result += fmt.Sprintf("  Sel4Name: %v\n", el.Sel4Name)
-                    result += fmt.Sprintf("  VIDS:\n    ")
-                    for _, vid := range el.VIDs { result += fmt.Sprintf("%v,", vid) }
-                    result += "\n"
-                    result += fmt.Sprintf("  Sel4IP: %v\n\n", el.Sel4IP)
+                    // result += fmt.Sprintf("  Mac: %v\n", el.Mac)
+                    // result += fmt.Sprintf("  Sel4Name: %v\n", el.Sel4Name)
+                    // result += fmt.Sprintf("  VIDS:\n    ")
+                    // for _, vid := range el.VIDs { result += fmt.Sprintf("%v,", vid) }
+                    //result += "\n"
+                    // for _, ip := range el.Sel4IP { result +=  }
+                    // result += fmt.Sprintf("  IPs: %v\n\n", el.Sel4IP)
                 }
              case []NodeInfo:
                 for _, el := range v {

@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+# Get the kernel boot arguments
+boot_args=$(cat /proc/cmdline)
+# Extract the value of node=
+node_value=$(grep -o 'node=[^ ]*' /proc/cmdline | cut -d'=' -f2)
+# Extract value of infra node
+infra_interface=$(grep -o 'infra=[^ ]*' /proc/cmdline | cut -d'=' -f2)
+
+# Set up exit to the outside world
+ip link set up dev $infra_interface
+ip link add link $infra_interface name $infra_interface.1000 type vlan id 1000
+ip link set dev $infra_interface.1000 up
+
+udhcpc -i $infra_interface.1000 -x hostname:$node_value > /tmp/dhcp 2> /tmp/dhcp
+

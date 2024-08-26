@@ -1,11 +1,17 @@
 package types;
 
+import (
+    "gopkg.in/yaml.v3"
+)
+
 type FunctionalityInfo struct {
     Name      string    
-    Sel4Name  string
-    Mac       string
+    IPs       []string
+    Interfaces []string
+    /*
     VIDs      []int
-    Sel4IP    string
+    */
+
 }
 
 type NodeInfo struct {
@@ -28,9 +34,13 @@ type IPInfo struct {
     UserName        string    
 }
 
+// Name of kinds of service maps to name of particular service which maps to details of that service
+type CrossPathFunctionalityMap map[string]map[string]Function
+
 type Config struct {
-    DataPaths       map[string]DataPath            `yaml:"data_paths"`
-    Debug           DebugInfo                      `yaml:"debug"`
+    DataPaths                             map[string]DataPath            `yaml:"data_paths"`
+    Debug                                 DebugInfo                      `yaml:"debug"`
+    CrossPathFunctionality                CrossPathFunctionalityMap
 }
 
 
@@ -46,8 +56,28 @@ type DataPathSettings struct {
 }
 
 type Function struct {
-    Args    map[string]string                      `yaml:"args"`    // Existing function arguments
-    VIDS    [2]int                                 // Additional field not mapped from YAML
+    Args        map[string]string                      `yaml:"-"`    // Existing function arguments
+    VIDs        []int                                 // Additional field not mapped from YAML
+    Sel4Name    string
+    Mac         string
+    Sel4IP      string
+    Interfaces  []string
+    IPs         []string
+    Name        string
+}
+
+// Custom unmarshal function for Function struct
+func (f *Function) UnmarshalYAML(value *yaml.Node) error {
+    var tmp map[string]string
+
+    // Unmarshal the YAML node into a map
+    if err := value.Decode(&tmp); err != nil {
+        return err
+    }
+
+    // Store the map in the Args field
+    f.Args = tmp
+    return nil
 }
 
 type IngestInfo struct {
@@ -56,6 +86,7 @@ type IngestInfo struct {
     Address         string                         `yaml:"Address"`
     ListenPort      string                         `yaml:"ListenPort"`
     Peers           map[string]PeerInfo            `yaml:"peers"`
+    VID             int
 }
 
 type PeerInfo struct {
@@ -63,6 +94,32 @@ type PeerInfo struct {
     AllowedIPs     []string                       `yaml:"AllowedIPs"`
     Endpoint       string                         `yaml:"Endpoint"`
 }
+
+type YamlParseError struct {
+    s string
+}
+
+func (e *YamlParseError) Error() string {
+    return e.s
+}
+
+func NewYamlParseError(message string) *YamlParseError {
+    return &YamlParseError{s: message}
+}
+
+
+type CrossDataPathFunctionalityError struct {
+    s string
+}
+
+func (e *CrossDataPathFunctionalityError) Error() string {
+    return e.s
+}
+
+func NewCrossDataPathFunctionalityError(message string) *YamlParseError {
+    return &YamlParseError{s: message}
+}
+
 
 // type Functions struct {
 //     Name           String             ``

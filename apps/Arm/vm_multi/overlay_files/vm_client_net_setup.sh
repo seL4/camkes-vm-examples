@@ -15,7 +15,11 @@ vm_name=$(cat /proc/cmdline | awk '{print $1}' | awk '{print substr($0, 6)}')
 # echo "$vm_name" >> /etc/dhcp/dhclient.conf
 
 ip link set up dev eth0
-udhcpc -i eth0 -x hostname:$vm_name
+
+ip link add link eth0 name eth0.2 type vlan id 2
+ip link set dev eth0.2 up
+
+udhcpc -i eth0.2 -x hostname:$vm_name
 
 # ip link set up dev eth0
 # 
