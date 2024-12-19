@@ -16,7 +16,6 @@ include(${CAMKES_VM_LINUX_HELPERS_PATH})
 # Create our CPP Flags based on ARM VM config variables
 set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
 # Generate overlayed rootfs
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 AddFileToOverlayDir(
@@ -32,25 +31,31 @@ AddOverlayDirToRootfs(
     "buildroot"
     "rootfs_install"
     output_overlayed_rootfs_location
-    rootfs_target
+    rootfs_target # helper CMake target to be created, not used
     GZIP
 )
-AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+
 # Updated dtb based on generated initrd
 UpdateDtbFromInitrd(
     "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb-virtcon"
     ${output_overlayed_rootfs_location}
     "0x4d700000"
-    dtb_gen_target
+    dtb_gen_target # helper CMake target to be created, not used
     output_dtb_location
-    DEPENDS
-    rootfs_target
 )
-AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
 AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insecure)
 
-DefineCAmkESVMFileServer()
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper targets
+# 'rootfs_target' and 'dtb_gen_target'
+DefineCAmkESVMFileServer(
+    FILES
+    "linux:${CAMKES_VM_IMAGES_DIR}/exynos5422/linux"
+    "linux-initrd:${output_overlayed_rootfs_location}"
+    "linux-dtb:${output_dtb_location}"
+)
 
 CAmkESAddImportPath(exynos5422)
 

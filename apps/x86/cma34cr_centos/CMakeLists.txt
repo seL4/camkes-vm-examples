@@ -18,21 +18,28 @@ DeclareCAmkESVM(Init0 EXTRA_SOURCES ${init0_extra} EXTRA_LIBS ethdrivers)
 
 # Declare C162 Kernel
 DecompressLinuxKernel(
-    decompress_linux decompressed_kernel ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/bzimage
+    decompress_linux # helper CMake target to be created, not used
+    decompressed_kernel
+    ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/bzimage
 )
-AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS decompress_linux)
-
-# Declare C162 Rootfs
-AddToFileServer("rootfs.cpio" ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/rootfs.cpio)
 
 # Provided by find_package(util_libs)
 include(${LWIP_HELPERS})
 # Declare lwipopts.h include
 AddLWIPConfiguration(${CMAKE_CURRENT_SOURCE_DIR}/lwip_include)
 
-# Initialise CAmkES Root Server with addition CPP includes
-DeclareCAmkESVMRootServer(
-    cma34cr_centos.camkes
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper target
+# 'decompress_linux'.
+DefineCAmkESVMFileServer(
+    FILES "bzimage:${decompressed_kernel}"
+    "rootfs.cpio:${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/rootfs.cpio"
+)
+
+# Declare CAmkES Root Server
+DeclareCAmkESRootserver(
+    "cma34cr_centos.camkes"
     CPP_INCLUDES
     ${CAMKES_VM_DIR}/components/StringReverse/include
     ${CAMKES_VM_DIR}/components/Ethdriver/include
