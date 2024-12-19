@@ -81,10 +81,7 @@ if(AppArch STREQUAL "Arm")
 
     # We dont support SMP configurations on the exynos5422, exynos5410 or TK1
     if(
-        ("${KernelARMPlatform}" STREQUAL "exynos5422"
-         OR "${KernelARMPlatform}" STREQUAL "exynos5410"
-         OR "${KernelARMPlatform}" STREQUAL "tk1"
-         )
+        (KernelPlatformExynos5422 OR KernelPlatformExynos5410 OR KernelPlatformTK1)
         AND (${KernelMaxNumNodes} GREATER 1)
     )
         message(FATAL_ERROR "${KernelARMPlatform} does not support SMP VMs")
