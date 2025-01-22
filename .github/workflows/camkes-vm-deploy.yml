@@ -82,7 +82,7 @@ jobs:
 
   deploy:
     name: Deploy manifest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [code, hw-run]
     if: ${{ github.repository_owner == 'seL4' }}
     steps:
