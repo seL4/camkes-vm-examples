@@ -56,6 +56,11 @@ if(AppArch STREQUAL "Arm")
     # message(FATAL_ERROR "release is   ${RELEASE}")
     ApplyCommonReleaseVerificationSettings(${RELEASE} FALSE)
 
+    if (KernelSel4ArchAarch32)
+        # Set correct aarch32 TLS register config
+        set(KernelArmTLSReg tpidruro CACHE STRING "" FORCE)
+    endif()
+
     if(NOT CAMKES_VM_APP)
         message(
             FATAL_ERROR
