@@ -25,13 +25,22 @@ GetArchDefaultLinuxKernelFile("32" kernel_file)
 GetArchDefaultLinuxRootfsFile("32" rootfs_file)
 
 # Decompress Linux Kernel image
-DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
+DecompressLinuxKernel(
+    extract_linux_kernel # helper CMake target to be created, not used
+    decompressed_kernel
+    ${kernel_file}
+)
 
-# Add Linux VM images into file server
-AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
-AddToFileServer("rootfs.cpio" ${rootfs_file})
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper target
+# 'extract_linux_kernel'.
+DefineCAmkESVMFileServer(FILES "bzimage:${decompressed_kernel}" "rootfs.cpio:${rootfs_file}")
 
-# Initialise CAmkES Root Server with additional CPP includes
-DeclareCAmkESVMRootServer(
-    optiplex9020.camkes CPP_INCLUDES ${CAMKES_VM_DIR}/components/StringReverse/include
+# Declare CAmkES Root Server
+DeclareCAmkESRootserver(
+    "optiplex9020.camkes"
+    CPP_INCLUDES
+    "${VM_PROJECT_DIR}/components/VM"
+    "${CAMKES_VM_DIR}/components/StringReverse/include"
 )
