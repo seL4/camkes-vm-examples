@@ -18,18 +18,18 @@ set(cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm")
 set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-dtb")
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
 
-if("${KernelARMPlatform}" STREQUAL "exynos5422")
+if(KernelPlatformExynos5422)
     # Create our CPP Flags based on ARM VM config variables
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
     set(rootfs_address "0x4d700000")
 
-elseif("${KernelARMPlatform}" STREQUAL "tx2")
+elseif(KernelPlatformTx2)
     set(cpp_flags "-DKERNELARMPLATFORM_TX2")
     set(rootfs_address "0xf7000000")
     set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-pci-dtb")
     set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpio.gz")
 
-elseif("${KernelARMPlatform}" STREQUAL "zcu102")
+elseif(KernelPlatformZynqmpZcu102)
 
     if(NOT VmZynqmpPetalinux2022_1)
         message(FATAL_ERROR "Petalinux 2022_1 is the only supported version for this application")
@@ -56,6 +56,9 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
 
     CAmkESAddImportPath(${KernelARMPlatform}/${VmZynqmpPetalinuxVersion})
+
+else()
+    message(FATAL_ERROR "unsupported KernelARMPlatform: ${KernelARMPlatform}")
 endif()
 
 # Generate overlayed rootfs
