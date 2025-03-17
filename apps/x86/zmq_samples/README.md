@@ -28,7 +28,7 @@ Each network interface is configured as follows:
 
 ## Checkout and build
 
-See [Setting up your machine](https://docs.sel4.systems/GettingStarted.html#setting-up-your-machine) for instructions on how to set up your host machine.
+See [Setting up your machine](https://docs.sel4.systems/projects/buildsystem/host-dependencies.html) for instructions on how to set up your host machine.
 
 ```
 repo init -u https://github.com/sel4/camkes-vm-examples-manifest.git -b tipc-stage
