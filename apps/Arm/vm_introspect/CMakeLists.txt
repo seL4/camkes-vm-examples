@@ -52,6 +52,8 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
         GenerateSimulateScript()
     endif()
 
+else()
+    message(FATAL_ERROR "unsupported KernelARMPlatform: ${KernelARMPlatform}")
 endif()
 
 AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")

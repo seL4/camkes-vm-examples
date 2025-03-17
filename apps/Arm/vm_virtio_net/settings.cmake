@@ -9,6 +9,7 @@ if(NOT "${PLATFORM}" IN_LIST supported)
     message(FATAL_ERROR "PLATFORM: ${PLATFORM} not supported.
          Supported: ${supported}")
 endif()
+
 set(LibUSB OFF CACHE BOOL "" FORCE)
 set(VmPCISupport ON CACHE BOOL "" FORCE)
 if(VIRTIO_NET_PING)
@@ -19,8 +20,14 @@ endif()
 set(VmInitRdFile ON CACHE BOOL "" FORCE)
 set(VmDtbFile ON CACHE BOOL "provide dtb" FORCE)
 
-if(${PLATFORM} STREQUAL "zcu102")
+if("${PLATFORM}" STREQUAL "exynos5422")
+    # nothing special here
+elseif("${PLATFORM}" STREQUAL "tx2")
+    # nothing special here
+elseif(${PLATFORM} STREQUAL "zcu102")
     set(AARCH64 ON CACHE BOOL "" FORCE)
     set(KernelAllowSMCCalls ON CACHE BOOL "" FORCE)
     set(VmZynqmpPetalinuxVersion 2022_1 CACHE STRING "" FORCE)
+else()
+    message(FATAL_ERROR "unsupported PLATFORM: ${PLATFORM}")
 endif()
