@@ -229,7 +229,7 @@ See the below list as as a rough list of items to check off:
   * A `vmlinux.h` header for you platform. See the header file for the other supported platforms at `components/VM_Arm/plat_include` in `camkes-vm` repository.
 * Provide a pre-compiled Linux kernel and initrd image for your platform. Once compiled these are usually linked in through your apps `CMakeLists.txt`. See `apps/Arm/vm_minimal/CMakeLists.txt` for examples of how other platforms link in their images.
 
-Feel free to contact the [team](https://docs.sel4.systems/processes/#contact) for further support on porting the camkes-arm-vm to your desired platform. We are also always open to contributions for new platforms.
+Feel free to contact the [team](https://sel4.systems/contact.html) for further support on porting the camkes-arm-vm to your desired platform. We are also always open to contributions for new platforms.
 
 ### Can a single VMM component support running multiple VM's?
 
