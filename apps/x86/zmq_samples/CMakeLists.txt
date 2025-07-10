@@ -15,6 +15,7 @@ find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 if(CAKEML_FILTER)
+    set(zmq_camkes "zmq_cakeml.camkes")
     include("libs/cakeml_helpers.cmake")
 
     # Number of vms.
@@ -37,6 +38,7 @@ if(CAKEML_FILTER)
         50
     )
 else()
+    set(zmq_camkes "zmq_samples.camkes")
     # Number of vms.
     set(NumberVMs 3)
 endif()
@@ -133,39 +135,43 @@ AddZMQBinary(worker)
 AddZMQBinary(pub)
 AddZMQBinary(sub)
 
+set(rootfs_images "")
+
 foreach(i RANGE ${NumberVMsLess1})
+    set(overlay_target "overlay_vm${i}")
+    set(rootfs_target "rootfs_target_vm${i}")
     if(NOT CAKEML_FILTER)
         AddFileToOverlayDir(
             "S91zmq_bench"
             ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh
             "etc/init.d"
-            overlay_vm${i}
+            "${overlay_target}"
         )
     endif()
     # Add the buildroot overlay to our bare rootfs image
     AddOverlayDirToRootfs(
-        overlay_vm${i}
-        ${rootfs_file}
+        "${overlay_target}"
+        "${rootfs_file}"
         "buildroot"
         "rootfs_install"
-        output_rootfs_location_vm${i}
-        rootfs_target_vm${i}
+        rootfs_img
+        "${rootfs_target}" # helper CMake target to be created, not used
     )
-    AddToFileServer(
-        "vm${i}_rootfs.cpio"
-        "${output_rootfs_location_vm${i}}"
-        DEPENDS
-        rootfs_target_vm${i}
-    )
+    list(APPEND rootfs_images "vm${i}_rootfs.cpio:${rootfs_img}")
 endforeach()
 
 # Decompress Linux Kernel image and add to file server
-DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
-AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
+DecompressLinuxKernel(
+    extract_linux_kernel # helper CMake target to be created, not used
+    decompressed_kernel
+    ${kernel_file}
+)
+
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper targets
+# 'extract_linux_kernel' and each '${rootfs_target}'
+DefineCAmkESVMFileServer(FILES "bzimage:${decompressed_kernel}" "${rootfs_images}")
 
 # Initialise CAmkES Root Server with addition CPP includes
-if(CAKEML_FILTER)
-    DeclareCAmkESVMRootServer(zmq_cakeml.camkes)
-else()
-    DeclareCAmkESVMRootServer(zmq_samples.camkes)
-endif()
+DeclareCAmkESRootserver("${zmq_camkes}" CPP_INCLUDES "${VM_PROJECT_DIR}/components/VM")

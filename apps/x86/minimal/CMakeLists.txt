@@ -24,16 +24,22 @@ GetDefaultLinuxKernelFile(kernel_file)
 GetDefaultLinuxRootfsFile(rootfs_file)
 
 # Decompress Linux Kernel image and add to file server
-DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
-AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
+DecompressLinuxKernel(
+    extract_linux_kernel # helper CMake target to be created, not used
+    decompressed_kernel
+    ${kernel_file}
+)
 
-# Add rootfs images into file server
-AddToFileServer("rootfs.cpio" ${rootfs_file})
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper target
+# 'extract_linux_kernel'.
+DefineCAmkESVMFileServer(FILES "bzimage:${decompressed_kernel}" "rootfs.cpio:${rootfs_file}")
 
-# Initialise CAmkES Root Server with addition CPP includes
-DeclareCAmkESVMRootServer(minimal.camkes)
+# Declare CAmkES Root Server
+DeclareCAmkESRootserver("minimal.camkes" CPP_INCLUDES "${VM_PROJECT_DIR}/components/VM")
 
 if(SIMULATION)
-	include(simulation)
+    include(simulation)
     GenerateSimulateScript()
 endif()

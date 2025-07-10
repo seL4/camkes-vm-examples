@@ -20,11 +20,20 @@ DeclareCAmkESVM(Init0)
 
 # Declare C162 Kernel
 GetArchSpecificLinuxKernelFile("32" kernel_file)
-DecompressLinuxKernel(extract_linux_kernel decompressed_kernel ${kernel_file})
-AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
+DecompressLinuxKernel(
+    extract_linux_kernel # helper CMake target to be created, not used
+    decompressed_kernel
+    ${kernel_file}
+)
 
-# Declare C162 Rootfs
-AddToFileServer("rootfs.cpio" ${CMAKE_CURRENT_SOURCE_DIR}/ubuntu_linux/rootfs.cpio)
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper target
+# 'extract_linux_kernel'.
+DefineCAmkESVMFileServer(
+    FILES "bzimage:${decompressed_kernel}"
+    "rootfs.cpio:${CMAKE_CURRENT_SOURCE_DIR}/ubuntu_linux/rootfs.cpio"
+)
 
-# Initialise CAmkES Root Server with addition CPP includes
-DeclareCAmkESVMRootServer(cma34cr_ubuntu.camkes)
+# Declare CAmkES Root Server
+DeclareCAmkESRootserver("cma34cr_centos.camkes")

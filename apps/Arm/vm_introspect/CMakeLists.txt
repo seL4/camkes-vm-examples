@@ -54,8 +54,6 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
 
 endif()
 
-AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
-
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpio.gz")
 
 ExternalProject_Add(
@@ -104,11 +102,18 @@ AddOverlayDirToRootfs(
     "buildroot"
     "rootfs_install"
     output_overlayed_rootfs_location
-    rootfs_target
+    rootfs_target # helper CMake target to be created, not used
     GZIP
 )
 
-AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper target
+# 'rootfs_target'.
+DefineCAmkESVMFileServer(
+    FILES "linux:${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux"
+    "linux-initrd:${output_overlayed_rootfs_location}"
+)
 
 AddCamkesCPPFlag(
     cpp_flags
@@ -120,8 +125,6 @@ AddCamkesCPPFlag(
     Tk1Insecure
     VmVirtioNetVirtqueue
 )
-
-DefineCAmkESVMFileServer()
 
 CAmkESAddImportPath(${KernelARMPlatform})
 

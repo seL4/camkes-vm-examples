@@ -15,8 +15,14 @@ include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 set(cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm")
 
+# Set defaults, platform may overwrite this belwo
 set(dtb_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux-dtb")
+set(linux_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs.cpio.gz")
+
+# For some platforms, the DTB must contains the rootfs location and size.
+set(rootfs_address "")
+set(dtb_file_patched "${dtb_file}")
 
 if("${KernelARMPlatform}" STREQUAL "exynos5422")
     # Create our CPP Flags based on ARM VM config variables
@@ -35,26 +41,26 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
         message(FATAL_ERROR "Petalinux 2022_1 is the only supported version for this application")
     endif()
 
-    set(dts_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux.dts")
+    set(linux_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux")
     set(
         rootfs_file
         "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/rootfs-minimal.cpio.gz"
     )
 
+    set(dts_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux.dts")
+    set(dtb_file "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
     add_custom_command(
-        OUTPUT linux/linux-dtb
+        OUTPUT ${dtb_file}
         COMMAND
-            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+            dtc -q -I dts -O dtb -o ${dtb_file} ${dts_file}
         VERBATIM
         DEPENDS ${dts_file}
     )
-
-    # Create custom target for setting the dtb
-    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
-    AddToFileServer("linux-dtb" "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb" DEPENDS set_dtb)
+    # There is no need to create an explicit target there, any step that uses
+    # 'dtb_file' and lists it properly as dependency will make CMake run the
+    # command above to create (or update) it.
 
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
-
     CAmkESAddImportPath(${KernelARMPlatform}/${VmZynqmpPetalinuxVersion})
 endif()
 
@@ -116,27 +122,25 @@ AddOverlayDirToRootfs(
     "buildroot"
     "rootfs_install"
     output_overlayed_rootfs_location
-    rootfs_target
+    target_gen_rootfs # helper CMake target to be created, not used
     GZIP
 )
 
-AddToFileServer("linux-initrd" ${output_overlayed_rootfs_location} DEPENDS rootfs_target)
-
-if("${KernelARMPlatform}" STREQUAL "zcu102")
-    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux")
-else()
-    # Updated dtb based on generated initrd
+set(cpio_files "linux:${linux_file}" "linux-initrd:${output_overlayed_rootfs_location}")
+if(rootfs_address)
+    # Updated dtb based on generated initrd. There is no need to explicitly
+    # depend on 'target_gen_rootfs' here, there is an implicit dependency on
+    # the file that 'output_overlayed_rootfs_location' refers to.
     UpdateDtbFromInitrd(
         ${dtb_file}
         ${output_overlayed_rootfs_location}
         ${rootfs_address}
-        dtb_gen_target
-        output_dtb_location
-        DEPENDS
-        rootfs_target
+        target_gen_dtb # helper CMake target to be created, not used
+        dtb_file_patched # output, overwrite default
     )
-    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/linux")
-    AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+    list(APPEND cpio_files "linux-dtb:${dtb_file_patched}")
+else()
+    list(APPEND cpio_files "linux-dtb:${dtb_file}")
 endif()
 
 AddCamkesCPPFlag(
@@ -149,7 +153,11 @@ AddCamkesCPPFlag(
     VmVirtioNetVirtqueue
 )
 
-DefineCAmkESVMFileServer()
+# Create file server with VM images. There is an implicit dependency on the
+# input files, so the rules above will be invoked to generate/update the files.
+# There is no need to specify an explicit dependency on the helper targets
+# 'target_gen_rootfs' or 'target_gen_dtb'
+DefineCAmkESVMFileServer(FILES ${cpio_files})
 
 CAmkESAddImportPath(${KernelARMPlatform})
 
