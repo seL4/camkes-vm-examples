@@ -4,5 +4,11 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-set(PLATFORM "exynos5410" CACHE STRING "" FORCE)
-set(VmDtbFile ON CACHE BOOL "provide dtb" FORCE)
+set(PLATFORM
+    "exynos5410"
+    CACHE STRING "" FORCE
+)
+set(VmDtbFile
+    ON
+    CACHE BOOL "provide dtb" FORCE
+)

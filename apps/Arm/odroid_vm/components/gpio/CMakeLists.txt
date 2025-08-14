@@ -10,7 +10,12 @@ project(gpio C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(gpio
-    SOURCES ${sources}
-    INCLUDES include
-    LIBS app_include)
+DeclareCAmkESComponent(
+    gpio
+    SOURCES
+    ${sources}
+    INCLUDES
+    include
+    LIBS
+    app_include
+)

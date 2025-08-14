@@ -10,5 +10,4 @@ project(uart C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(uart
-    SOURCES ${sources})
+DeclareCAmkESComponent(uart SOURCES ${sources})

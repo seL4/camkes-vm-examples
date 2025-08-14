@@ -46,7 +46,10 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
 
     include(simulation)
 
-    set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
+    set(SIMULATION
+        ON
+        CACHE BOOL "Generate simulation script to run qemu with the proper arguments"
+    )
 
     if(SIMULATION)
         GenerateSimulateScript()
@@ -60,41 +63,28 @@ set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${KernelARMPlatform}/rootfs_crossvm.cpi
 
 ExternalProject_Add(
     introspect-app
-    URL
-    file:///${CAMKES_VM_LINUX_DIR}/camkes-linux-artifacts/camkes-linux-apps/camkes-introspect-app/pkgs/introspect
-    BINARY_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/introspect-app
-    INSTALL_COMMAND
-    ""
-    BUILD_ALWAYS
-    ON
-    EXCLUDE_FROM_ALL
-    CMAKE_ARGS
+    URL file:///${CAMKES_VM_LINUX_DIR}/camkes-linux-artifacts/camkes-linux-apps/camkes-introspect-app/pkgs/introspect
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/introspect-app
+    INSTALL_COMMAND ""
+    BUILD_ALWAYS ON
+    EXCLUDE_FROM_ALL CMAKE_ARGS
     -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
 )
 
 AddExternalProjFilesToOverlay(
-    introspect-app
-    ${CMAKE_CURRENT_BINARY_DIR}/introspect-app
-    overlay
-    "usr/bin"
-    FILES
-    introspect
+    introspect-app ${CMAKE_CURRENT_BINARY_DIR}/introspect-app overlay "usr/bin" FILES introspect
 )
 
 # Add script to initialise dataport module
 AddFileToOverlayDir(
     "S90crossvm_module_init"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/introspect_dataport_init
-    "etc/init.d"
+    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/introspect_dataport_init "etc/init.d"
     overlay
 )
 
 AddFileToOverlayDir(
-    "S91crossvm_test"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/introspect_vm_test
-    "etc/init.d"
-    overlay
+    "S91crossvm_test" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/introspect_vm_test
+    "etc/init.d" overlay
 )
 
 # Construct new rootfs
@@ -132,9 +122,5 @@ DeclareCAmkESComponent(introspect_memdev SOURCES component/introspect_component.
 
 # Declare root server
 DeclareCAmkESRootserver(
-    vm_introspect.camkes
-    CPP_FLAGS
-    ${cpp_flags}
-    CPP_INCLUDES
-    ${CAMKES_VM_DIR}/components/VM_Arm
+    vm_introspect.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${CAMKES_VM_DIR}/components/VM_Arm
 )

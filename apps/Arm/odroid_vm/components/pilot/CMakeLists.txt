@@ -10,6 +10,4 @@ project(pilot C)
 
 file(GLOB sources src/*.c src/aeslib/*.c)
 
-DeclareCAmkESComponent(pilot
-    SOURCES ${sources}
-    INCLUDES src/aeslib)
+DeclareCAmkESComponent(pilot SOURCES ${sources} INCLUDES src/aeslib)

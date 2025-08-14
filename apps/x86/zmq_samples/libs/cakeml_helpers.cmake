@@ -26,14 +26,7 @@ function(CakeMLPP dest_dir)
             APPEND
             PROPERTY CMAKE_CONFIGURE_DEPENDS "${source_file}"
         )
-        string(
-            REGEX
-            REPLACE
-                "Script.sml"
-                ""
-                theory_name
-                ${filename}
-        )
+        string(REGEX REPLACE "Script.sml" "" theory_name ${filename})
         set(DEPENDENCY_PATH ${theory_name})
     endforeach()
 endfunction()

@@ -10,7 +10,12 @@ project(can C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(can
-    SOURCES ${sources}
-    INCLUDES include
-    LIBS app_include)
+DeclareCAmkESComponent(
+    can
+    SOURCES
+    ${sources}
+    INCLUDES
+    include
+    LIBS
+    app_include
+)

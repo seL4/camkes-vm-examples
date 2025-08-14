@@ -10,6 +10,4 @@ project(spi C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(spi
-    SOURCES ${sources}
-    INCLUDES include)
+DeclareCAmkESComponent(spi SOURCES ${sources} INCLUDES include)

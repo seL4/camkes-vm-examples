@@ -20,10 +20,7 @@ AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux")
 # Generate overlayed rootfs
 set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/exynos5422/rootfs.cpio.gz")
 AddFileToOverlayDir(
-    "inittab"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/inittab_hvc0
-    "etc"
-    overlay
+    "inittab" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/init_scripts/inittab_hvc0 "etc" overlay
 )
 
 AddOverlayDirToRootfs(
@@ -56,9 +53,5 @@ CAmkESAddImportPath(exynos5422)
 
 # Declare root server
 DeclareCAmkESRootserver(
-    vm_serial_server.camkes
-    CPP_FLAGS
-    ${cpp_flags}
-    CPP_INCLUDES
-    ${CAMKES_VM_DIR}/components/VM_Arm
+    vm_serial_server.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${CAMKES_VM_DIR}/components/VM_Arm
 )

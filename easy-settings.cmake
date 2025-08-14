@@ -5,5 +5,8 @@
 #
 
 # set(PLATFORM "tx1" CACHE STRING "Platform to use")
-set(RELEASE OFF CACHE BOOL "Performance optimized build")
+set(RELEASE
+    OFF
+    CACHE BOOL "Performance optimized build"
+)
 # set(CAMKES_VM_APP "vm_minimal" CACHE STRING "CAmkES VM application to build")

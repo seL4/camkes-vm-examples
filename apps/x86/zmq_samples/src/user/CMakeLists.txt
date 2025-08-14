@@ -12,11 +12,10 @@ project(demoapps)
 find_package(ZeroMQ "4.2.5" EXACT)
 
 macro(create_bin name file)
-	add_executable(${name} ${file})
-	target_link_libraries(${name} -static libzmq-static)
-	install(TARGETS ${name} DESTINATION bin/)
+    add_executable(${name} ${file})
+    target_link_libraries(${name} -static libzmq-static)
+    install(TARGETS ${name} DESTINATION bin/)
 endmacro()
-
 
 create_bin(client clientserver/client.c)
 create_bin(server clientserver/server.c)
