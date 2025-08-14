@@ -10,5 +10,4 @@ project(timer C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(timer
-    SOURCES ${sources})
+DeclareCAmkESComponent(timer SOURCES ${sources})

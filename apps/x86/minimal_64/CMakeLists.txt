@@ -31,6 +31,6 @@ AddToFileServer("rootfs.cpio" ${rootfs_file})
 DeclareCAmkESVMRootServer(minimal.camkes)
 
 if(SIMULATION)
-    include(simulation)
-    GenerateSimulateScript()
+  include(simulation)
+  GenerateSimulateScript()
 endif()
