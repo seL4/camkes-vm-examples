@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 # Build a linear chain of CakeML/HOL scripts from a list of libraries
 # Each library should contain @DEPENDENCY_PATH@ wherever it refers to its parent,

@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(gpio C)
 
@@ -12,5 +12,5 @@ file(GLOB sources src/*.c)
 
 DeclareCAmkESComponent(gpio
     SOURCES ${sources}
-    INCLUDES include 
+    INCLUDES include
     LIBS app_include)
