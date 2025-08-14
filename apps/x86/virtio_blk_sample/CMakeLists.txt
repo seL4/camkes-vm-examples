@@ -29,6 +29,6 @@ AddToFileServer("rootfs.cpio" ${rootfs_file})
 DeclareCAmkESVMRootServer(virtio_blk_sample.camkes)
 
 if(SIMULATION)
-    include(simulation)
-    GenerateSimulateScript()
+  include(simulation)
+  GenerateSimulateScript()
 endif()

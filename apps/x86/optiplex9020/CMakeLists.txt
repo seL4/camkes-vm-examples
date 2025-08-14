@@ -32,6 +32,5 @@ AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS extract_linux_kernel)
 AddToFileServer("rootfs.cpio" ${rootfs_file})
 
 # Initialise CAmkES Root Server with additional CPP includes
-DeclareCAmkESVMRootServer(
-    optiplex9020.camkes CPP_INCLUDES ${CAMKES_VM_DIR}/components/StringReverse/include
-)
+DeclareCAmkESVMRootServer(optiplex9020.camkes CPP_INCLUDES
+                          ${CAMKES_VM_DIR}/components/StringReverse/include)

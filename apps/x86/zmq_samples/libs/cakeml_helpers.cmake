@@ -15,25 +15,15 @@ cmake_minimum_required(VERSION 3.16.0)
 # Usage: CakeMLPP(dest_dir source_files...)
 #        CakeMLPP(some/dest_dir dir1/firstDepScript.sml dir2/secondDepScript.sml ...)
 function(CakeMLPP dest_dir)
-    # First library should depend on camkesStart
-    set(DEPENDENCY_PATH "camkesStart")
-    foreach(source_file ${ARGN})
-        get_filename_component(filename ${source_file} NAME)
-        set(dest_file ${dest_dir}/${filename})
-        configure_file(${source_file} ${dest_file} @ONLY)
-        set_property(
-            DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
-            APPEND
-            PROPERTY CMAKE_CONFIGURE_DEPENDS "${source_file}"
-        )
-        string(
-            REGEX
-            REPLACE
-                "Script.sml"
-                ""
-                theory_name
-                ${filename}
-        )
-        set(DEPENDENCY_PATH ${theory_name})
-    endforeach()
+  # First library should depend on camkesStart
+  set(DEPENDENCY_PATH "camkesStart")
+  foreach(source_file ${ARGN})
+    get_filename_component(filename ${source_file} NAME)
+    set(dest_file ${dest_dir}/${filename})
+    configure_file(${source_file} ${dest_file} @ONLY)
+    set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
+                                                                         "${source_file}")
+    string(REGEX REPLACE "Script.sml" "" theory_name ${filename})
+    set(DEPENDENCY_PATH ${theory_name})
+  endforeach()
 endfunction()

@@ -10,5 +10,4 @@ project(pwm C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(pwm
-    SOURCES ${sources})
+DeclareCAmkESComponent(pwm SOURCES ${sources})

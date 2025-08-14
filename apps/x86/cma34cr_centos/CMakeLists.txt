@@ -17,9 +17,8 @@ file(GLOB init0_extra src/*.c)
 DeclareCAmkESVM(Init0 EXTRA_SOURCES ${init0_extra} EXTRA_LIBS ethdrivers)
 
 # Declare C162 Kernel
-DecompressLinuxKernel(
-    decompress_linux decompressed_kernel ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/bzimage
-)
+DecompressLinuxKernel(decompress_linux decompressed_kernel
+                      ${CMAKE_CURRENT_SOURCE_DIR}/centos_linux/bzimage)
 AddToFileServer("bzimage" ${decompressed_kernel} DEPENDS decompress_linux)
 
 # Declare C162 Rootfs
@@ -32,9 +31,5 @@ AddLWIPConfiguration(${CMAKE_CURRENT_SOURCE_DIR}/lwip_include)
 
 # Initialise CAmkES Root Server with addition CPP includes
 DeclareCAmkESVMRootServer(
-    cma34cr_centos.camkes
-    CPP_INCLUDES
-    ${CAMKES_VM_DIR}/components/StringReverse/include
-    ${CAMKES_VM_DIR}/components/Ethdriver/include
-    configurations
-)
+  cma34cr_centos.camkes CPP_INCLUDES ${CAMKES_VM_DIR}/components/StringReverse/include
+  ${CAMKES_VM_DIR}/components/Ethdriver/include configurations)

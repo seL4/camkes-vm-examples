@@ -10,6 +10,4 @@ project(clk C)
 
 file(GLOB sources src/*.c)
 
-DeclareCAmkESComponent(clk
-    SOURCES ${sources}
-    INCLUDES include)
+DeclareCAmkESComponent(clk SOURCES ${sources} INCLUDES include)
