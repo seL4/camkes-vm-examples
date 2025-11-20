@@ -39,7 +39,7 @@ Arm and x86 have slightly differing build instructions. See the sections below.
 The following example builds the CAmkES Arm VMM for the TK1. In the `build` directory, run:
 
 ```sh
-../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=tk1
+../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=tk1 -DAARCH64=TRUE
 ninja
 ```
 
@@ -242,7 +242,7 @@ To configure your VM with multiple VCPU's, you can set the VM instance attribute
 In addition, when initialising your build, ensure the `KernelMaxNumNodes` configuration option is set to your desired value. You can also initialise your build with variable `-DNUM_NODES` variable e.g.
 
 ```sh
-../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=tx2 -DNUM_NODES=4
+../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=tx2 -DAARCH64=TRUE -DNUM_NODES=4
 ```
 
 *Note: ensure your platform supports SMP configurations through the above feature matrix*
