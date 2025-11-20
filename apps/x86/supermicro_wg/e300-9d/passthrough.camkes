@@ -1,0 +1,76 @@
+#include "../supermicro_wg.camkes"
+
+assembly {
+    composition {}
+
+    configuration {
+        vm0.simple_untyped26_pool = 20;
+        vm0.simple_untyped24_pool = 16;
+        vm0.simple_untyped23_pool = 16;
+        vm0.simple_untyped22_pool = 12;
+        vm0.simple_untyped21_pool = 8;
+        vm0.heap_size = 0x2000000;
+        vm0.guest_ram_mb = 1024;
+
+
+        vm0.vm_ioports = [
+            {"start":0x7060, "end":0x7080, "pci_device":0, "name":"inner_eth"}
+        ];
+
+        vm0.pci_devices = [
+        {
+            "name":"inner_eth",
+            "bus":0x17,
+            "dev":0x0,
+            "fun":0,
+            "irq":"inner_eth_irq",
+            "memory":[
+                {"paddr":0xc5b00000, "size":0x00100000, "page_bits":12},  // BAR0
+                {"paddr":0xc5e0c000, "size":0x00004000, "page_bits":12},  // BAR3
+            ]
+        }
+        ];
+
+        vm0.vm_irqs = [
+            {"name":"inner_eth_irq", "ioapic":0, "source":16, "level_trig":0, "active_low":1, "dest":10}
+        ];
+
+        vm1.simple_untyped26_pool = 20;
+        vm1.simple_untyped24_pool = 16;
+        vm1.simple_untyped23_pool = 16;
+        vm1.simple_untyped22_pool = 12;
+        vm1.simple_untyped21_pool = 8;
+        vm1.heap_size = 0x2000000;
+        vm1.guest_ram_mb = 1024;
+
+        vm2.simple_untyped26_pool = 20;
+        vm2.simple_untyped24_pool = 16;
+        vm2.simple_untyped23_pool = 16;
+        vm2.simple_untyped22_pool = 12;
+        vm2.simple_untyped21_pool = 8;
+        vm2.heap_size = 0x2000000;
+        vm2.guest_ram_mb = 1024;
+
+        vm2.vm_ioports = [
+            {"start":0x7040, "end":0x7060, "pci_device":0, "name":"outer_eth"}
+        ];
+
+        vm2.pci_devices = [
+        {
+            "name":"outer_eth",
+            "bus":0x17,
+            "dev":0x0,
+            "fun":1,
+            "irq":"outer_eth_irq",
+            "memory":[
+                {"paddr":0xc5a00000, "size":0x00100000, "page_bits":12},  // BAR0
+                {"paddr":0xc5e08000, "size":0x00004000, "page_bits":12},  // BAR3
+            ]
+        }
+        ];
+
+        vm2.vm_irqs = [
+            {"name":"outer_eth_irq", "ioapic":0, "source":17, "level_trig":0, "active_low":1, "dest":11}
+        ];
+    }
+}
