@@ -30,8 +30,7 @@ if("${KernelARMPlatform}" STREQUAL "tk1")
     endif()
     add_custom_command(
         OUTPUT linux/linux-dtb
-        COMMAND
-            dtc -I dts -O dtb -o linux/linux-dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
+        COMMAND dtc -I dts -O dtb -o linux/linux-dtb ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
         VERBATIM
         DEPENDS ${CAMKES_ARM_LINUX_DIR}/${device_tree_src}
     )
@@ -59,10 +58,7 @@ elseif("${KernelARMPlatform}" STREQUAL "exynos5422")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
     UpdateDtbFromInitrd(
-        "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb"
-        ${rootfs_file}
-        "0x4d700000"
-        dtb_gen_target
+        "${CAMKES_VM_IMAGES_DIR}/exynos5422/linux-dtb" ${rootfs_file} "0x4d700000" dtb_gen_target
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
@@ -77,10 +73,7 @@ elseif("${KernelARMPlatform}" STREQUAL "tx2")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
     UpdateDtbFromInitrd(
-        "${CAMKES_VM_IMAGES_DIR}/tx2/linux-dtb"
-        ${rootfs_file}
-        "0xf7000000"
-        dtb_gen_target
+        "${CAMKES_VM_IMAGES_DIR}/tx2/linux-dtb" ${rootfs_file} "0xf7000000" dtb_gen_target
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
@@ -103,15 +96,15 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
     UpdateDtbFromInitrd(
-        "${CAMKES_VM_IMAGES_DIR}/qemu-arm-virt/linux-dtb"
-        ${rootfs_file}
-        "0x4d700000"
-        dtb_gen_target
-        output_dtb_location
+        "${CAMKES_VM_IMAGES_DIR}/qemu-arm-virt/linux-dtb" ${rootfs_file} "0x4d700000"
+        dtb_gen_target output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
     include(simulation)
-    set(SIMULATION ON CACHE BOOL "Generate simulation script to run qemu with the proper arguments")
+    set(SIMULATION
+        ON
+        CACHE BOOL "Generate simulation script to run qemu with the proper arguments"
+    )
     if(SIMULATION)
         GenerateSimulateScript()
     endif()
@@ -121,8 +114,8 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
     set(cpp_flags "-DKERNELARMPLATFORM_ODROIDC2")
 
-    set(
-        CAMKES_ROOT_DTB_FILE_PATH "${CAMKES_VM_IMAGES_DIR}/odroidc2/camkes-linux-dtb"
+    set(CAMKES_ROOT_DTB_FILE_PATH
+        "${CAMKES_VM_IMAGES_DIR}/odroidc2/camkes-linux-dtb"
         CACHE STRING ""
     )
     AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/odroidc2/linux")
@@ -130,10 +123,7 @@ elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
     AddToFileServer("linux-initrd" ${rootfs_file})
     # Updated dtb based on initrd
     UpdateDtbFromInitrd(
-        "${CAMKES_VM_IMAGES_DIR}/odroidc2/linux-dtb"
-        ${rootfs_file}
-        "0x2d700000"
-        dtb_gen_target
+        "${CAMKES_VM_IMAGES_DIR}/odroidc2/linux-dtb" ${rootfs_file} "0x2d700000" dtb_gen_target
         output_dtb_location
     )
     AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
@@ -157,8 +147,7 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
 
     add_custom_command(
         OUTPUT linux/linux-dtb
-        COMMAND
-            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+        COMMAND dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
         VERBATIM
         DEPENDS ${dts_file}
     )
