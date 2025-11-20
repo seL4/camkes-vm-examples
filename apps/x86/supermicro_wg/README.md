@@ -1,5 +1,5 @@
 
-# supermicro_wg — Secure Communication Example using WireGuard on CAmkES-VM
+# supermicro_wg — Secure Communication Example using WireGuard
 
 This application extends the existing `zmq_samples` app to demonstrate secure communication using WireGuard between two instances of an encrypter application. This guide illustrates how to deploy and test encrypted messaging on either QEMU or Supermicro E300-9D hardware. Three guest VMs are connected as shown in the diagram below, forming a virtual segmentation between the red and black domains.
 
@@ -21,12 +21,12 @@ Each network interface is configured as follows (minor changes in IP addresses e
 | VM2  | eth0       | 192.168.2.3    |                               |
 |      | eth1       | 192.168.1.10   | Outgoing traffic to Internet  |
 
-Custom init scripts are installed in each VM to automatically configure the network interfaces, routing rules, iptables, and to bring up the WireGuard tunnel.
+Custom init scripts are installed in each VM to automatically configure the network interfaces, routing rules, iptables, and bring up the WireGuard tunnel.
 These scripts reside in `scripts/configs_<WG_DEMO>/` and are copied into the VM overlay directory during the build process.
 
 
 ## Building the example
-Currently the example can be built for QEMU or Supermicro E300-9D hardware. The build process is the same for both platforms, only differing in the `PLATFORM` flag.
+Currently, the example can be built for QEMU or Supermicro E300-9D hardware. The build process is the same for both platforms, only differing in the `PLATFORM` flag.
 
 See [Setting up your machine](https://docs.sel4.systems/projects/buildsystem/host-dependencies.html) for instructions on how to set up your host machine.
 
@@ -45,7 +45,7 @@ Repeating the `init-build.sh` process for WG_DEMO=B, a setup with two nodes can 
 <img src="./figs/model.png" alt="Model" style="max-width:100%;width:500px;height:auto;display:block;margin:0 auto;">
 
 ## Running the example
-The setup requires four host tap interfaces to interconnect the VMs as shown above. Use the QEMU commands below to start each VM, running each command in its own terminal window.
+The setup requires four host tap interfaces to interconnect the VMs, as shown above. Use the QEMU commands below to start each VM, running each command in its own terminal window.
 
 ### Side A encrypter:
 ```bash
@@ -192,7 +192,7 @@ The problem found was that the `source` parameter was incorrect. Although the so
     ```c
     printf("Mapping IOAPIC %ld pin %ld to vector 0x%lx\n", (long)ioapic, (long)pin, (long)vector);
     ```
-    During the seL4 boot process, this will print all the mappings being created, we are interested in the ones that correspond to the camkes configuration.
+    During the seL4 boot process, this will print all the mappings being created; we are interested in the ones that correspond to the camkes configuration.
     ```c
     // Example output
     Mapping IOAPIC 0 pin 2 to vector 0x32
@@ -208,14 +208,14 @@ The problem found was that the `source` parameter was incorrect. Although the so
     printf("Active IRQ: %d\n", (int)(ARCH_NODE_STATE(x86KScurInterrupt) - IRQ_INT_OFFSET));
     }
     ```
-    Here you might need to filter out frequent interrupts like the clock and keyboard by adding them to the if condition (mine were 125 and 18). Now when running `ifconfig up` on the correctly configured interface the active IRQs will be printed:
+    Here, you might need to filter out frequent interrupts like the clock and keyboard by adding them to the if condition (mine were 125 and 18). Now, when running `ifconfig up` on the correctly configured interface, the active IRQs will be printed:
     ```c
     // Example output
     # ifconfig eth1 up
     Active IRQ 27 --> 27=0x1b and 0x1b+IRQ_INT_OFFSET(which is 0x20) = 0x3b = 59
     ```
 
-3. Then it was found that you can add multiple IRQ mappings to the same device (for these purposes) in camkes configuration, like this:
+3. Then it was found that you can add multiple IRQ mappings to the same device (for these purposes) in the camkes configuration, like this:
     ```c
     // Example output
     vm0.vm_irqs = [
@@ -240,7 +240,7 @@ The problem found was that the `source` parameter was incorrect. Although the so
 
 ---
 ### Details on implementation
-Current implementation uses two of the four 1GbE ports available on the Supermicro E300-9D hardware. It was intended to use the 10GbE ports in this work, but current limitations were encountered when using multiple devices with the same (ioapic,pin) configuration (it appears that the same pin cannot be mapped to multiple vectors). Booting bare-metal Linux on the hardware and checking the IRQ assignments for the six network interfaces revealed that only a pair of 1GbE interfaces does not share the same IRQ:
+Current implementation uses two of the four 1GbE ports available on the Supermicro E300-9D hardware. It was intended to use the 10GbE ports in this work, but current limitations were encountered when using multiple devices with the same (ioapic, pin) configuration (it appears that the same pin cannot be mapped to multiple vectors). Booting bare-metal Linux on the hardware and checking the IRQ assignments for the six network interfaces revealed that only a pair of 1GbE interfaces do not share the same IRQ:
 ```
 # cat /sys/bus/pci/devices/0000:b5:00.0/irq
 11
@@ -255,15 +255,15 @@ Current implementation uses two of the four 1GbE ports available on the Supermic
 # cat /sys/bus/pci/devices/0000:17:00.3/irq
 11
 ```
-The previous debug process to find out the correct IRQ was done for devices 17:00.0/1 too. For this case IRQs 10 and 11 correspond to sources 17 and 16 respectively.
+The previous debug process to find out the correct IRQ was done for devices 17:00.0/1, too. For this case, IRQs 10 and 11 correspond to sources 17 and 16, respectively.
 
 ---
-### Performance optimizations
+### Performance optimisations
 Several iperf tests were performed to evaluate throughput both on passthrough network interfaces and between VMs. The passthrough interfaces achieved around 950Mbps while the throughput between VMs was around 150Mbps. There is a significant bottleneck when transferring data between VMs that needs to be addressed for applications like this one.
 
 Fortunately, side tests using the translation vspace approach proposed in [this PR](https://github.com/seL4/seL4_projects_libs/pull/114/) were performed too. Replacing the corresponding files and enabling the `LibSel4VMUseTranslationVspace` option allowed the example to run at 8x throughput compared to the original implementation. With this modification, the throughput between VMs reached around 1.2Gbps, while the passthrough interfaces remained at 950Mbps because of the 1GbE NIC limitations.
 
 
 ## Underlying modifications
-- **projects/vm/components/VM/configurations/connections.h**: The size of virtqueues and descriptor rings were increased following the discussion in this seL4 forum thread: [Virtio-net on multicore ARM system](https://sel4.discourse.group/t/virtio-net-on-multicore-arm-system/598). This change improves performance and prevents errors when transferring large amounts of data (e.g., during iperf tests) between VMs.
+- **projects/vm/components/VM/configurations/connections.h**: The size of virtqueues and descriptor rings was increased following the discussion in this seL4 forum thread: [Virtio-net on multicore ARM system](https://sel4.discourse.group/t/virtio-net-on-multicore-arm-system/598). This change improves performance and prevents errors when transferring large amounts of data (e.g., during iperf tests) between VMs.
 - **projects/util_libs/libpci/include/pci/pci.h**: for the Supermicro E300-9D hardware, the `PCI_MAX_DEVICES` constant needs to be increased to detect all PCI devices.
