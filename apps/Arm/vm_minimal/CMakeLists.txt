@@ -84,7 +84,7 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
     # Linux images for aarch64 only. However, it is unclear if that is the only
     # blocker to get this example run in QEMU on aarch32.
     if(NOT KernelSel4ArchAarch64)
-        message(FATAL_ERROR "Only AARCH64 is supported")
+        message(FATAL_ERROR "Only AARCH64 is supported on QEMU, set -DAARCH64=TRUE")
     endif()
 
     find_package(camkes-vm-linux REQUIRED)
