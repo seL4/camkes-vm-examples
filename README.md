@@ -43,7 +43,13 @@ The following example builds the CAmkES Arm VMM for the TK1. In the `build` dire
 ninja
 ```
 
-*Note: To buid for another platform you can substitute the value of the `-DPLATFORM` variable e.g. (exynos5422, tx1, tx2, zcu102, qemu-arm-virt)*
+*Note: To buid for another platform you can substitute the value of the `-DPLATFORM` variable e.g. (exynos5422, tx1, tx2, zcu102, qemu-arm-virt)*.
+
+For instance, on QEMU (which only supports AArch64), use:
+
+```sh
+../init-build.sh -DCAMKES_VM_APP=vm_minimal -DPLATFORM=qemu-arm-virt -DAARCH64=TRUE
+```
 
 An EFI application file will be left in `images/capdl-loader-image-arm-tk1` We normally boot using TFTP, by first copying `capdl-loader-image-arm-tk1` to a tftpserver then on the U-Boot serial console doing:
 
