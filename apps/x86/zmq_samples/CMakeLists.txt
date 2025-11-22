@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(zmq_samples)
 
@@ -57,9 +57,7 @@ GetArchDefaultLinuxRootfsFile("32" rootfs_file)
 
 foreach(i RANGE ${NumberVMsLess1})
     AddFileToOverlayDir(
-        "interfaces"
-        ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_${i}
-        "etc/network"
+        "interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/scripts/network_interface_${i} "etc/network"
         overlay_vm${i}
     )
 endforeach()
@@ -70,35 +68,22 @@ FindCustomPollyToolchain(LINUX_32BIT_TOOLCHAIN "linux-gcc-32bit-pic")
 
 ExternalProject_Add(
     zmq_external
-    SOURCE_DIR
-    ${LIBZMQ_PATH}
-    BINARY_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/zmq_external
-    BUILD_ALWAYS
-    ON
-    EXCLUDE_FROM_ALL
-    CMAKE_ARGS
-    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
-    -DCMAKE_INSTALL_PREFIX=${SYSROOT}
-    -DPOLLER=epoll
-    -DWITH_PERF_TOOL=ON
-    -DBUILD_TESTS=OFF
+    SOURCE_DIR ${LIBZMQ_PATH}
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/zmq_external
+    BUILD_ALWAYS ON
+    EXCLUDE_FROM_ALL CMAKE_ARGS
+    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN} -DCMAKE_INSTALL_PREFIX=${SYSROOT}
+    -DPOLLER=epoll -DWITH_PERF_TOOL=ON -DBUILD_TESTS=OFF
 )
 
 ExternalProject_Add(
     demoapps_external
-    SOURCE_DIR
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/user
-    BINARY_DIR
-    ${CMAKE_CURRENT_BINARY_DIR}/src/user
-    DEPENDS
-    zmq_external
-    BUILD_ALWAYS
-    ON
-    EXCLUDE_FROM_ALL
-    CMAKE_ARGS
-    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN}
-    -DCMAKE_INSTALL_PREFIX=${SYSROOT}
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/user
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/src/user
+    DEPENDS zmq_external
+    BUILD_ALWAYS ON
+    EXCLUDE_FROM_ALL CMAKE_ARGS
+    -DCMAKE_TOOLCHAIN_FILE=${LINUX_32BIT_TOOLCHAIN} -DCMAKE_INSTALL_PREFIX=${SYSROOT}
 )
 
 include(external-project-helpers)
@@ -117,9 +102,7 @@ DeclareExternalProjObjectFiles(
 macro(AddZMQBinary binary_name)
     foreach(i RANGE ${NumberVMsLess1})
         AddFileToOverlayDir(
-            "${binary_name}"
-            ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name}
-            "bin/"
+            "${binary_name}" ${CMAKE_CURRENT_BINARY_DIR}/sysroot/bin/${binary_name} "bin/"
             overlay_vm${i}
         )
     endforeach()
@@ -136,26 +119,17 @@ AddZMQBinary(sub)
 foreach(i RANGE ${NumberVMsLess1})
     if(NOT CAKEML_FILTER)
         AddFileToOverlayDir(
-            "S91zmq_bench"
-            ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh
-            "etc/init.d"
+            "S91zmq_bench" ${CMAKE_CURRENT_SOURCE_DIR}/src/user/zmq_bench_${i}.sh "etc/init.d"
             overlay_vm${i}
         )
     endif()
     # Add the buildroot overlay to our bare rootfs image
     AddOverlayDirToRootfs(
-        overlay_vm${i}
-        ${rootfs_file}
-        "buildroot"
-        "rootfs_install"
-        output_rootfs_location_vm${i}
+        overlay_vm${i} ${rootfs_file} "buildroot" "rootfs_install" output_rootfs_location_vm${i}
         rootfs_target_vm${i}
     )
     AddToFileServer(
-        "vm${i}_rootfs.cpio"
-        "${output_rootfs_location_vm${i}}"
-        DEPENDS
-        rootfs_target_vm${i}
+        "vm${i}_rootfs.cpio" "${output_rootfs_location_vm${i}}" DEPENDS rootfs_target_vm${i}
     )
 endforeach()
 

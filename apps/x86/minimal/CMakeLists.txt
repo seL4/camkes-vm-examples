@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(minimal)
 
@@ -34,6 +34,6 @@ AddToFileServer("rootfs.cpio" ${rootfs_file})
 DeclareCAmkESVMRootServer(minimal.camkes)
 
 if(SIMULATION)
-	include(simulation)
+    include(simulation)
     GenerateSimulateScript()
 endif()

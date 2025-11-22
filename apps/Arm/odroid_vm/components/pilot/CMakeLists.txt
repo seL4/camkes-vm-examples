@@ -4,12 +4,10 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(pilot C)
 
 file(GLOB sources src/*.c src/aeslib/*.c)
 
-DeclareCAmkESComponent(pilot
-    SOURCES ${sources}
-    INCLUDES src/aeslib)
+DeclareCAmkESComponent(pilot SOURCES ${sources} INCLUDES src/aeslib)

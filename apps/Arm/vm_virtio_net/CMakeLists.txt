@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(camkes-vm-virtio-net C)
 
@@ -36,15 +36,13 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     endif()
 
     set(dts_file "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/linux.dts")
-    set(
-        rootfs_file
+    set(rootfs_file
         "${CAMKES_VM_IMAGES_DIR}/zynqmp/${VmZynqmpPetalinuxVersion}/rootfs-minimal.cpio.gz"
     )
 
     add_custom_command(
         OUTPUT linux/linux-dtb
-        COMMAND
-            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+        COMMAND dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
         VERBATIM
         DEPENDS ${dts_file}
     )
@@ -60,10 +58,8 @@ endif()
 
 # Generate overlayed rootfs
 AddFileToOverlayDir(
-    "interfaces"
-    ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/network_interfaces/interfaces
-    "etc/network"
-    overlay
+    "interfaces" ${CMAKE_CURRENT_SOURCE_DIR}/overlay_files/network_interfaces/interfaces
+    "etc/network" overlay
 )
 
 if(VIRTIO_NET_PING)
@@ -156,21 +152,12 @@ CAmkESAddImportPath(${KernelARMPlatform})
 # Declare root server
 if(VIRTIO_NET_PING)
     DeclareCAmkESComponent(
-        PingClient
-        SOURCES
-        components/PingClient/ping_client.c
-        LIBS
-        virtqueue
-        sel4_autoconf
+        PingClient SOURCES components/PingClient/ping_client.c LIBS virtqueue sel4_autoconf
     )
 
     DeclareCAmkESRootserver(vm_echo_ping.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${cpp_includes})
 else()
     DeclareCAmkESRootserver(
-        vm_virtio_net.camkes
-        CPP_FLAGS
-        ${cpp_flags}
-        CPP_INCLUDES
-        ${cpp_includes}
+        vm_virtio_net.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${cpp_includes}
     )
 endif()

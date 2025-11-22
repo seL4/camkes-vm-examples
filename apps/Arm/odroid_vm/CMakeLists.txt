@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: BSD-2-Clause
 #
 
-cmake_minimum_required(VERSION 3.8.2)
+cmake_minimum_required(VERSION 3.16.0)
 
 project(camkes-arm-odroid-vm C)
 
@@ -58,9 +58,5 @@ DefineCAmkESVMFileServer()
 
 # Declare odroid root server
 DeclareCAmkESRootserver(
-    vm_odroid.camkes
-    CPP_FLAGS
-    ${cpp_flags}
-    CPP_INCLUDES
-    ${CAMKES_VM_DIR}/components/VM_Arm
+    vm_odroid.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${CAMKES_VM_DIR}/components/VM_Arm
 )
