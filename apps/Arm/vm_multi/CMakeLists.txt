@@ -13,7 +13,7 @@ find_package(camkes-vm-linux REQUIRED)
 include(${CAMKES_VM_LINUX_HELPERS_PATH})
 
 if("${PLATFORM}" STREQUAL "exynos5422")
-# Create our CPP Flags based on ARM VM config variables
+    # Create our CPP Flags based on ARM VM config variables
     set(cpp_flags "-DKERNELARMPLATFORM_EXYNOS5422")
 elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
     set(cpp_flags "-DKERNELARMPLATFORM_QEMU-ARM-VIRT")
@@ -22,6 +22,8 @@ elseif("${PLATFORM}" STREQUAL "qemu-arm-virt")
     if(SIMULATION)
         GenerateSimulateScript()
     endif()
+else()
+    message(FATAL_ERROR "unsupported PLATFORM: ${PLATFORM}")
 endif()
 
 # Generate our overlayed rootfs images
