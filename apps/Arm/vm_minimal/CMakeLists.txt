@@ -109,6 +109,37 @@ elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
         GenerateSimulateScript()
     endif()
 
+elseif("${KernelARMPlatform}" STREQUAL "stm32mp257f-ev1")
+
+    find_package(camkes-vm-linux REQUIRED)
+    include(${CAMKES_VM_LINUX_HELPERS_PATH})
+    set(cpp_flags "-DKERNELARMPLATFORM_STM32MP25F-EV1")
+    set(dts_file "${CAMKES_VM_IMAGES_DIR}/${PLATFORM}/stm32mp257f-ev1-vm.dts")
+    add_custom_command(
+        OUTPUT linux/linux-dtb
+        COMMAND
+            dtc -q -I dts -O dtb -o linux/linux-dtb ${dts_file}
+        VERBATIM
+        DEPENDS ${dts_file}
+	)
+    # Create custom target for setting the dtb
+    add_custom_target(set_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb")
+
+    set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/${PLATFORM}/rootfs.cpio.gz")
+    AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/${PLATFORM}/linux")
+    AddToFileServer("linux-initrd" ${rootfs_file})
+    # Updated dtb based on initrd
+    UpdateDtbFromInitrd(
+      "${CMAKE_CURRENT_BINARY_DIR}/linux/linux-dtb"
+        ${rootfs_file}
+	"0xb4400000"
+        dtb_gen_target
+        output_dtb_location
+    )
+    AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
+
+    list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/${PLATFORM}")
+
 elseif("${KernelARMPlatform}" STREQUAL "odroidc2")
     find_package(camkes-vm-linux REQUIRED)
     include(${CAMKES_VM_LINUX_HELPERS_PATH})
@@ -165,7 +196,11 @@ AddCamkesCPPFlag(cpp_flags CONFIG_VARS VmEmmc2NoDMA VmVUSB Tk1DeviceFwd Tk1Insec
 
 DefineCAmkESVMFileServer()
 
-CAmkESAddImportPath(${KernelARMPlatform})
+if("${PLATFORM}" STREQUAL "stm32mp2")
+    CAmkESAddImportPath(${PLATFORM})
+else()
+    CAmkESAddImportPath(${KernelARMPlatform})
+endif()
 
 # Declare root server
 DeclareCAmkESRootserver(vm_minimal.camkes CPP_FLAGS ${cpp_flags} CPP_INCLUDES ${cpp_includes})
