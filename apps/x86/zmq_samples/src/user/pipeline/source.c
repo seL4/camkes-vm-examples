@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define randof(num)  (int) ((float) (num) * random () / (RAND_MAX + 1.0))
 
