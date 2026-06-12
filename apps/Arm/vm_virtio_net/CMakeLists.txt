@@ -56,6 +56,9 @@ elseif("${KernelARMPlatform}" STREQUAL "zcu102")
     list(APPEND cpp_includes "${CAMKES_VM_DIR}/components/VM_Arm/plat_include/zynqmp")
 
     CAmkESAddImportPath(${KernelARMPlatform}/${VmZynqmpPetalinuxVersion})
+
+else()
+    message(FATAL_ERROR "unsupported KernelARMPlatform: ${KernelARMPlatform}")
 endif()
 
 # Generate overlayed rootfs
