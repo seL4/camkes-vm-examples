@@ -78,7 +78,7 @@ assembly {
         vm1.untyped_mmios = [
                     "0x48000000:27", // Linux kernel memory regions
         ];
-        vm1.dtb = dtb([{}]);
+        vm1.dtb = dtb([]);
 
         vm2.linux_address_config = {
             "linux_ram_base" : VAR_STRINGIZE(VM2_RAM_BASE),
@@ -101,6 +101,6 @@ assembly {
         vm2.untyped_mmios = [
                     "0x50000000:27", // Linux kernel memory regions
         ];
-        vm2.dtb = dtb([{}]);
+        vm2.dtb = dtb([]);
     }
 }
