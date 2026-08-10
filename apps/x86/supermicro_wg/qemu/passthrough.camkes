@@ -1,0 +1,66 @@
+#include "../supermicro_wg.camkes"
+
+assembly {
+    composition {}
+
+    configuration {
+        vm0.simple_untyped23_pool = 40;
+        vm0.simple_untyped22_pool = 1;
+        vm0.heap_size = 0x800000;
+        vm0.guest_ram_mb = 256;
+
+        vm0.vm_ioports = [
+            {"start":0xc040, "end":0xc060, "pci_device":3, "name":"inner_eth"}
+        ];
+
+        vm0.pci_devices = [
+            {
+                "name":"inner_eth",
+                "bus":0,
+                "dev":0x3,
+                "fun":0,
+                "irq":"inner_eth_irq",
+                "memory":[
+                    {"paddr":0xfeb00000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xfeb20000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xfeb90000, "size":0x4000, "page_bits":12}
+                ]
+            }
+        ];
+
+        vm0.vm_irqs = [
+            {"name":"inner_eth_irq", "ioapic":0, "source":0xb, "level_trig":0, "active_low":1, "dest":10}
+        ];
+
+        vm1.simple_untyped23_pool = 40;
+        vm1.simple_untyped22_pool = 1;
+        vm1.heap_size = 0x800000;
+        vm1.guest_ram_mb = 256;
+
+        vm2.simple_untyped23_pool = 40;
+        vm2.simple_untyped22_pool = 1;
+        vm2.heap_size = 0x800000;
+        vm2.guest_ram_mb = 256;
+
+        vm2.vm_ioports = [
+            {"start":0xc060, "end":0xc080, "pci_device":4, "name":"outer_eth"}
+        ];
+        vm2.pci_devices = [
+            {
+                "name":"outer_eth",
+                "bus":0,
+                "dev":0x4,
+                "fun":0,
+                "irq":"outer_eth",
+                "memory":[
+                    {"paddr":0xfeb40000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xfeb60000, "size":0x20000, "page_bits":12},
+                    {"paddr":0xfeb94000, "size":0x4000, "page_bits":12}
+                ]
+            }
+        ];
+        vm2.vm_irqs = [
+            {"name":"outer_eth", "ioapic":0, "source":0xa, "level_trig":0, "active_low":1, "dest":12}
+        ];
+    }
+}

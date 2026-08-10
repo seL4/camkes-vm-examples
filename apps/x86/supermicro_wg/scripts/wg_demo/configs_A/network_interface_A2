@@ -1,0 +1,16 @@
+# Copyright 2018, Data61, CSIRO (ABN 41 687 119 230)
+#
+# SPDX-License-Identifier: BSD-2-Clause
+
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.2.3
+    netmask 255.255.255.0
+
+auto eth1
+iface eth1 inet static
+    address 192.168.1.10
+    netmask 255.255.255.0
