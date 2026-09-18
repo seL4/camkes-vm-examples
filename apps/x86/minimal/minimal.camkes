@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
-import <VM/vm.camkes>;
+import <VM/vm.camkes> ;
 
 #include <configurations/vm.h>
 
