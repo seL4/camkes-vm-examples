@@ -72,6 +72,31 @@ elseif("${KernelARMPlatform}" STREQUAL "tx2")
                       dtb_gen_target output_dtb_location)
   AddToFileServer("linux-dtb" "${output_dtb_location}" DEPENDS dtb_gen_target)
 
+elseif("${KernelARMPlatform}" STREQUAL "rpi4")
+  if(NOT KernelSel4ArchAarch64)
+    message(FATAL_ERROR "Only AARCH64 is supported on bcm2711, set -DAARCH64=TRUE")
+  endif()
+
+  find_package(camkes-vm-linux REQUIRED)
+  include(${CAMKES_VM_LINUX_HELPERS_PATH})
+  set(cpp_flags "-DKERNELARMPLATFORM_BCM2711")
+
+  # Compile the guest device tree base
+  add_custom_command(
+    OUTPUT rpi4/rpi4-guest.dtb
+    COMMAND ${CMAKE_COMMAND} -E make_directory rpi4
+    COMMAND dtc -I dts -O dtb -o rpi4/rpi4-guest.dtb
+            ${CMAKE_CURRENT_LIST_DIR}/rpi4/dts/rpi4-guest.dts
+    VERBATIM
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/rpi4/dts/rpi4-guest.dts)
+  add_custom_target(rpi4_guest_dtb DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/rpi4/rpi4-guest.dtb")
+
+  AddToFileServer("linux-dtb-base" "${CMAKE_CURRENT_BINARY_DIR}/rpi4/rpi4-guest.dtb" DEPENDS
+                  rpi4_guest_dtb)
+  AddToFileServer("linux" "${CAMKES_VM_IMAGES_DIR}/rpi4/linux")
+  set(rootfs_file "${CAMKES_VM_IMAGES_DIR}/rpi4/rootfs.cpio.gz")
+  AddToFileServer("linux-initrd" ${rootfs_file})
+
 elseif("${KernelARMPlatform}" STREQUAL "qemu-arm-virt")
 
   # QEMU supports ARMv7/aarch32 and ARMv8/aarch64, but currently there are
